@@ -186,8 +186,21 @@ html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Int
 .pc-btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
 .price-note{font-size:12px;color:var(--muted2);margin-top:20px;text-align:center}
 
-/* CTA BAND */
-.cta-band{margin:0 48px 110px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:56px 48px;text-align:center;position:relative;overflow:hidden}
+/* FAQ SECTION */
+.faq-section{padding:0 48px 110px;max-width:780px;margin:0 auto}
+.faq-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.faq-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:48px}
+.faq-list{display:flex;flex-direction:column;gap:0}
+.faq-item{border-top:1px solid var(--border);padding:0}
+.faq-item:last-child{border-bottom:1px solid var(--border)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:20px 0;cursor:pointer;gap:16px;transition:color .15s}
+.faq-q:hover{color:var(--gold)}
+.faq-q-txt{font-size:15px;font-weight:600;letter-spacing:-.2px;flex:1}
+.faq-icon{width:22px;height:22px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s;font-size:14px;color:var(--muted)}
+.faq-item.open .faq-icon{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.3);color:var(--gold);transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:20px}
+.faq-a-txt{font-size:14px;color:var(--muted);line-height:1.8}background:var(--card);border:1px solid var(--border);border-radius:20px;padding:56px 48px;text-align:center;position:relative;overflow:hidden}
 .cta-band::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:400px;height:200px;background:radial-gradient(ellipse,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
 .cta-band h2{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,36px);font-weight:800;letter-spacing:-.5px;margin-bottom:10px}
 .cta-band p{font-size:15px;color:var(--muted);margin-bottom:28px}
@@ -457,9 +470,10 @@ input[type=file]{display:none}
       <span class="land-logo-name">Royal<span>Forge</span></span>
     </div>
     <div class="land-nav-links">
-      <a onclick="scrollTo(0,600)">How it works</a>
-      <a onclick="scrollTo(0,1200)">Features</a>
-      <a onclick="scrollTo(0,1900)">Pricing</a>
+      <a onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">How it works</a>
+      <a onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Features</a>
+      <a onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
+      <a onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'})">FAQ</a>
     </div>
     <div class="land-nav-right">
       <button class="nav-login-btn" onclick="showLogin()">Log in</button>
@@ -630,6 +644,79 @@ input[type=file]{display:none}
       </div>
     </div>
     <div class="price-note reveal">Free to start &middot; No credit card required &middot; Cancel anytime</div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section" id="faq">
+    <div class="reveal"><div class="faq-tag">FAQ</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="faq-heading">Quick answers<br>before you start.</h2></div>
+    <div class="faq-list">
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Does it work on Mac and Windows?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Yes. RoyalForge runs in your browser as a web app so it works on any device — Mac, Windows, or anything with a modern browser. No installation required. Just open it from your desktop shortcut and you're ready to go.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Will TikTok ban me for using this?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">No. RoyalForge just burns text overlays onto your video files locally — the same thing you'd do manually in CapCut or any editor. TikTok sees a normal video. There's no bot, no automation on TikTok's side, and no API access. You upload the finished video yourself just like you always do.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">What's the difference between BOF and MOF?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">BOF (Bottom of Funnel) videos are 14-18 seconds, show the product immediately, and use urgency overlays like "50% OFF" and "LAST CHANCE" to push the sale. MOF (Middle of Funnel) videos are 7-10 seconds, delay showing the product, and use soft hook text to build curiosity and trust first. RoyalForge auto-detects which is which based on your clip duration.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Do my videos get uploaded to any server?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">No. Everything happens locally on your machine. Your raw clips go into a raw/ folder on your computer, get processed, and the finished versions land in a ready/ folder — all without any cloud upload. Your footage never leaves your device.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">How many videos can I process at once?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Starter plan users can process up to 25 videos per day. Pro plan users get unlimited videos per day with no cap. You can drop all your clips in at once and process the whole batch in one go — no need to run multiple sessions.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Can I customize the overlay text?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Completely. Every line of text is editable — you can change the default hooks, delete ones you don't want, add your own custom lines, and pick your own colors. Your hooks are yours. RoyalForge just makes it fast to apply them to dozens of videos at once.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Is there a free trial?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Yes — you can sign up and start using RoyalForge for free. The free tier lets you explore the editor and run small batches so you can see the workflow before committing to a plan. No credit card required to get started.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Can I cancel anytime?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Yes. No contracts, no cancellation fees. Cancel anytime from your account settings and your subscription stays active until the end of your current billing period.</p></div>
+      </div>
+
+    </div>
   </div>
 
   <!-- CTA BAND -->
@@ -1291,6 +1378,13 @@ function cyclePreview(){
   const emojiEl = document.getElementById('prev-emoji');
   if(emojiEl) emojiEl.innerHTML = PREVIEW_EMOJIS[previewEmojiIdx];
   updatePreview();
+}
+
+// ===== FAQ =====
+function toggleFaq(item){
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el=>el.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
 }
 
 // ===== SCROLL REVEAL =====
