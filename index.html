@@ -267,15 +267,29 @@ html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Int
 .dash{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 54px);padding:40px 20px;text-align:center}
 .dash-hi{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
 .dash-hi span{color:var(--gold)}
-.dash-sub{font-size:13px;color:var(--muted);margin-bottom:36px}
+/* DASHBOARD STATS */
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:580px;margin-bottom:32px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;text-align:left;transition:border-color .2s}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-card-val.gold{color:var(--gold)}
+.stat-card-val.red{color:var(--red)}
+.stat-card-val.purple{color:#a78bfa}
+.stat-card-val.white{color:var(--txt)}
+.stat-card-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.split-bof{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(224,61,82,.1);color:var(--red);border:1px solid rgba(224,61,82,.2);display:inline-block}
+.split-mof{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.2);display:inline-block}
+.brow-split{display:flex;align-items:center;gap:5px}
+
+.dash-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
 .start-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:50px;padding:15px 60px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 0 40px var(--gold-glow);transition:all .2s;letter-spacing:.1px}
 .start-btn:hover{transform:scale(1.02);box-shadow:0 0 60px rgba(201,168,76,.25)}
 .start-btn:active{transform:scale(.98)}
-.recent-wrap{margin-top:48px;width:100%;max-width:560px}
+.recent-wrap{margin-top:36px;width:100%;max-width:580px}
 .recent-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);text-align:center;margin-bottom:14px}
 .btable{width:100%;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
-.btable-head{display:grid;grid-template-columns:1fr 60px 120px 90px;padding:9px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px}
-.brow{display:grid;grid-template-columns:1fr 60px 120px 90px;padding:12px 16px;align-items:center;border-bottom:1px solid var(--border);transition:background .15s}
+.btable-head{display:grid;grid-template-columns:1fr 130px 100px 80px;padding:9px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px}
+.brow{display:grid;grid-template-columns:1fr 130px 100px 80px;padding:12px 16px;align-items:center;border-bottom:1px solid var(--border);transition:background .15s}
 .brow:last-child{border-bottom:none}
 .brow:hover{background:var(--card2)}
 .brow-date{font-size:13px}
@@ -728,11 +742,38 @@ input[type=file]{display:none}
     <div class="dash">
       <div class="dash-hi">Hi, <span id="dash-name">Creator</span></div>
       <div class="dash-sub">Your next batch is one click away.</div>
+
+      <!-- STATS ROW -->
+      <div class="dash-stats">
+        <div class="stat-card">
+          <div class="stat-card-val white" id="stat-total">0</div>
+          <div class="stat-card-lbl">Total Videos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-val gold" id="stat-batches">0</div>
+          <div class="stat-card-lbl">Batches Run</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-val red" id="stat-bof">0</div>
+          <div class="stat-card-lbl">BOF Videos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-val purple" id="stat-mof">0</div>
+          <div class="stat-card-lbl">MOF Videos</div>
+        </div>
+      </div>
+
       <button class="start-btn" onclick="showAppEditor()">Start batch</button>
+
       <div class="recent-wrap">
         <div class="recent-lbl">Recent Batches</div>
         <div class="btable">
-          <div class="btable-head"><span>Date</span><span style="text-align:center">Videos</span><span>Status</span><span style="text-align:right"></span></div>
+          <div class="btable-head">
+            <span>Date</span>
+            <span>Split</span>
+            <span>Status</span>
+            <span style="text-align:right">Folder</span>
+          </div>
           <div id="batch-rows"><div class="no-batches">No batches yet</div></div>
         </div>
       </div>
@@ -1154,14 +1195,30 @@ function closeDone(){document.getElementById('done-bg').classList.remove('on');s
 
 // ===== BATCHES =====
 function renderBatches(){
+  // Update stat cards
+  const totalVids=batches.reduce((a,b)=>a+(b.count||0),0);
+  const totalBof=batches.reduce((a,b)=>a+(b.bof||0),0);
+  const totalMof=batches.reduce((a,b)=>a+(b.mof||0),0);
+  const st=document.getElementById('stat-total');
+  const sb=document.getElementById('stat-batches');
+  const sbof=document.getElementById('stat-bof');
+  const smof=document.getElementById('stat-mof');
+  if(st) st.textContent=totalVids;
+  if(sb) sb.textContent=batches.length;
+  if(sbof) sbof.textContent=totalBof;
+  if(smof) smof.textContent=totalMof;
+
   const el=document.getElementById('batch-rows');
   if(!batches.length){el.innerHTML='<div class="no-batches">No batches yet</div>';return;}
   el.innerHTML=batches.map(b=>`
     <div class="brow">
       <span class="brow-date">${b.date}</span>
-      <span class="brow-ct">${b.count}</span>
+      <div class="brow-split">
+        <span class="split-bof">${b.bof||0} BOF</span>
+        <span class="split-mof">${b.mof||0} MOF</span>
+      </div>
       <span class="brow-status">COMPLETE</span>
-      <span class="brow-open" onclick="toast('Opening ready/ folder...')">Open folder</span>
+      <span class="brow-open" onclick="toast('Opening ready/ folder...')">Open &rarr;</span>
     </div>`).join('');
 }
 
