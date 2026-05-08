@@ -186,7 +186,48 @@ html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Int
 .pc-btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
 .price-note{font-size:12px;color:var(--muted2);margin-top:20px;text-align:center}
 
-/* FAQ SECTION */
+/* TESTIMONIALS */
+.testi-section{padding:0 48px 110px;max-width:1100px;margin:0 auto;text-align:center}
+.testi-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.testi-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:52px}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:left}
+.testi-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:16px;transition:border-color .2s}
+.testi-card:hover{border-color:rgba(201,168,76,.2)}
+.testi-stars{display:flex;gap:3px}
+.testi-star{color:var(--gold);font-size:13px}
+.testi-quote{font-size:14px;color:var(--txt);line-height:1.7;flex:1;font-style:italic}
+.testi-quote::before{content:'"';font-family:'Playfair Display',serif;font-size:40px;color:rgba(201,168,76,.2);line-height:0;vertical-align:-14px;margin-right:4px}
+.testi-author{display:flex;align-items:center;gap:10px;border-top:1px solid var(--border);padding-top:14px}
+.testi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;color:#000}
+.testi-info-name{font-size:13px;font-weight:600}
+.testi-info-handle{font-size:11px;color:var(--muted)}
+
+/* ONBOARDING MODAL */
+.onboard-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;align-items:center;justify-content:center}
+.onboard-bg.show{display:flex}
+.onboard-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:40px;width:480px;max-width:90vw;text-align:center;position:relative}
+.onboard-logo{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:24px}
+.onboard-logo-mark{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:8px;display:flex;align-items:center;justify-content:center}
+.onboard-logo-mark svg{width:12px;height:12px;fill:#000}
+.onboard-logo-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700}
+.onboard-logo-name span{color:var(--gold)}
+.onboard-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:28px}
+.onboard-step{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:18px 12px;transition:all .3s}
+.onboard-step.active-step{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.05)}
+.os-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--gold);opacity:.3;margin-bottom:8px;transition:opacity .3s}
+.onboard-step.active-step .os-num{opacity:1}
+.os-title{font-size:12px;font-weight:600;margin-bottom:4px}
+.os-desc{font-size:10px;color:var(--muted);line-height:1.5}
+.onboard-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;margin-bottom:8px;letter-spacing:-.3px}
+.onboard-title span{color:var(--gold)}
+.onboard-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto}
+.onboard-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:11px;padding:13px 40px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.onboard-btn:hover{opacity:.9;transform:translateY(-1px)}
+.onboard-skip{display:block;margin-top:14px;font-size:12px;color:var(--muted2);cursor:pointer;transition:color .15s}
+.onboard-skip:hover{color:var(--muted)}
+.onboard-progress{display:flex;gap:5px;justify-content:center;margin-top:20px}
+.op-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);transition:background .3s}
+.op-dot.active{background:var(--gold)}
 .faq-section{padding:0 48px 110px;max-width:780px;margin:0 auto}
 .faq-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
 .faq-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:48px}
@@ -458,6 +499,42 @@ input[type=file]{display:none}
 </head>
 <body>
 
+<!-- ONBOARDING MODAL -->
+<div class="onboard-bg" id="onboard-bg">
+  <div class="onboard-box">
+    <div class="onboard-logo">
+      <div class="onboard-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+      <span class="onboard-logo-name">Royal<span>Forge</span></span>
+    </div>
+    <div class="onboard-steps">
+      <div class="onboard-step active-step" id="os-1">
+        <div class="os-num">1</div>
+        <div class="os-title">Start a batch</div>
+        <div class="os-desc">Drop your raw .MOV or .MP4 clips</div>
+      </div>
+      <div class="onboard-step" id="os-2">
+        <div class="os-num">2</div>
+        <div class="os-title">Pick your overlay</div>
+        <div class="os-desc">Banner, full text, or mix both</div>
+      </div>
+      <div class="onboard-step" id="os-3">
+        <div class="os-num">3</div>
+        <div class="os-title">Process &amp; post</div>
+        <div class="os-desc">Finished videos land in ready/</div>
+      </div>
+    </div>
+    <div class="onboard-title" id="onboard-title">Welcome to <span>RoyalForge</span></div>
+    <div class="onboard-sub" id="onboard-sub">The fastest way to batch edit TikTok Shop videos. Let us show you how it works in 3 quick steps.</div>
+    <button class="onboard-btn" id="onboard-btn" onclick="nextOnboard()">Get started &rarr;</button>
+    <span class="onboard-skip" onclick="closeOnboard()">Skip intro</span>
+    <div class="onboard-progress">
+      <div class="op-dot active" id="op-1"></div>
+      <div class="op-dot" id="op-2"></div>
+      <div class="op-dot" id="op-3"></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <input type="file" id="file-in" multiple accept="video/*" onchange="handleFiles(this.files)"/>
 
@@ -596,6 +673,80 @@ input[type=file]{display:none}
             <div style="background:#fff;color:#000;border-radius:5px;padding:6px 12px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.5px">LAST CHANCE</div>
             <div style="background:var(--card);border:1px solid var(--border);border-radius:5px;padding:6px 12px;font-size:11px;color:var(--muted);text-align:center">If you waited until today you absolutely won...</div>
             <div style="background:var(--gold);color:#000;border-radius:5px;padding:6px 12px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.5px">TRIPLE DISCOUNT</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <div class="testi-section">
+    <div class="reveal"><div class="testi-tag">Creator stories</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="testi-heading">TikTok Shop affiliates<br>are already shipping faster.</h2></div>
+    <div class="testi-grid">
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">I was spending 2 hours a day editing 40+ BOF videos. RoyalForge got that down to 10 minutes. I post 3x more content now and my sales went up with it.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#ff6b6b,#ee5a24)">A</div>
+          <div>
+            <div class="testi-info-name">Ashley R.</div>
+            <div class="testi-info-handle">@ashleyshops &middot; 48K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">The BOF and MOF auto-tagging is actually genius. I just drop all my clips in and it sorts them for me. No more manually going through every video figuring out what's what.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7)">M</div>
+          <div>
+            <div class="testi-info-name">Marcus T.</div>
+            <div class="testi-info-handle">@marcusfinds &middot; 112K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-3">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">I used to dread editing days. Now I literally just drop my clips in, hit process, and I'm done. The hook text randomization means every video looks slightly different too.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#55efc4,#00b894)">J</div>
+          <div>
+            <div class="testi-info-name">Jasmine K.</div>
+            <div class="testi-info-handle">@jasminefinds &middot; 29K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">I ship drops of 20-30 videos now. Before this I could maybe do 5 in a day. The difference in output is insane. This is the tool I wish existed when I started TikTok Shop.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#fdcb6e,#e17055)">D</div>
+          <div>
+            <div class="testi-info-name">Devon L.</div>
+            <div class="testi-info-handle">@devondeals &middot; 67K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">The live preview is a game changer. I can see exactly what the overlay looks like before I process anything. No more guessing if the text color works on my video.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#fd79a8,#e84393)">S</div>
+          <div>
+            <div class="testi-info-name">Sofia M.</div>
+            <div class="testi-info-handle">@sofiashopfinds &middot; 91K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-3">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">Videos never leave my computer, which I love. A lot of tools want you to upload everything to their servers. This is all local and it's so much faster because of it.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#74b9ff,#0984e3)">R</div>
+          <div>
+            <div class="testi-info-name">Ryan C.</div>
+            <div class="testi-info-handle">@ryanshopfinds &middot; 38K followers</div>
           </div>
         </div>
       </div>
@@ -1072,6 +1223,7 @@ function showApp(){
   renderBannerList('bot');
   renderHooks();
   showAppDash();
+  setTimeout(showOnboarding, 600);
 }
 function showAppDash(){document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));document.getElementById('app-dash').classList.add('on');renderBatches();}
 function showAppEditor(){
@@ -1378,6 +1530,74 @@ function cyclePreview(){
   const emojiEl = document.getElementById('prev-emoji');
   if(emojiEl) emojiEl.innerHTML = PREVIEW_EMOJIS[previewEmojiIdx];
   updatePreview();
+}
+
+// ===== ONBOARDING =====
+let onboardStep = 0;
+const onboardContent = [
+  {
+    title: 'Welcome to <span>RoyalForge</span>',
+    sub: 'The fastest way to batch edit TikTok Shop videos. Let us show you how it works in 3 quick steps.',
+    btn: 'Get started &rarr;',
+    active: 1
+  },
+  {
+    title: 'Drop your <span>videos</span>',
+    sub: 'Add your raw clips. RoyalForge auto-detects BOF (14-18s) and MOF (7-10s) by duration. No manual sorting.',
+    btn: 'Next &rarr;',
+    active: 1
+  },
+  {
+    title: 'Pick your <span>overlay</span>',
+    sub: 'Choose Banner, Full text, or Mix both. Edit every hook line to match your style. Preview updates in real time.',
+    btn: 'Next &rarr;',
+    active: 2
+  },
+  {
+    title: 'Process &amp; <span>post</span>',
+    sub: 'Hit Process batch. Your videos are stamped and saved to the ready/ folder. Ready to post to TikTok Shop.',
+    btn: "Let's go &rarr;",
+    active: 3
+  }
+];
+
+function showOnboarding(){
+  const seen = localStorage.getItem('rf_onboarded_'+currentUser.email);
+  if(seen) return;
+  onboardStep = 0;
+  renderOnboardStep();
+  document.getElementById('onboard-bg').classList.add('show');
+}
+
+function renderOnboardStep(){
+  const c = onboardContent[onboardStep];
+  document.getElementById('onboard-title').innerHTML = c.title;
+  document.getElementById('onboard-sub').textContent = c.sub.replace(/&amp;/g,'&').replace(/<[^>]+>/g,'');
+  document.getElementById('onboard-sub').innerHTML = c.sub;
+  document.getElementById('onboard-btn').innerHTML = c.btn;
+  // Steps highlight
+  [1,2,3].forEach(n=>{
+    document.getElementById('os-'+n).classList.toggle('active-step', n===c.active);
+    document.getElementById('op-'+n).classList.toggle('active', n-1===onboardStep-1||(onboardStep===0&&n===1));
+  });
+  // Progress dots
+  document.getElementById('op-1').classList.toggle('active', onboardStep<=1);
+  document.getElementById('op-2').classList.toggle('active', onboardStep===2);
+  document.getElementById('op-3').classList.toggle('active', onboardStep===3);
+}
+
+function nextOnboard(){
+  onboardStep++;
+  if(onboardStep >= onboardContent.length){
+    closeOnboard();
+    return;
+  }
+  renderOnboardStep();
+}
+
+function closeOnboard(){
+  document.getElementById('onboard-bg').classList.remove('show');
+  if(currentUser) localStorage.setItem('rf_onboarded_'+currentUser.email,'1');
 }
 
 // ===== FAQ =====
