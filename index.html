@@ -62,13 +62,21 @@ html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Int
 .hero-proof{font-size:12px;color:var(--muted2)}
 .hero-proof span{color:var(--muted)}
 
-/* DEMO VIDEO STRIP */
-.demo-strip{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:0;padding:0 24px}
-.demo-card{width:120px;height:200px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;flex-shrink:0}
-.demo-card-inner{width:100%;height:100%;background:linear-gradient(180deg,var(--card2) 0%,var(--card) 100%);display:flex;align-items:flex-end;padding:10px}
-.demo-overlay-sim{width:100%;background:var(--red);border-radius:4px;padding:4px 6px;text-align:center;font-size:8px;font-weight:800;color:#fff;letter-spacing:.5px}
-.demo-overlay-sim.gold{background:var(--gold);color:#000}
-.demo-overlay-sim.white{background:#fff;color:#000}
+/* MARQUEE STRIP */
+.marquee-wrap{width:100%;overflow:hidden;padding:0 0 80px;mask-image:linear-gradient(90deg,transparent,black 10%,black 90%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,black 10%,black 90%,transparent)}
+.marquee-track{display:flex;gap:14px;width:max-content;animation:marquee-left 28s linear infinite}
+.marquee-track:hover{animation-play-state:paused}
+@keyframes marquee-left{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.mcard{width:130px;height:220px;border-radius:16px;background:var(--card2);border:1px solid var(--border2);flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:flex-start;justify-content:flex-start}
+.mcard-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1a1a1a 0%,#0d0d0d 100%)}
+.mcard-img{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:.15}
+.mcard-overlay{position:absolute;top:10px;left:0;right:0;display:flex;flex-direction:column;gap:4px;padding:0 8px}
+.mcard-overlay.bottom{top:auto;bottom:10px}
+.mo-banner{border-radius:4px;padding:4px 8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-align:center;line-height:1.2}
+.mo-red{background:var(--red);color:#fff}
+.mo-white{background:#fff;color:#000}
+.mo-gold{background:var(--gold);color:#000}
+.mo-text{font-size:9px;color:#fff;text-align:center;line-height:1.4;text-shadow:0 1px 4px rgba(0,0,0,.8);padding:0 4px}
 
 /* HOW IT WORKS */
 .section{padding:100px 24px;max-width:900px;margin:0 auto;text-align:center}
@@ -438,13 +446,35 @@ input[type=file]{display:none}
     <div class="hero-proof"><span>Free to start</span> &nbsp;&middot;&nbsp; <span>No credit card required</span> &nbsp;&middot;&nbsp; <span>Cancel anytime</span></div>
   </div>
 
-  <div class="demo-strip">
-    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim">40% OFF</div></div></div>
-    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim white">TRIPLE DISCOUNT</div></div></div>
-    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim gold">LAST CHANCE</div></div></div>
-    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim">50% OFF</div></div></div>
-    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim white">LARGE SALE</div></div></div>
-    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim">LIMITED LEFT</div></div></div>
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <!-- SET 1 -->
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-red">50% OFF &#128557;</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129749;</div><div class="mcard-overlay"><div class="mo-text">If you waited until today you absolutely won because this is dirt cheap rn with free shipping</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127960;</div><div class="mcard-overlay"><div class="mo-banner mo-gold">TRIPLE DISCOUNT</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-text">Anyone else grabbing a boatload of these today since its a fraction of the price?</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-red">40% OFF &#128557;</div><div class="mo-banner mo-white">LAST CHANCE &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127381;</div><div class="mcard-overlay"><div class="mo-banner mo-white">LARGE SALE</div><div class="mo-banner mo-red">LIMITED LEFT &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-text">TikTok bullied the price down and now this is on a massive sale &#128557;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-banner mo-red">2x DISCOUNT</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129749;</div><div class="mcard-overlay"><div class="mo-text">Someone f*cked up at TikTok cus this just went on a massive discount &#128680;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127960;</div><div class="mcard-overlay"><div class="mo-banner mo-gold">50% OFF</div><div class="mo-banner mo-red">LAST CHANCE &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-text">Ur card won't decline on this... it's violently discounted rn &#128575;&#128512;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-white">TRIPLE DISCOUNT</div><div class="mo-banner mo-red">LIMITED LEFT &#128722;</div></div></div>
+      <!-- SET 2 (duplicate for seamless loop) -->
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-red">50% OFF &#128557;</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129749;</div><div class="mcard-overlay"><div class="mo-text">If you waited until today you absolutely won because this is dirt cheap rn with free shipping</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127960;</div><div class="mcard-overlay"><div class="mo-banner mo-gold">TRIPLE DISCOUNT</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-text">Anyone else grabbing a boatload of these today since its a fraction of the price?</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-red">40% OFF &#128557;</div><div class="mo-banner mo-white">LAST CHANCE &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127381;</div><div class="mcard-overlay"><div class="mo-banner mo-white">LARGE SALE</div><div class="mo-banner mo-red">LIMITED LEFT &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-text">TikTok bullied the price down and now this is on a massive sale &#128557;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-banner mo-red">2x DISCOUNT</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129749;</div><div class="mcard-overlay"><div class="mo-text">Someone f*cked up at TikTok cus this just went on a massive discount &#128680;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127960;</div><div class="mcard-overlay"><div class="mo-banner mo-gold">50% OFF</div><div class="mo-banner mo-red">LAST CHANCE &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-text">Ur card won't decline on this... it's violently discounted rn &#128575;&#128512;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-white">TRIPLE DISCOUNT</div><div class="mo-banner mo-red">LIMITED LEFT &#128722;</div></div></div>
+    </div>
   </div>
 
   <!-- HOW IT WORKS -->
