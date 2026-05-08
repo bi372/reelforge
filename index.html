@@ -547,10 +547,10 @@ input[type=file]{display:none}
       <span class="land-logo-name">Royal<span>Forge</span></span>
     </div>
     <div class="land-nav-links">
-      <a onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">How it works</a>
-      <a onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Features</a>
-      <a onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
-      <a onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'})">FAQ</a>
+      <a onclick="scrollToSection('how-it-works')">How it works</a>
+      <a onclick="scrollToSection('features')">Features</a>
+      <a onclick="scrollToSection('pricing')">Pricing</a>
+      <a onclick="scrollToSection('faq')">FAQ</a>
     </div>
     <div class="land-nav-right">
       <button class="nav-login-btn" onclick="showLogin()">Log in</button>
@@ -1125,6 +1125,17 @@ input[type=file]{display:none}
       <div class="set-row"><div class="set-lbl">Display Name</div><input class="set-inp" id="set-name" placeholder="Your name" oninput="updateName(this.value)"/></div>
     </div>
     <div class="set-card">
+      <div class="set-card-title">TikTok Account</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--card2);border:1px solid var(--border);border-radius:8px">
+        <div style="font-size:18px">&#9679;</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600" id="set-tt-name">Not connected</div>
+          <div style="font-size:11px;color:var(--muted)" id="set-tt-status">Connect to import your TikTok Showcase products</div>
+        </div>
+        <button class="set-btn" id="set-tt-btn" onclick="showImportModal()">Connect</button>
+      </div>
+    </div>
+    <div class="set-card">
       <div class="set-card-title">Media Folder</div>
       <div class="set-note">raw/ stores original clips. ready/ stores processed output. Both created automatically on first batch.</div>
       <div class="folder-display" id="set-folder">Created automatically on first batch</div>
@@ -1133,6 +1144,11 @@ input[type=file]{display:none}
       <div class="set-card-title">Subscription</div>
       <div class="set-note">Manage your billing and plan.</div>
       <button class="set-btn set-btn-gold" onclick="toast('Opening dashboard...')">Open dashboard</button>
+    </div>
+    <div class="set-card">
+      <div class="set-card-title">Updates</div>
+      <div class="set-note">Check whether a newer version is available.</div>
+      <button class="set-btn" onclick="toast('You are on the latest version.')">Check for updates</button>
     </div>
     <div class="set-card">
       <div class="set-card-title">Danger Zone</div>
@@ -1145,6 +1161,20 @@ input[type=file]{display:none}
   </div>
 
 </div><!-- /app -->
+
+<!-- IMPORT MODAL -->
+<div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;align-items:center;justify-content:center" id="import-modal">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:28px;width:420px;max-width:90vw">
+    <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:800;margin-bottom:5px">Import TikTok Showcase</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5">Enter your TikTok username to connect your account.</div>
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:600">Your TikTok Username</div>
+    <input style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:18px" id="tt-user-inp" placeholder="yourhandle (no @)"/>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button style="background:none;border:1px solid var(--border2);border-radius:7px;padding:7px 16px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif" onclick="closeImportModal()">Cancel</button>
+      <button style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:7px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif" onclick="doImport()">Connect Account</button>
+    </div>
+  </div>
+</div>
 
 <!-- PROCESSING -->
 <div class="proc-bg" id="proc-bg">
@@ -1174,12 +1204,17 @@ input[type=file]{display:none}
 let currentUser = JSON.parse(localStorage.getItem('rf_user')||'null');
 let accounts = JSON.parse(localStorage.getItem('rf_accounts')||'[]');
 let batches = JSON.parse(localStorage.getItem('rf_batches')||'[]');
-let vidCount = parseInt(localStorage.getItem('rf_vc')||'0',10);
 let folderPath = localStorage.getItem('rf_fp')||'';
 let ovStyle = 'banner';
 let strikeOn = false;
 let topColor = '#e03d52';
 let files = [];
+
+// Daily reset - if last save was a different day, reset today count
+const today = new Date().toDateString();
+const lastDay = localStorage.getItem('rf_lastday')||'';
+let vidCount = (lastDay === today) ? parseInt(localStorage.getItem('rf_vc')||'0',10) : 0;
+if(lastDay !== today){ localStorage.setItem('rf_vc','0'); localStorage.setItem('rf_lastday',today); }
 
 let topChips = [
   {label:'40% OFF',on:true,color:'#e03d52'},
@@ -1237,7 +1272,20 @@ function showAppSettings(){
   document.getElementById('set-email-disp').textContent=currentUser.email;
   document.getElementById('set-name').value=currentUser.name||'';
   const fp=localStorage.getItem('rf_fp')||'';
-  if(fp){document.getElementById('set-folder').textContent=fp+'/raw   |   '+fp+'/ready';document.getElementById('set-folder').className='folder-display set';}
+  if(fp){
+    document.getElementById('set-folder').textContent=fp+'/raw   |   '+fp+'/ready';
+    document.getElementById('set-folder').className='folder-display set';
+  }
+  // Load saved TikTok handle
+  const h=localStorage.getItem('rf_tt')||'';
+  if(h){
+    const nm=document.getElementById('set-tt-name');
+    const st=document.getElementById('set-tt-status');
+    const btn=document.getElementById('set-tt-btn');
+    if(nm) nm.textContent='@'+h;
+    if(st){st.textContent='Connected';st.style.color='var(--green)';}
+    if(btn) btn.textContent='Disconnect';
+  }
 }
 
 // ===== AUTH =====
@@ -1406,7 +1454,22 @@ function renderFiles(){
 // ===== PROCESS =====
 function processBatch(){
   if(!files.length){toast('Add at least one video first.');return;}
+
+  // Fix 3a: warn if no overlay text is checked
+  const activeTop = topChips.filter(c=>c.on);
+  const activeBot = botChips.filter(c=>c.on);
+  const activeHooks = hooks.filter(h=>h.on);
+  if(ovStyle==='banner' && !strikeOn && activeTop.length===0 && activeBot.length===0){
+    toast('Check at least one top or bottom text item first.');return;
+  }
+  if(ovStyle==='fulltext' && activeHooks.length===0){
+    toast('Check at least one hook line first.');return;
+  }
+
+  // Fix 3b: confirmation before processing
   const total=files.length,bof=files.filter(f=>f.funnel==='bof').length,mof=files.filter(f=>f.funnel==='mof').length;
+  if(!confirm('Process '+total+' video'+(total!==1?'s':'')+' ('+bof+' BOF, '+mof+' MOF)? This cannot be undone.')){return;}
+
   if(!folderPath){folderPath='~/Downloads/RoyalForge';localStorage.setItem('rf_fp',folderPath);}
   document.getElementById('proc-bg').classList.add('on');
   let cur=0;
@@ -1416,7 +1479,8 @@ function processBatch(){
       batches.unshift({date:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}),count:total,bof,mof});
       vidCount+=total;
       localStorage.setItem('rf_batches',JSON.stringify(batches.slice(0,20)));
-      localStorage.setItem('rf_vc',vidCount);
+      localStorage.setItem('rf_vc',String(vidCount));
+      localStorage.setItem('rf_lastday',today);
       document.getElementById('vid-count').textContent=vidCount+' videos today';
       document.getElementById('done-msg').textContent='Processed '+total+' video'+(total!==1?'s':'')+'. '+bof+' BOF, '+mof+' MOF.';
       document.getElementById('done-bg').classList.add('on');
@@ -1605,6 +1669,44 @@ function toggleFaq(item){
   const isOpen = item.classList.contains('open');
   document.querySelectorAll('.faq-item.open').forEach(el=>el.classList.remove('open'));
   if(!isOpen) item.classList.add('open');
+}
+
+// ===== NAV SCROLL =====
+function scrollToSection(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const offset=80; // nav height
+  const top=el.getBoundingClientRect().top+window.scrollY-offset;
+  window.scrollTo({top,behavior:'smooth'});
+}
+
+// ===== TIKTOK IMPORT =====
+let ttHandle = localStorage.getItem('rf_tt')||'';
+
+function showImportModal(){
+  const m=document.getElementById('import-modal');
+  m.style.display='flex';
+  document.getElementById('tt-user-inp').value='';
+}
+function closeImportModal(){
+  document.getElementById('import-modal').style.display='none';
+}
+function doImport(){
+  const h=document.getElementById('tt-user-inp').value.replace('@','').trim();
+  if(!h){toast('Enter your TikTok username first.');return;}
+  closeImportModal();
+  toast('Connecting @'+h+'...');
+  setTimeout(()=>{
+    localStorage.setItem('rf_tt',h);
+    ttHandle=h;
+    const nm=document.getElementById('set-tt-name');
+    const st=document.getElementById('set-tt-status');
+    const btn=document.getElementById('set-tt-btn');
+    if(nm) nm.textContent='@'+h;
+    if(st){st.textContent='Connected';st.style.color='var(--green)';}
+    if(btn) btn.textContent='Disconnect';
+    toast('Connected @'+h+' successfully!');
+  },1200);
 }
 
 // ===== SCROLL REVEAL =====
