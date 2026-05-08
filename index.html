@@ -108,14 +108,95 @@ html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Int
 .price-btn-ghost{width:100%;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:10px;padding:12px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
 .price-btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
 
-/* FOOTER */
-.land-footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-items:center;justify-content:space-between}
-.footer-logo{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--muted)}
-.footer-logo span{color:var(--gold)}
-.footer-links{display:flex;gap:24px}
+/* SCROLL ANIMATIONS */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+
+/* HOW IT WORKS - horizontal timeline */
+.hiw-section{padding:110px 48px;max-width:1100px;margin:0 auto}
+.hiw-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;position:relative;margin-top:56px}
+.hiw-steps::before{content:'';position:absolute;top:32px;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),rgba(201,168,76,0.3),transparent)}
+.hiw-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 32px}
+.hiw-num-wrap{width:64px;height:64px;border-radius:50%;background:var(--card);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:24px;position:relative;z-index:1}
+.hiw-num-wrap::before{content:'';position:absolute;inset:-1px;border-radius:50%;background:linear-gradient(135deg,rgba(201,168,76,.3),transparent);z-index:-1}
+.hiw-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--gold)}
+.hiw-title{font-size:16px;font-weight:700;margin-bottom:10px;letter-spacing:-.2px}
+.hiw-desc{font-size:13px;color:var(--muted);line-height:1.7}
+.hiw-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.hiw-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px}
+.hiw-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:480px}
+
+/* FEATURES - alternating layout */
+.feat-section{padding:0 48px 110px;max-width:1100px;margin:0 auto}
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:56px}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;position:relative;overflow:hidden;transition:border-color .25s,transform .25s}
+.feat-card:hover{border-color:rgba(201,168,76,.2);transform:translateY(-2px)}
+.feat-card::before{content:'';position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle,rgba(201,168,76,.04) 0%,transparent 70%);pointer-events:none}
+.feat-card.wide{grid-column:span 2}
+.feat-icon-wrap{width:44px;height:44px;border-radius:11px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.15);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px}
+.feat-title{font-size:16px;font-weight:700;margin-bottom:8px;letter-spacing:-.2px}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.7}
+.feat-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.18);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:600;margin-top:14px}
+.feat-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.feat-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px}
+.feat-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:480px}
+
+/* SOCIAL PROOF STRIP */
+.proof-strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px 48px;background:var(--card);display:flex;align-items:center;justify-content:center;gap:64px;flex-wrap:wrap;margin-bottom:0}
+.proof-item{text-align:center}
+.proof-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;color:var(--gold);margin-bottom:2px}
+.proof-label{font-size:12px;color:var(--muted)}
+
+/* PRICING - upgraded */
+.price-section{padding:110px 48px;max-width:900px;margin:0 auto;text-align:center}
+.price-tag2{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.price-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px}
+.price-sub2{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:52px}
+.pricing-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px;display:flex;flex-direction:column}
+.pc.hot{border-color:rgba(201,168,76,.35);background:linear-gradient(160deg,rgba(201,168,76,.05) 0%,var(--card) 60%);position:relative}
+.pc.hot::before{content:'Most Popular';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-size:11px;font-weight:700;padding:4px 16px;border-radius:0 0 10px 10px;letter-spacing:.5px}
+.pc-name{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:.8px}
+.pc-price{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
+.pc-price .amt{font-family:'Playfair Display',serif;font-size:46px;font-weight:800;line-height:1}
+.pc-price .cur{font-size:20px;font-weight:600;color:var(--muted);align-self:flex-start;margin-top:8px}
+.pc-per{font-size:12px;color:var(--muted);margin-bottom:24px}
+.pc-divider{height:1px;background:var(--border);margin-bottom:20px}
+.pc-list{list-style:none;flex:1;margin-bottom:28px}
+.pc-list li{font-size:13px;color:var(--muted);padding:7px 0;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.pc-list li:last-child{border-bottom:none}
+.pc-list li.yes{color:var(--txt)}
+.pc-list li.yes::before{content:'';width:16px;height:16px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' fill='none' stroke='%23c9a84c' stroke-width='1.8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,5 4,7 8,3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:10px}
+.pc-list li.no{color:var(--muted2)}
+.pc-list li.no::before{content:'';width:16px;height:16px;background:var(--card2);border:1px solid var(--border);border-radius:50%;flex-shrink:0}
+.pc-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;letter-spacing:.1px}
+.pc-btn:hover{opacity:.9;transform:translateY(-1px)}
+.pc-btn-ghost{width:100%;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:11px;padding:13px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.pc-btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.price-note{font-size:12px;color:var(--muted2);margin-top:20px;text-align:center}
+
+/* CTA BAND */
+.cta-band{margin:0 48px 110px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:56px 48px;text-align:center;position:relative;overflow:hidden}
+.cta-band::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:400px;height:200px;background:radial-gradient(ellipse,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
+.cta-band h2{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,36px);font-weight:800;letter-spacing:-.5px;margin-bottom:10px}
+.cta-band p{font-size:15px;color:var(--muted);margin-bottom:28px}
+.cta-band-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:15px 44px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.cta-band-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 32px var(--gold-glow)}
+
+/* FOOTER upgrade */
+.land-footer{border-top:1px solid var(--border);padding:40px 48px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px}
+.footer-logo-wrap{display:flex;align-items:center;gap:9px}
+.footer-logo-mark{width:24px;height:24px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:6px;display:flex;align-items:center;justify-content:center}
+.footer-logo-mark svg{width:10px;height:10px;fill:#000}
+.footer-logo-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--muted)}
+.footer-logo-name span{color:var(--gold)}
+.footer-links{display:flex;gap:24px;justify-content:center}
 .footer-links a{font-size:12px;color:var(--muted2);text-decoration:none;cursor:pointer;transition:color .15s}
 .footer-links a:hover{color:var(--muted)}
-.footer-copy{font-size:12px;color:var(--muted2)}
+.footer-copy{font-size:12px;color:var(--muted2);text-align:right}
 
 /* ======= AUTH PAGES (LOGIN / SIGNUP) ======= */
 .auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative}
@@ -366,69 +447,141 @@ input[type=file]{display:none}
     <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim">LIMITED LEFT</div></div></div>
   </div>
 
-  <div class="section">
-    <div class="section-tag">How it works</div>
-    <h2 class="section-title">From raw clips to ready-to-post<br>in three steps.</h2>
-    <p class="section-sub">No editing skills needed. No waiting. Just drop, configure, and download.</p>
-    <div class="steps">
-      <div class="step"><div class="step-num">01</div><div class="step-title">Drop your videos</div><div class="step-desc">Add your raw .MOV or .MP4 clips. BOF and MOF are auto-detected by duration. Override any clip individually.</div></div>
-      <div class="step"><div class="step-num">02</div><div class="step-title">Pick your overlay</div><div class="step-desc">Choose banner style, full text hooks, or mix both. Edit every line of text to match your style.</div></div>
-      <div class="step"><div class="step-num">03</div><div class="step-title">Process &amp; ship</div><div class="step-desc">Hit Process batch. Your videos land in a ready/ folder, stamped and ready to post to TikTok Shop.</div></div>
+  <!-- HOW IT WORKS -->
+  <div class="hiw-section" id="how-it-works">
+    <div class="reveal"><div class="hiw-tag">How it works</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="hiw-heading">From raw clips to ready-to-post<br>in three steps.</h2></div>
+    <div class="reveal reveal-delay-2"><p class="hiw-sub">No editing skills. No waiting. Drop your clips, set your style, and ship.</p></div>
+    <div class="hiw-steps">
+      <div class="hiw-step reveal reveal-delay-1">
+        <div class="hiw-num-wrap"><span class="hiw-num">1</span></div>
+        <div class="hiw-title">Drop your videos</div>
+        <div class="hiw-desc">Add your raw .MOV or .MP4 clips. BOF and MOF are auto-detected by duration. Override any clip you want individually.</div>
+      </div>
+      <div class="hiw-step reveal reveal-delay-2">
+        <div class="hiw-num-wrap"><span class="hiw-num">2</span></div>
+        <div class="hiw-title">Configure your overlay</div>
+        <div class="hiw-desc">Pick banner, full text, or mix both. Edit every hook line to match your style. Add your own custom text in seconds.</div>
+      </div>
+      <div class="hiw-step reveal reveal-delay-3">
+        <div class="hiw-num-wrap"><span class="hiw-num">3</span></div>
+        <div class="hiw-title">Process &amp; post</div>
+        <div class="hiw-desc">Hit Process batch. Overlays burn into every clip at once. Your videos land in a ready/ folder, stamped and ready to post.</div>
+      </div>
     </div>
   </div>
 
-  <div class="section" style="padding-top:0">
-    <div class="section-tag">Features</div>
-    <h2 class="section-title">Everything you need.<br>Nothing you don't.</h2>
-    <p class="section-sub">Built for creators who post volume, not hobbyists who edit one clip at a time.</p>
-    <div class="features">
-      <div class="feature"><div class="feature-icon">&#9889;</div><div class="feature-title">Batch processing</div><div class="feature-desc">Process 50+ videos in seconds. Ship whole drops in one pass instead of editing clip by clip.</div></div>
-      <div class="feature"><div class="feature-icon">&#127775;</div><div class="feature-title">BOF &amp; MOF auto-tagging</div><div class="feature-desc">Videos tagged automatically by duration. 14-18s clips get BOF overlays. 7-10s clips get MOF hooks.</div></div>
-      <div class="feature"><div class="feature-icon">&#127775;</div><div class="feature-title">Fully editable hooks</div><div class="feature-desc">Every line of text is editable. Add your own hooks, remove what you don't want, build your own style.</div></div>
-      <div class="feature"><div class="feature-icon">&#128196;</div><div class="feature-title">Local processing</div><div class="feature-desc">Your videos never leave your machine. Everything runs locally. No cloud uploads, no waiting on servers.</div></div>
+  <!-- SOCIAL PROOF -->
+  <div class="proof-strip reveal">
+    <div class="proof-item"><div class="proof-num">50+</div><div class="proof-label">Videos per batch</div></div>
+    <div class="proof-item"><div class="proof-num">90%</div><div class="proof-label">Less editing time</div></div>
+    <div class="proof-item"><div class="proof-num">2</div><div class="proof-label">Funnel types — BOF &amp; MOF</div></div>
+    <div class="proof-item"><div class="proof-num">0</div><div class="proof-label">Cloud uploads needed</div></div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="feat-section" id="features" style="padding-top:110px">
+    <div class="reveal"><div class="feat-tag">Features</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="feat-heading">Everything you need.<br>Nothing you don't.</h2></div>
+    <div class="reveal reveal-delay-2"><p class="feat-sub">Built for creators who post volume, not hobbyists who edit one clip at a time.</p></div>
+    <div class="feat-grid">
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon-wrap">&#9889;</div>
+        <div class="feat-title">Batch processing</div>
+        <div class="feat-desc">Process 50+ videos in seconds. Ship entire drops in one pass. Stop editing clips one by one.</div>
+        <div class="feat-pill">Up to 50 clips at once</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon-wrap">&#127919;</div>
+        <div class="feat-title">BOF &amp; MOF auto-tagging</div>
+        <div class="feat-desc">Drop your clips and walk away. Videos are automatically tagged as Bottom of Funnel or Middle of Funnel by duration. No manual sorting.</div>
+        <div class="feat-pill">14-18s = BOF &nbsp;&middot;&nbsp; 7-10s = MOF</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon-wrap">&#9999;</div>
+        <div class="feat-title">Fully editable hooks</div>
+        <div class="feat-desc">Every line of text is yours to edit. Add your own hooks, delete what you don't want, and build a style that actually matches how you speak.</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon-wrap">&#128274;</div>
+        <div class="feat-title">Local processing</div>
+        <div class="feat-desc">Your videos never leave your machine. Everything runs locally on your computer. No cloud uploads, no privacy concerns, no waiting on servers.</div>
+        <div class="feat-pill">100% offline processing</div>
+      </div>
+      <div class="feat-card wide reveal reveal-delay-1">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center">
+          <div>
+            <div class="feat-icon-wrap">&#127775;</div>
+            <div class="feat-title">Banner + Full text overlays</div>
+            <div class="feat-desc">Choose Banner style for red and white urgency text bars, Full text for scroll-stopping hook lines, or Mix both across your batch for natural variety. Each video gets a randomly selected variant so nothing looks copied.</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px">
+            <div style="background:var(--red);color:#fff;border-radius:5px;padding:6px 12px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.5px">40% OFF</div>
+            <div style="background:#fff;color:#000;border-radius:5px;padding:6px 12px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.5px">LAST CHANCE</div>
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:5px;padding:6px 12px;font-size:11px;color:var(--muted);text-align:center">If you waited until today you absolutely won...</div>
+            <div style="background:var(--gold);color:#000;border-radius:5px;padding:6px 12px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.5px">TRIPLE DISCOUNT</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="section" style="padding-top:0">
-    <div class="section-tag">Pricing</div>
-    <h2 class="section-title">Simple pricing.<br>No surprises.</h2>
-    <p class="section-sub">Start free, upgrade when you're ready to scale.</p>
-    <div class="pricing-grid">
-      <div class="price-card">
-        <div class="price-tag">Starter</div>
-        <div class="price-name">Starter</div>
-        <div class="price-amount"><sup>$</sup>19</div>
-        <div class="price-per">per month</div>
-        <ul class="price-list">
-          <li class="active">25 videos per day</li>
-          <li class="active">Banner &amp; full text overlays</li>
-          <li class="active">BOF + MOF auto-tagging</li>
-          <li class="active">Up to 5 custom hooks</li>
-          <li>Unlimited videos</li>
-          <li>Priority processing</li>
+  <!-- PRICING -->
+  <div class="price-section" id="pricing">
+    <div class="reveal"><div class="price-tag2">Pricing</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="price-heading">Simple pricing.<br>No surprises.</h2></div>
+    <div class="reveal reveal-delay-2"><p class="price-sub2">Start free, upgrade when you're ready to scale.</p></div>
+    <div class="pricing-wrap reveal reveal-delay-1">
+      <div class="pc">
+        <div class="pc-name">Starter</div>
+        <div class="pc-price"><span class="cur">$</span><span class="amt">19</span></div>
+        <div class="pc-per">per month &mdash; cancel anytime</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-list">
+          <li class="yes">25 videos per day</li>
+          <li class="yes">Banner &amp; full text overlays</li>
+          <li class="yes">BOF + MOF auto-tagging</li>
+          <li class="yes">Up to 5 custom hooks</li>
+          <li class="yes">Local processing</li>
+          <li class="no">Unlimited videos</li>
+          <li class="no">Unlimited custom hooks</li>
+          <li class="no">Priority processing</li>
         </ul>
-        <button class="price-btn-ghost" onclick="showSignup()">Get started</button>
+        <button class="pc-btn-ghost" onclick="showSignup()">Get started</button>
       </div>
-      <div class="price-card featured">
-        <div class="price-tag">Most Popular</div>
-        <div class="price-name">Pro</div>
-        <div class="price-amount"><sup>$</sup>39</div>
-        <div class="price-per">per month</div>
-        <ul class="price-list">
-          <li class="active">Unlimited videos per day</li>
-          <li class="active">Banner &amp; full text overlays</li>
-          <li class="active">BOF + MOF auto-tagging</li>
-          <li class="active">Unlimited custom hooks</li>
-          <li class="active">Priority processing</li>
-          <li class="active">Early access to new features</li>
+      <div class="pc hot">
+        <div class="pc-name">Pro</div>
+        <div class="pc-price"><span class="cur">$</span><span class="amt">39</span></div>
+        <div class="pc-per">per month &mdash; cancel anytime</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-list">
+          <li class="yes">Unlimited videos per day</li>
+          <li class="yes">Banner &amp; full text overlays</li>
+          <li class="yes">BOF + MOF auto-tagging</li>
+          <li class="yes">Unlimited custom hooks</li>
+          <li class="yes">Local processing</li>
+          <li class="yes">Priority processing</li>
+          <li class="yes">Unlimited custom hooks</li>
+          <li class="yes">Early access to new features</li>
         </ul>
-        <button class="price-btn" onclick="showSignup()">Go unlimited</button>
+        <button class="pc-btn" onclick="showSignup()">Go unlimited</button>
       </div>
     </div>
+    <div class="price-note reveal">Free to start &middot; No credit card required &middot; Cancel anytime</div>
+  </div>
+
+  <!-- CTA BAND -->
+  <div class="cta-band reveal">
+    <h2>Ready to stop editing<br>one clip at a time?</h2>
+    <p>Join TikTok Shop affiliates already shipping faster with RoyalForge.</p>
+    <button class="cta-band-btn" onclick="showSignup()">Start for free &rarr;</button>
   </div>
 
   <footer class="land-footer">
-    <div class="footer-logo">Royal<span>Forge</span></div>
+    <div class="footer-logo-wrap">
+      <div class="footer-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+      <span class="footer-logo-name">Royal<span>Forge</span></span>
+    </div>
     <div class="footer-links">
       <a>Terms</a><a>Privacy</a><a>Contact</a>
     </div>
@@ -940,6 +1093,12 @@ function renderBatches(){
 
 // ===== TOAST =====
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),2600);}
+
+// ===== SCROLL REVEAL =====
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
 
 // ===== INIT =====
 // If already logged in, go straight to app
