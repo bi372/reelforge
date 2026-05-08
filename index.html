@@ -360,8 +360,26 @@ textarea::placeholder{color:var(--muted2)}
 .process-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:50px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:20px;box-shadow:0 0 30px var(--gold-glow);transition:all .2s}
 .process-btn:hover{transform:translateY(-1px);box-shadow:0 0 50px rgba(201,168,76,.2)}
 
-/* SETTINGS */
-.settings-view{max-width:500px;margin:0 auto;padding:28px 20px 60px}
+/* LIVE PREVIEW */
+.editor-shell-2col{display:grid;grid-template-columns:1fr 280px;gap:24px;max-width:960px;margin:0 auto;padding:28px 20px 100px;align-items:start}
+.editor-controls{min-width:0}
+.preview-panel{position:sticky;top:80px}
+.preview-panel-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;text-align:center}
+.phone-frame{width:100%;aspect-ratio:9/16;max-height:480px;border-radius:24px;overflow:hidden;position:relative;background:#111;border:2px solid var(--border2);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.phone-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1c1c1c 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center}
+.phone-product-emoji{font-size:56px;opacity:.12;user-select:none}
+.phone-overlay{position:absolute;left:0;right:0;display:flex;flex-direction:column;gap:4px;padding:0 10px}
+.phone-overlay.top-pos{top:14px}
+.phone-overlay.center-pos{top:50%;transform:translateY(-50%)}
+.phone-overlay.bottom-pos{bottom:14px}
+.phone-banner{border-radius:5px;padding:6px 12px;font-weight:800;text-align:center;letter-spacing:.5px;line-height:1.2;font-family:'Inter',sans-serif;word-break:break-word}
+.phone-fulltext{color:#fff;text-align:center;line-height:1.5;font-size:13px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.9);padding:0 6px;font-family:'Inter',sans-serif;word-break:break-word}
+.phone-strike{display:flex;flex-direction:column;gap:3px;align-items:flex-start;padding:0 2px}
+.phone-strike-orig{font-size:13px;font-weight:800;color:rgba(255,255,255,.7);text-decoration:line-through;letter-spacing:.3px}
+.phone-strike-disc{font-size:15px;font-weight:800;background:var(--red);color:#fff;padding:2px 10px;border-radius:4px;letter-spacing:.5px}
+.preview-hint{font-size:11px;color:var(--muted2);text-align:center;margin-top:10px;line-height:1.5}
+.preview-cycle-btn{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:6px}
+.preview-cycle-btn:hover{background:var(--card2);color:var(--txt)}
 .set-back{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:20px;transition:color .15s}
 .set-back:hover{color:var(--txt)}
 .set-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
@@ -723,11 +741,16 @@ input[type=file]{display:none}
 
   <!-- EDITOR -->
   <div class="app-view" id="app-editor">
-  <div class="editor">
+  <div style="padding:16px 20px 0;max-width:960px;margin:0 auto">
     <div class="ed-back" onclick="showAppDash()">
       <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
       Back to dashboard
     </div>
+  </div>
+  <div class="editor-shell-2col">
+
+    <!-- LEFT: CONTROLS -->
+    <div class="editor-controls">
 
     <div class="sec">
       <div class="sec-label">Overlay Style <span class="info-dot">i</span></div>
@@ -760,8 +783,8 @@ input[type=file]{display:none}
       <button class="add-item-btn" onclick="addBannerItem('bot')">+ Add bottom text</button>
       <div class="strike-tog" onclick="toggleStrike()"><div class="togbox" id="stog"></div><span class="strike-label">Strike layout &mdash; crossed out price</span></div>
       <div class="strike-inputs" id="strike-inputs">
-        <input class="si" id="si-orig" value="FULL PRICE" oninput="updSP()"/>
-        <input class="si" id="si-disc" value="50% OFF" oninput="updSP()"/>
+        <input class="si" id="si-orig" value="FULL PRICE" oninput="updSP();updatePreview()"/>
+        <input class="si" id="si-disc" value="50% OFF" oninput="updSP();updatePreview()"/>
         <div class="strike-preview"><span class="sp-orig" id="sp-orig">FULL PRICE</span><span class="sp-disc" id="sp-disc">50% OFF</span></div>
       </div>
       <div class="row-lbl" style="margin-top:14px">Custom pairs <span class="info-dot">i</span></div>
@@ -792,6 +815,21 @@ input[type=file]{display:none}
     </div>
 
     <button class="process-btn" onclick="processBatch()">Process batch</button>
+    </div>
+
+    <!-- RIGHT: LIVE PREVIEW -->
+    <div class="preview-panel">
+      <div class="preview-panel-label">Live Preview</div>
+      <div class="phone-frame">
+        <div class="phone-bg">
+          <div class="phone-product-emoji" id="prev-emoji">&#129514;</div>
+        </div>
+        <div class="phone-overlay top-pos" id="phone-overlay-content"></div>
+      </div>
+      <div class="preview-hint">Updates as you edit. Tap cycle to see different variants.</div>
+      <button class="preview-cycle-btn" onclick="cyclePreview()">Cycle variants</button>
+    </div>
+
   </div>
   </div>
 
@@ -908,7 +946,11 @@ function showApp(){
   showAppDash();
 }
 function showAppDash(){document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));document.getElementById('app-dash').classList.add('on');renderBatches();}
-function showAppEditor(){document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));document.getElementById('app-editor').classList.add('on');}
+function showAppEditor(){
+  document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('app-editor').classList.add('on');
+  setTimeout(updatePreview,50);
+}
 function showAppSettings(){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
   document.getElementById('app-settings').classList.add('on');
@@ -972,6 +1014,7 @@ function setOvStyle(s,btn){
   btn.classList.add('active');
   document.getElementById('sec-banner').style.display=(s==='fulltext')?'none':'';
   document.getElementById('sec-fulltext').style.display=(s==='banner')?'none':'';
+  updatePreview();
 }
 
 function renderBannerList(type){
@@ -979,12 +1022,12 @@ function renderBannerList(type){
   const el=document.getElementById(type==='top'?'top-list':'bot-list');
   el.innerHTML=items.map((it,i)=>`
     <div class="item-row ${it.on?'on':''}">
-      <div class="item-chk ${it.on?'on':''}" onclick="${type==='top'?'top':'bot'}Chips[${i}].on=!${type==='top'?'top':'bot'}Chips[${i}].on;renderBannerList('${type}')"></div>
-      ${type==='top'?`<input type="color" class="item-col" value="${it.color||'#e03d52'}" id="bc-${i}" onchange="topChips[${i}].color=this.value"/>`:'' }
+      <div class="item-chk ${it.on?'on':''}" onclick="${type==='top'?'top':'bot'}Chips[${i}].on=!${type==='top'?'top':'bot'}Chips[${i}].on;renderBannerList('${type}');updatePreview()"></div>
+      ${type==='top'?`<input type="color" class="item-col" value="${it.color||'#e03d52'}" id="bc-${i}" onchange="topChips[${i}].color=this.value;updatePreview()"/>`:'' }
       <input class="item-inp" type="text" value="${esc(it.label)}" placeholder="Enter text..." id="bi-${type}-${i}"/>
-      <button class="item-del" onclick="${type==='top'?'top':'bot'}Chips.splice(${i},1);renderBannerList('${type}')">&#215;</button>
+      <button class="item-del" onclick="${type==='top'?'top':'bot'}Chips.splice(${i},1);renderBannerList('${type}');updatePreview()">&#215;</button>
     </div>`).join('');
-  items.forEach((_,i)=>{const inp=document.getElementById('bi-'+type+'-'+i);if(inp)inp.oninput=()=>{(type==='top'?topChips:botChips)[i].label=inp.value;};});
+  items.forEach((_,i)=>{const inp=document.getElementById('bi-'+type+'-'+i);if(inp)inp.oninput=()=>{ (type==='top'?topChips:botChips)[i].label=inp.value; updatePreview(); };});
 }
 
 function addBannerItem(type){
@@ -1023,13 +1066,14 @@ function toggleStrike(){
   strikeOn=!strikeOn;
   document.getElementById('stog').className='togbox'+(strikeOn?' on':'');
   document.getElementById('strike-inputs').className='strike-inputs'+(strikeOn?' show':'');
+  updatePreview();
 }
 function updSP(){
   document.getElementById('sp-orig').textContent=document.getElementById('si-orig').value||'FULL PRICE';
   document.getElementById('sp-disc').textContent=document.getElementById('si-disc').value||'50% OFF';
 }
-function setTopColor(c,el){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('top-color-wheel').value=c;}
-function setTopColorCustom(c){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));}
+function setTopColor(c,el){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('top-color-wheel').value=c;updatePreview();}
+function setTopColorCustom(c){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));updatePreview();}
 
 // ===== FILES =====
 function handleFiles(fl){
@@ -1123,6 +1167,74 @@ function renderBatches(){
 
 // ===== TOAST =====
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),2600);}
+
+// ===== LIVE PREVIEW =====
+const PREVIEW_EMOJIS = ['&#129514;','&#129749;','&#127960;','&#128138;','&#127381;','&#128167;'];
+let previewEmojiIdx = 0;
+let previewVariantIdx = 0;
+
+function updatePreview(){
+  const el = document.getElementById('phone-overlay-content');
+  if(!el) return;
+
+  const activeTop = topChips.filter(c=>c.on);
+  const activeBot = botChips.filter(c=>c.on);
+  const activeHooks = hooks.filter(h=>h.on);
+
+  let html = '';
+
+  if(ovStyle === 'fulltext'){
+    // Show a random active hook
+    if(activeHooks.length){
+      const h = activeHooks[previewVariantIdx % activeHooks.length];
+      html = `<div class="phone-fulltext">${esc(h.text)}</div>`;
+    }
+  } else if(ovStyle === 'banner'){
+    if(strikeOn){
+      const orig = document.getElementById('si-orig').value || 'FULL PRICE';
+      const disc = document.getElementById('si-disc').value || '50% OFF';
+      html = `<div class="phone-strike">
+        <div class="phone-strike-orig">${esc(orig)}</div>
+        <div class="phone-strike-disc">${esc(disc)}</div>
+      </div>`;
+    } else {
+      const top = activeTop.length ? activeTop[previewVariantIdx % activeTop.length] : null;
+      const bot = activeBot.length ? activeBot[previewVariantIdx % activeBot.length] : null;
+      const topBg = top ? top.color || '#e03d52' : '#e03d52';
+      const topTextColor = isLight(topBg) ? '#000' : '#fff';
+      if(top) html += `<div class="phone-banner" style="background:${topBg};color:${topTextColor};font-size:13px">${esc(top.label)}</div>`;
+      if(bot) html += `<div class="phone-banner" style="background:#fff;color:#000;font-size:12px">${esc(bot.label)}</div>`;
+    }
+  } else {
+    // Mix: show banner on top, hook below
+    const top = activeTop.length ? activeTop[previewVariantIdx % activeTop.length] : null;
+    const bot = activeBot.length ? activeBot[previewVariantIdx % activeBot.length] : null;
+    const hook = activeHooks.length ? activeHooks[previewVariantIdx % activeHooks.length] : null;
+    const topBg = top ? top.color || '#e03d52' : '#e03d52';
+    const topTextColor = isLight(topBg) ? '#000' : '#fff';
+    if(top) html += `<div class="phone-banner" style="background:${topBg};color:${topTextColor};font-size:12px">${esc(top.label)}</div>`;
+    if(bot) html += `<div class="phone-banner" style="background:#fff;color:#000;font-size:11px">${esc(bot.label)}</div>`;
+    if(hook) html += `<div class="phone-fulltext" style="margin-top:6px;font-size:11px">${esc(hook.text)}</div>`;
+  }
+
+  el.innerHTML = html || '<div style="font-size:10px;color:rgba(255,255,255,.3);text-align:center">Add text above to see preview</div>';
+}
+
+function isLight(hex){
+  const c = hex.replace('#','');
+  const r = parseInt(c.substr(0,2),16);
+  const g = parseInt(c.substr(2,2),16);
+  const b = parseInt(c.substr(4,2),16);
+  return (r*299 + g*587 + b*114) / 1000 > 128;
+}
+
+function cyclePreview(){
+  previewVariantIdx++;
+  previewEmojiIdx = (previewEmojiIdx + 1) % PREVIEW_EMOJIS.length;
+  const emojiEl = document.getElementById('prev-emoji');
+  if(emojiEl) emojiEl.innerHTML = PREVIEW_EMOJIS[previewEmojiIdx];
+  updatePreview();
+}
 
 // ===== SCROLL REVEAL =====
 const revealObserver = new IntersectionObserver((entries)=>{
