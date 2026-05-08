@@ -3,234 +3,320 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ReelForge</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<title>RoyalForge</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0a0a;
-  --card:#141414;
-  --card2:#1c1c1c;
-  --border:#252525;
-  --border2:#383838;
-  --txt:#f0f0f0;
-  --muted:#666;
-  --muted2:#3a3a3a;
-  --red:#e8394d;
-  --red-glow:rgba(232,57,77,0.18);
-  --green:#2ecc71;
+  --bg:#080808;
+  --card:#101010;
+  --card2:#181818;
+  --border:#1e1e1e;
+  --border2:#2d2d2d;
+  --txt:#f5f5f5;
+  --muted:#5a5a5a;
+  --muted2:#333;
+  --gold:#c9a84c;
+  --gold2:#e8c46a;
+  --gold-glow:rgba(201,168,76,0.15);
+  --red:#e03d52;
+  --red-glow:rgba(224,61,82,0.18);
+  --green:#22c55e;
 }
-html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;font-size:14px}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;font-size:14px;overflow-x:hidden}
 
-/* TOPBAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 24px;border-bottom:1px solid var(--border);background:#0d0d0d;position:sticky;top:0;z-index:50}
-.logo{display:flex;align-items:center;gap:9px;cursor:pointer}
-.logo-mark{width:27px;height:27px;background:var(--red);border-radius:7px;display:flex;align-items:center;justify-content:center}
-.logo-mark svg{width:11px;height:11px;fill:#fff}
-.logo-name{font-size:13px;font-weight:700;letter-spacing:-.2px}
-.logo-name em{color:var(--red);font-style:normal}
-.logo-sub{font-size:11px;color:var(--muted);margin-left:2px}
-.tbar-r{display:flex;align-items:center;gap:8px}
-.pro-pill{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:11px;color:#ccc}
-.tcount{font-size:12px;color:var(--muted)}
-.tbtn{background:var(--card);border:1px solid var(--border);color:#aaa;border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s}
-.tbtn:hover{background:var(--card2)}
-
-/* VIEWS */
+/* ======= VIEWS ======= */
 .view{display:none}
 .view.on{display:block}
 
-/* ===== DASHBOARD ===== */
+/* ======= LANDING PAGE ======= */
+.land-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 48px;position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.04)}
+.land-logo{display:flex;align-items:center;gap:10px}
+.land-logo-mark{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:8px;display:flex;align-items:center;justify-content:center}
+.land-logo-mark svg{width:13px;height:13px;fill:#000}
+.land-logo-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--txt)}
+.land-logo-name span{color:var(--gold)}
+.land-nav-links{display:flex;align-items:center;gap:32px}
+.land-nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .15s;cursor:pointer}
+.land-nav-links a:hover{color:var(--txt)}
+.land-nav-right{display:flex;align-items:center;gap:10px}
+.nav-login-btn{background:none;border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:7px 18px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.nav-login-btn:hover{border-color:var(--gold);color:var(--gold)}
+.nav-signup-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.nav-signup-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,0.06) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--gold);margin-bottom:32px;letter-spacing:.5px;font-weight:500}
+.hero-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(40px,6vw,72px);font-weight:800;line-height:1.05;letter-spacing:-1.5px;margin-bottom:20px;max-width:800px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:500px;margin-bottom:44px;font-weight:400}
+.hero-cta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:64px}
+.hero-cta{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:15px 40px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;letter-spacing:.1px}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px var(--gold-glow)}
+.hero-cta-ghost{background:none;border:1px solid var(--border2);color:var(--muted);border-radius:12px;padding:15px 32px;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.hero-cta-ghost:hover{border-color:var(--border2);color:var(--txt)}
+.hero-proof{font-size:12px;color:var(--muted2)}
+.hero-proof span{color:var(--muted)}
+
+/* DEMO VIDEO STRIP */
+.demo-strip{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:0;padding:0 24px}
+.demo-card{width:120px;height:200px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;flex-shrink:0}
+.demo-card-inner{width:100%;height:100%;background:linear-gradient(180deg,var(--card2) 0%,var(--card) 100%);display:flex;align-items:flex-end;padding:10px}
+.demo-overlay-sim{width:100%;background:var(--red);border-radius:4px;padding:4px 6px;text-align:center;font-size:8px;font-weight:800;color:#fff;letter-spacing:.5px}
+.demo-overlay-sim.gold{background:var(--gold);color:#000}
+.demo-overlay-sim.white{background:#fff;color:#000}
+
+/* HOW IT WORKS */
+.section{padding:100px 24px;max-width:900px;margin:0 auto;text-align:center}
+.section-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:600}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-1px;margin-bottom:16px;line-height:1.1}
+.section-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:500px;margin:0 auto 56px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:left}
+.step{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px;transition:border-color .2s}
+.step:hover{border-color:rgba(201,168,76,0.2)}
+.step-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:800;color:var(--gold);opacity:.4;margin-bottom:14px;line-height:1}
+.step-title{font-size:15px;font-weight:600;margin-bottom:8px}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;text-align:left;max-width:800px;margin:0 auto}
+.feature{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;transition:border-color .2s}
+.feature:hover{border-color:rgba(201,168,76,0.18)}
+.feature-icon{font-size:22px;margin-bottom:12px}
+.feature-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.feature-desc{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:700px;margin:0 auto;text-align:left}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.price-card.featured{border-color:rgba(201,168,76,0.35);background:rgba(201,168,76,0.04)}
+.price-tag{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:inline-block;padding:3px 10px;background:rgba(201,168,76,0.1);border-radius:4px}
+.price-name{font-size:18px;font-weight:700;margin-bottom:4px}
+.price-amount{font-family:'Playfair Display',serif;font-size:40px;font-weight:800;margin-bottom:4px}
+.price-amount sup{font-size:18px;font-weight:600;vertical-align:super}
+.price-per{font-size:12px;color:var(--muted);margin-bottom:20px}
+.price-list{list-style:none;margin-bottom:24px}
+.price-list li{font-size:13px;color:var(--muted);padding:5px 0;display:flex;align-items:center;gap:8px}
+.price-list li::before{content:'';width:6px;height:6px;background:var(--gold);border-radius:50%;flex-shrink:0}
+.price-list li.active{color:var(--txt)}
+.price-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.price-btn:hover{opacity:.9}
+.price-btn-ghost{width:100%;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:10px;padding:12px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.price-btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+/* FOOTER */
+.land-footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-items:center;justify-content:space-between}
+.footer-logo{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--muted)}
+.footer-logo span{color:var(--gold)}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:12px;color:var(--muted2);text-decoration:none;cursor:pointer;transition:color .15s}
+.footer-links a:hover{color:var(--muted)}
+.footer-copy{font-size:12px;color:var(--muted2)}
+
+/* ======= AUTH PAGES (LOGIN / SIGNUP) ======= */
+.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative}
+.auth-page::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:400px;height:300px;background:radial-gradient(ellipse,rgba(201,168,76,0.05) 0%,transparent 70%);pointer-events:none}
+.auth-back{position:fixed;top:24px;left:24px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;transition:color .15s;z-index:10}
+.auth-back:hover{color:var(--txt)}
+.auth-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.auth-box{width:100%;max-width:420px;position:relative}
+.auth-logo{display:flex;align-items:center;gap:9px;justify-content:center;margin-bottom:40px}
+.auth-logo-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:9px;display:flex;align-items:center;justify-content:center}
+.auth-logo-mark svg{width:14px;height:14px;fill:#000}
+.auth-logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--txt)}
+.auth-logo-name span{color:var(--gold)}
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:36px 32px}
+.auth-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.auth-title em{font-style:normal;color:var(--gold)}
+.auth-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.5}
+.auth-sub a{color:var(--gold);cursor:pointer;text-decoration:none}
+.auth-sub a:hover{opacity:.8}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;letter-spacing:.3px}
+.auth-input{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:11px 14px;color:var(--txt);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border .2s}
+.auth-input:focus{border-color:rgba(201,168,76,0.5)}
+.auth-input::placeholder{color:var(--muted2)}
+.auth-forgot{text-align:right;margin-top:-8px;margin-bottom:20px}
+.auth-forgot a{font-size:12px;color:var(--muted);cursor:pointer;transition:color .15s}
+.auth-forgot a:hover{color:var(--gold)}
+.auth-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-top:6px;letter-spacing:.1px}
+.auth-btn:hover{opacity:.9;transform:translateY(-1px)}
+.auth-btn:active{transform:scale(.98)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-divider span{font-size:11px;color:var(--muted2)}
+.auth-error{background:rgba(224,61,82,0.1);border:1px solid rgba(224,61,82,0.25);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
+.auth-error.show{display:block}
+.auth-success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--green);margin-bottom:14px;display:none}
+.auth-success.show{display:block}
+.terms-note{font-size:11px;color:var(--muted2);text-align:center;margin-top:16px;line-height:1.6}
+.terms-note a{color:var(--muted);cursor:pointer}
+
+/* ======= APP ======= */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 24px;border-bottom:1px solid var(--border);background:#090909;position:sticky;top:0;z-index:50}
+.app-logo{display:flex;align-items:center;gap:8px;cursor:pointer}
+.app-logo-mark{width:26px;height:26px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:7px;display:flex;align-items:center;justify-content:center}
+.app-logo-mark svg{width:11px;height:11px;fill:#000}
+.app-logo-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--txt)}
+.app-logo-name span{color:var(--gold)}
+.app-logo-sub{font-size:11px;color:var(--muted);margin-left:2px}
+.tbar-r{display:flex;align-items:center;gap:8px}
+.pro-pill{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:600}
+.tcount{font-size:12px;color:var(--muted)}
+.tbtn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.tbtn:hover{background:var(--card2);color:var(--txt)}
+
+/* APP VIEWS */
+.app-view{display:none}
+.app-view.on{display:block}
+
+/* DASHBOARD */
 .dash{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 54px);padding:40px 20px;text-align:center}
-.dash-hi{font-size:26px;font-weight:700;margin-bottom:6px}
+.dash-hi{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.dash-hi span{color:var(--gold)}
 .dash-sub{font-size:13px;color:var(--muted);margin-bottom:36px}
-.start-btn{background:var(--red);color:#fff;border:none;border-radius:50px;padding:15px 60px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 0 40px var(--red-glow);transition:all .2s;letter-spacing:.1px}
-.start-btn:hover{background:#c72f42;box-shadow:0 0 60px rgba(232,57,77,.3);transform:scale(1.02)}
+.start-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:50px;padding:15px 60px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 0 40px var(--gold-glow);transition:all .2s;letter-spacing:.1px}
+.start-btn:hover{transform:scale(1.02);box-shadow:0 0 60px rgba(201,168,76,.25)}
 .start-btn:active{transform:scale(.98)}
-.recent-wrap{margin-top:48px;width:100%;max-width:540px}
+.recent-wrap{margin-top:48px;width:100%;max-width:560px}
 .recent-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);text-align:center;margin-bottom:14px}
-.btable{width:100%;border:1px solid var(--border);border-radius:var(--radius,10px);overflow:hidden;background:var(--card)}
+.btable{width:100%;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
 .btable-head{display:grid;grid-template-columns:1fr 60px 120px 90px;padding:9px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px}
 .brow{display:grid;grid-template-columns:1fr 60px 120px 90px;padding:12px 16px;align-items:center;border-bottom:1px solid var(--border);transition:background .15s}
 .brow:last-child{border-bottom:none}
 .brow:hover{background:var(--card2)}
 .brow-date{font-size:13px}
 .brow-ct{font-size:12px;color:var(--muted);text-align:center}
-.brow-status{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.2)}
-.brow-open{font-size:12px;color:var(--red);cursor:pointer;text-align:right}
+.brow-status{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.brow-open{font-size:12px;color:var(--gold);cursor:pointer;text-align:right;font-weight:500}
 .brow-open:hover{opacity:.7}
 .no-batches{padding:20px;text-align:center;font-size:13px;color:var(--muted)}
 
-/* ===== EDITOR ===== */
-.editor{max-width:620px;margin:0 auto;padding:28px 20px 100px}
+/* EDITOR */
+.editor{max-width:640px;margin:0 auto;padding:28px 20px 100px}
 .ed-back{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:24px;transition:color .15s;width:fit-content}
 .ed-back:hover{color:var(--txt)}
 .ed-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
-
-/* SECTION CARDS */
-.sec{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:12px}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px}
 .sec-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:6px}
 .sec-desc{font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:14px}
 .info-dot{width:13px;height:13px;border-radius:50%;border:1px solid var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:var(--muted);cursor:default;flex-shrink:0}
-
-/* OVERLAY STYLE TOGGLE */
 .ov-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:3px}
 .ov-btn{background:none;border:none;border-radius:6px;padding:9px;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .2s}
-.ov-btn.active{background:var(--red);color:#fff}
+.ov-btn.active{background:var(--gold);color:#000;font-weight:600}
 .ov-btn:hover:not(.active){background:var(--card);color:var(--txt)}
-
-/* EDITABLE ITEM ROWS (banner + hook) */
+.row-lbl{font-size:12px;color:var(--muted);margin-top:14px;margin-bottom:0;display:flex;align-items:center;gap:6px}
+.color-dots{display:flex;gap:4px;margin-left:4px}
+.cdot{width:10px;height:10px;border-radius:50%;cursor:pointer;transition:transform .15s;border:1.5px solid transparent}
+.cdot:hover{transform:scale(1.3)}
+.cdot.sel{border-color:#fff}
 .item-list{display:flex;flex-direction:column;gap:5px;margin-top:8px}
 .item-row{display:flex;align-items:center;gap:7px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;transition:border-color .15s}
-.item-row.on{border-color:var(--red)}
-.item-row.on.mof-row{border-color:#a78bfa}
+.item-row.on{border-color:rgba(201,168,76,0.3)}
 .item-chk{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.item-chk.on{background:var(--red);border-color:var(--red)}
-.item-chk.on::after{content:'';display:block;width:7px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(0,-1px)}
+.item-chk.on{background:var(--gold);border-color:var(--gold)}
+.item-chk.on::after{content:'';display:block;width:7px;height:5px;border-left:1.5px solid #000;border-bottom:1.5px solid #000;transform:rotate(-45deg) translate(0,-1px)}
 .item-col{width:14px;height:14px;border-radius:3px;border:none;cursor:pointer;flex-shrink:0;padding:0}
 .item-inp{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;min-width:0}
 .item-inp::placeholder{color:var(--muted2)}
 .item-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;line-height:1;padding:0 2px;flex-shrink:0;transition:color .15s}
 .item-del:hover{color:var(--red)}
 .add-item-btn{display:flex;align-items:center;gap:5px;background:none;border:1px dashed var(--border2);border-radius:8px;padding:7px 13px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:5px;width:100%}
-.add-item-btn:hover{border-color:var(--red);color:var(--red)}
+.add-item-btn:hover{border-color:var(--gold);color:var(--gold)}
 .add-to-list-btn{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:6px;font-weight:500}
-.add-to-list-btn:hover{background:#1e1e1e;color:var(--txt);border-color:var(--border2)}
-
-/* COLOR DOTS */
-.color-dots{display:flex;gap:4px;margin-left:6px}
-.cdot{width:10px;height:10px;border-radius:50%;cursor:pointer;transition:transform .15s;border:1.5px solid transparent}
-.cdot:hover{transform:scale(1.3)}
-.cdot.sel{border-color:#fff}
-
-/* ROW LABEL */
-.row-lbl{font-size:12px;color:var(--muted);margin-top:14px;margin-bottom:0;display:flex;align-items:center;gap:4px}
-
-/* STRIKE LAYOUT */
-.strike-row{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:10px 13px;cursor:pointer;margin-top:8px;transition:background .15s}
-.strike-row:hover{background:#222}
-.togbox{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.togbox.on{background:var(--red);border-color:var(--red)}
-.togbox.on::after{content:'';display:block;width:7px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(0,-1px)}
-.strike-label{font-size:13px;color:var(--muted)}
-.strike-inputs{display:flex;flex-direction:column;gap:7px;margin-top:8px;display:none}
+.add-to-list-btn:hover{background:rgba(201,168,76,0.08);color:var(--gold);border-color:rgba(201,168,76,0.2)}
+.strike-tog{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:7px;border:1px solid var(--border);background:var(--card2);cursor:pointer;margin-top:14px;transition:border-color .15s}
+.strike-tog:hover{border-color:var(--border2)}
+.togbox{width:13px;height:13px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.togbox.on{background:var(--gold);border-color:var(--gold)}
+.togbox.on::after{content:'';display:block;width:7px;height:5px;border-left:1.5px solid #000;border-bottom:1.5px solid #000;transform:rotate(-45deg) translate(0,-1px)}
+.strike-label{font-size:11px;color:var(--muted)}
+.strike-inputs{display:none;flex-direction:column;gap:7px;margin-top:7px}
 .strike-inputs.show{display:flex}
 .si{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border .15s}
-.si:focus{border-color:var(--border2)}
+.si:focus{border-color:rgba(201,168,76,0.4)}
 .strike-preview{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px 14px;display:flex;align-items:center;gap:10px}
-.sp-orig{font-size:15px;font-weight:800;color:var(--muted);text-decoration:line-through;letter-spacing:.3px}
-.sp-disc{font-size:15px;font-weight:800;background:var(--red);color:#fff;padding:2px 9px;border-radius:4px;letter-spacing:.3px}
-
-/* CUSTOM PAIRS / LINES TEXTAREA */
+.sp-orig{font-size:15px;font-weight:800;color:var(--muted);text-decoration:line-through}
+.sp-disc{font-size:15px;font-weight:800;background:var(--red);color:#fff;padding:2px 9px;border-radius:4px}
 textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;resize:vertical;min-height:80px;outline:none;line-height:1.6;transition:border .15s;margin-top:8px}
-textarea:focus{border-color:var(--border2)}
+textarea:focus{border-color:rgba(201,168,76,0.35)}
 textarea::placeholder{color:var(--muted2)}
-
-/* FULL TEXT HOOK ROWS */
-.hook-list{display:flex;flex-direction:column;gap:6px}
-.hook-row{display:flex;align-items:flex-start;gap:9px;border:1px solid var(--border);border-radius:8px;padding:11px 13px;cursor:pointer;transition:all .15s;background:var(--card2)}
-.hook-row.on{border-color:var(--red);background:rgba(232,57,77,.06)}
-.hook-row:hover:not(.on){background:#1a1a1a}
-.hook-chk{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.hook-row.on .hook-chk{background:var(--red);border-color:var(--red)}
-.hook-row.on .hook-chk::after{content:'';display:block;width:7px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(0,-1px)}
-.hook-txt{font-size:13px;color:var(--muted);line-height:1.5;flex:1}
-.hook-row.on .hook-txt{color:var(--txt)}
-
-/* VIDEOS */
+.hook-list{display:flex;flex-direction:column;gap:5px}
 .drop-zone{border:1.5px dashed var(--border2);border-radius:8px;padding:36px;text-align:center;cursor:pointer;transition:all .2s;background:var(--card2)}
-.drop-zone:hover,.drop-zone.over{border-color:var(--red);background:rgba(232,57,77,.04)}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:rgba(201,168,76,0.03)}
 .dz-text{font-size:13px;color:var(--muted)}
 .file-list{display:flex;flex-direction:column;gap:5px;margin-top:10px}
 .file-item{display:flex;align-items:center;justify-content:space-between;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 12px}
-.file-item.is-bof{border-color:rgba(232,57,77,.3)}
-.file-item.is-mof{border-color:rgba(167,139,250,.3)}
+.file-item.is-bof{border-color:rgba(224,61,82,0.25)}
+.file-item.is-mof{border-color:rgba(167,139,250,0.25)}
 .fi-left{display:flex;align-items:center;gap:8px;min-width:0}
-.fi-thumb{width:36px;height:36px;border-radius:5px;background:#222;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:13px}
+.fi-thumb{width:36px;height:36px;border-radius:5px;background:var(--card);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:13px}
 .fi-thumb video{width:100%;height:100%;object-fit:cover}
 .fi-info{min-width:0}
 .fi-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
 .fi-meta{display:flex;align-items:center;gap:6px;margin-top:2px}
 .fi-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:.4px}
-.fi-bof{background:rgba(232,57,77,.1);color:var(--red);border:1px solid rgba(232,57,77,.22)}
-.fi-mof{background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.22)}
+.fi-bof{background:rgba(224,61,82,.1);color:var(--red);border:1px solid rgba(224,61,82,.2)}
+.fi-mof{background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.2)}
 .fi-dur{font-size:10px;color:var(--muted);font-family:monospace}
 .fi-auto{font-size:9px;color:var(--muted2)}
 .fi-rm{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;flex-shrink:0;transition:color .15s;padding:0 4px}
 .fi-rm:hover{color:var(--red)}
 .add-files-btn{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:10px;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:8px}
-.add-files-btn:hover{background:#1a1a1a;color:var(--txt)}
+.add-files-btn:hover{background:var(--card);color:var(--txt)}
+.process-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:50px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:20px;box-shadow:0 0 30px var(--gold-glow);transition:all .2s}
+.process-btn:hover{transform:translateY(-1px);box-shadow:0 0 50px rgba(201,168,76,.2)}
 
-/* PROCESS BUTTON */
-.process-btn{width:100%;background:var(--red);color:#fff;border:none;border-radius:50px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:20px;box-shadow:0 0 30px var(--red-glow);transition:all .2s;letter-spacing:.1px}
-.process-btn:hover{background:#c72f42;box-shadow:0 0 50px rgba(232,57,77,.25)}
-.process-btn:disabled{opacity:.4;cursor:not-allowed}
-
-/* ===== SETTINGS VIEW ===== */
+/* SETTINGS */
 .settings-view{max-width:500px;margin:0 auto;padding:28px 20px 60px}
 .set-back{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:20px;transition:color .15s}
 .set-back:hover{color:var(--txt)}
 .set-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
-.set-title{font-size:18px;font-weight:700;margin-bottom:20px}
-.set-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:10px}
+.set-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;margin-bottom:18px;letter-spacing:-.5px}
+.set-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:10px}
 .set-card-title{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px}
 .set-row{margin-bottom:10px}
 .set-row:last-child{margin-bottom:0}
 .set-lbl{font-size:12px;color:var(--muted);margin-bottom:4px}
-.set-email-display{font-size:13px;font-weight:600;padding:8px 11px;background:var(--card2);border:1px solid var(--border);border-radius:7px;opacity:.6}
+.set-val{font-size:13px;font-weight:600;padding:8px 11px;background:var(--card2);border:1px solid var(--border);border-radius:7px;opacity:.7}
 .set-inp{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border .15s}
-.set-inp:focus{border-color:var(--border2)}
-.tt-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card2);border:1px solid var(--border);border-radius:7px}
-.tt-info{flex:1}
-.tt-name{font-size:13px;font-weight:600}
-.tt-status{font-size:10px;color:var(--muted)}
-.tt-status.live{color:var(--green)}
-.folder-display{font-size:12px;font-family:monospace;padding:8px 11px;background:var(--card2);border:1px solid var(--border);border-radius:7px;color:var(--muted);margin-bottom:7px;word-break:break-all}
-.folder-display.set{color:var(--txt)}
+.set-inp:focus{border-color:rgba(201,168,76,.4)}
 .set-note{font-size:11px;color:var(--muted2);line-height:1.6;margin-bottom:8px}
 .set-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;font-weight:500}
-.set-btn:hover{background:#222;color:var(--txt)}
-.set-btn-red{background:rgba(232,57,77,.08);border:1px solid rgba(232,57,77,.22);color:var(--red)}
-.set-btn-red:hover{background:rgba(232,57,77,.16)}
+.set-btn:hover{background:var(--card);color:var(--txt);border-color:var(--border2)}
+.set-btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;font-weight:700}
+.set-btn-gold:hover{opacity:.9}
+.set-btn-red{background:rgba(224,61,82,.08);border:1px solid rgba(224,61,82,.2);color:var(--red)}
+.set-btn-red:hover{background:rgba(224,61,82,.15)}
+.folder-display{font-size:12px;font-family:monospace;padding:8px 11px;background:var(--card2);border:1px solid var(--border);border-radius:7px;color:var(--muted);margin-bottom:7px;word-break:break-all}
+.folder-display.set{color:var(--txt)}
 
-/* IMPORT MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center}
-.modal-bg.on{display:flex}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:26px;width:420px;max-width:90vw}
-.modal h3{font-size:15px;font-weight:700;margin-bottom:5px}
-.modal-sub{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5}
-.modal-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:600}
-.modal-inp{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border .15s;margin-bottom:12px}
-.modal-inp:focus{border-color:var(--border2)}
-.modal-sel{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;appearance:none;margin-bottom:18px;cursor:pointer}
-.modal-btns{display:flex;gap:8px;justify-content:flex-end}
-.modal-cancel{background:none;border:1px solid var(--border2);border-radius:7px;padding:7px 16px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif}
-.modal-import{background:var(--red);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
-
-/* PROCESSING OVERLAY */
-.proc-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;align-items:center;justify-content:center}
+/* OVERLAYS */
+.proc-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;align-items:center;justify-content:center}
 .proc-bg.on{display:flex}
-.proc-box{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:32px 40px;text-align:center;min-width:300px}
-.proc-box h2{font-size:17px;font-weight:700;margin-bottom:18px}
-.prog-bar{background:var(--card2);border-radius:20px;height:5px;overflow:hidden;margin-bottom:12px}
-.prog-fill{height:100%;background:var(--red);border-radius:20px;transition:width .35s;width:0%}
+.proc-box{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:32px 40px;text-align:center;min-width:300px}
+.proc-box h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:800;margin-bottom:20px}
+.prog-bar{background:var(--card2);border-radius:20px;height:4px;overflow:hidden;margin-bottom:12px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:20px;transition:width .35s;width:0%}
 .proc-fname{font-size:12px;color:var(--muted);margin-bottom:3px}
 .proc-stat{font-size:10px;color:var(--muted2)}
-
-/* DONE OVERLAY */
-.done-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;align-items:center;justify-content:center}
+.done-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;align-items:center;justify-content:center}
 .done-bg.on{display:flex}
-.done-box{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:32px 40px;text-align:center;min-width:300px}
-.done-box h2{font-size:17px;font-weight:700;margin-bottom:6px}
+.done-box{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:32px 40px;text-align:center;min-width:300px}
+.done-box h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:800;margin-bottom:6px}
 .done-box p{font-size:13px;color:var(--muted);margin-bottom:8px}
 .folder-tags{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
 .ftag{font-size:11px;font-weight:600;padding:4px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:6px}
 .done-btns{display:flex;gap:8px;justify-content:center}
-.done-open{background:var(--red);color:#fff;border:none;border-radius:9px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.done-open{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:9px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
 .done-back{background:var(--card2);border:1px solid var(--border2);color:var(--txt);border-radius:9px;padding:10px 22px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif}
 
 /* TOAST */
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:9px 18px;font-size:12px;color:var(--txt);opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:9px 18px;font-size:12px;color:var(--txt);opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.6)}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
 input[type=file]{display:none}
@@ -238,203 +324,327 @@ input[type=file]{display:none}
 </head>
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="logo" onclick="showDash()">
-    <div class="logo-mark"><svg viewBox="0 0 12 12"><polygon points="2,1 10,6 2,11"/></svg></div>
-    <div>
-      <span class="logo-name">Reel<em>Forge</em></span>
-    </div>
-    <span class="logo-sub" id="user-email">you@example.com</span>
-  </div>
-  <div class="tbar-r">
-    <span class="pro-pill">Pro</span>
-    <span class="tcount" id="vid-count">0 videos today</span>
-    <button class="tbtn" onclick="showSettings()">Settings</button>
-    <button class="tbtn">Log out</button>
-  </div>
-</div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 <input type="file" id="file-in" multiple accept="video/*" onchange="handleFiles(this.files)"/>
 
-<!-- ===== DASHBOARD ===== -->
-<div class="view on" id="view-dash">
-  <div class="dash">
-    <div class="dash-hi" id="dash-hi">Hi, Creator</div>
-    <div class="dash-sub">Your next batch is one click away.</div>
-    <button class="start-btn" onclick="showEditor()">Start batch</button>
-    <div class="recent-wrap">
-      <div class="recent-lbl">Recent Batches</div>
-      <div class="btable">
-        <div class="btable-head">
-          <span>Date</span><span style="text-align:center">Videos</span><span>Status</span><span style="text-align:right"></span>
+<!-- ======= LANDING PAGE ======= -->
+<div class="view on" id="view-land">
+
+  <nav class="land-nav">
+    <div class="land-logo">
+      <div class="land-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+      <span class="land-logo-name">Royal<span>Forge</span></span>
+    </div>
+    <div class="land-nav-links">
+      <a onclick="scrollTo(0,600)">How it works</a>
+      <a onclick="scrollTo(0,1200)">Features</a>
+      <a onclick="scrollTo(0,1900)">Pricing</a>
+    </div>
+    <div class="land-nav-right">
+      <button class="nav-login-btn" onclick="showLogin()">Log in</button>
+      <button class="nav-signup-btn" onclick="showSignup()">Get started free</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge"><div class="hero-badge-dot"></div>Built for TikTok Shop affiliates</div>
+    <h1>Batch edit TikTok Shop<br>videos in <em>seconds.</em></h1>
+    <p class="hero-sub">Add overlays, hooks, and urgency text to 50+ videos at once. No manual editing. No cloud uploads. Your videos never leave your machine.</p>
+    <div class="hero-cta-row">
+      <button class="hero-cta" onclick="showSignup()">Start for free &rarr;</button>
+      <button class="hero-cta-ghost" onclick="showLogin()">Already have an account</button>
+    </div>
+    <div class="hero-proof"><span>Free to start</span> &nbsp;&middot;&nbsp; <span>No credit card required</span> &nbsp;&middot;&nbsp; <span>Cancel anytime</span></div>
+  </div>
+
+  <div class="demo-strip">
+    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim">40% OFF</div></div></div>
+    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim white">TRIPLE DISCOUNT</div></div></div>
+    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim gold">LAST CHANCE</div></div></div>
+    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim">50% OFF</div></div></div>
+    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim white">LARGE SALE</div></div></div>
+    <div class="demo-card"><div class="demo-card-inner"><div class="demo-overlay-sim">LIMITED LEFT</div></div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-tag">How it works</div>
+    <h2 class="section-title">From raw clips to ready-to-post<br>in three steps.</h2>
+    <p class="section-sub">No editing skills needed. No waiting. Just drop, configure, and download.</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div class="step-title">Drop your videos</div><div class="step-desc">Add your raw .MOV or .MP4 clips. BOF and MOF are auto-detected by duration. Override any clip individually.</div></div>
+      <div class="step"><div class="step-num">02</div><div class="step-title">Pick your overlay</div><div class="step-desc">Choose banner style, full text hooks, or mix both. Edit every line of text to match your style.</div></div>
+      <div class="step"><div class="step-num">03</div><div class="step-title">Process &amp; ship</div><div class="step-desc">Hit Process batch. Your videos land in a ready/ folder, stamped and ready to post to TikTok Shop.</div></div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-tag">Features</div>
+    <h2 class="section-title">Everything you need.<br>Nothing you don't.</h2>
+    <p class="section-sub">Built for creators who post volume, not hobbyists who edit one clip at a time.</p>
+    <div class="features">
+      <div class="feature"><div class="feature-icon">&#9889;</div><div class="feature-title">Batch processing</div><div class="feature-desc">Process 50+ videos in seconds. Ship whole drops in one pass instead of editing clip by clip.</div></div>
+      <div class="feature"><div class="feature-icon">&#127775;</div><div class="feature-title">BOF &amp; MOF auto-tagging</div><div class="feature-desc">Videos tagged automatically by duration. 14-18s clips get BOF overlays. 7-10s clips get MOF hooks.</div></div>
+      <div class="feature"><div class="feature-icon">&#127775;</div><div class="feature-title">Fully editable hooks</div><div class="feature-desc">Every line of text is editable. Add your own hooks, remove what you don't want, build your own style.</div></div>
+      <div class="feature"><div class="feature-icon">&#128196;</div><div class="feature-title">Local processing</div><div class="feature-desc">Your videos never leave your machine. Everything runs locally. No cloud uploads, no waiting on servers.</div></div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-tag">Pricing</div>
+    <h2 class="section-title">Simple pricing.<br>No surprises.</h2>
+    <p class="section-sub">Start free, upgrade when you're ready to scale.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tag">Starter</div>
+        <div class="price-name">Starter</div>
+        <div class="price-amount"><sup>$</sup>19</div>
+        <div class="price-per">per month</div>
+        <ul class="price-list">
+          <li class="active">25 videos per day</li>
+          <li class="active">Banner &amp; full text overlays</li>
+          <li class="active">BOF + MOF auto-tagging</li>
+          <li class="active">Up to 5 custom hooks</li>
+          <li>Unlimited videos</li>
+          <li>Priority processing</li>
+        </ul>
+        <button class="price-btn-ghost" onclick="showSignup()">Get started</button>
+      </div>
+      <div class="price-card featured">
+        <div class="price-tag">Most Popular</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amount"><sup>$</sup>39</div>
+        <div class="price-per">per month</div>
+        <ul class="price-list">
+          <li class="active">Unlimited videos per day</li>
+          <li class="active">Banner &amp; full text overlays</li>
+          <li class="active">BOF + MOF auto-tagging</li>
+          <li class="active">Unlimited custom hooks</li>
+          <li class="active">Priority processing</li>
+          <li class="active">Early access to new features</li>
+        </ul>
+        <button class="price-btn" onclick="showSignup()">Go unlimited</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="land-footer">
+    <div class="footer-logo">Royal<span>Forge</span></div>
+    <div class="footer-links">
+      <a>Terms</a><a>Privacy</a><a>Contact</a>
+    </div>
+    <div class="footer-copy">&copy; 2026 RoyalForge. All rights reserved.</div>
+  </footer>
+
+</div>
+
+<!-- ======= LOGIN ======= -->
+<div class="view" id="view-login">
+  <div class="auth-page">
+    <div class="auth-back" onclick="showLand()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
+      Back to home
+    </div>
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="auth-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+        <span class="auth-logo-name">Royal<span>Forge</span></span>
+      </div>
+      <div class="auth-card">
+        <div class="auth-title">Log <em>in</em></div>
+        <div class="auth-sub">Welcome back. <a onclick="showSignup()">New here? Create an account</a></div>
+        <div class="auth-error" id="login-error">Incorrect email or password. Please try again.</div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" type="email" id="login-email" placeholder="you@example.com"/>
         </div>
-        <div id="batch-rows"><div class="no-batches">No batches yet</div></div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input class="auth-input" type="password" id="login-pw" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
+        <div class="auth-forgot"><a onclick="toast('Password reset coming soon.')">Forgot password?</a></div>
+        <button class="auth-btn" onclick="doLogin()">Sign in</button>
+        <div class="terms-note">By signing in you agree to our <a>Terms of Service</a> and <a>Privacy Policy</a>.</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== EDITOR ===== -->
-<div class="view" id="view-editor">
-<div class="editor">
-
-  <div class="ed-back" onclick="showDash()">
-    <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
-    Back to dashboard
-  </div>
-
-  <!-- OVERLAY STYLE -->
-  <div class="sec">
-    <div class="sec-label">Overlay Style <span class="info-dot" title="Choose how text appears on your videos">i</span></div>
-    <div class="ov-toggle" id="ov-toggle">
-      <button class="ov-btn active" onclick="setOvStyle('banner',this)">Banner</button>
-      <button class="ov-btn" onclick="setOvStyle('fulltext',this)">Full text</button>
-      <button class="ov-btn" onclick="setOvStyle('mix',this)">Mix both</button>
+<!-- ======= SIGNUP ======= -->
+<div class="view" id="view-signup">
+  <div class="auth-page">
+    <div class="auth-back" onclick="showLand()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
+      Back to home
     </div>
-  </div>
-
-  <!-- BANNER HOOKS -->
-  <div class="sec" id="sec-banner">
-    <div class="sec-label">Banner Hooks <span class="info-dot" title="Top and bottom text randomly mixed per video">i</span></div>
-    <div class="sec-desc">Check the ones you want active. Edit any text. Mixed randomly per video.</div>
-
-    <div class="row-lbl">
-      Top text
-      <div class="color-dots" id="top-color-dots">
-        <div class="cdot sel" style="background:#e8394d" onclick="setTopColor('#e8394d',this)"></div>
-        <div class="cdot" style="background:#fff;border-color:#555" onclick="setTopColor('#ffffff',this)"></div>
-        <div class="cdot" style="background:#f97316" onclick="setTopColor('#f97316',this)"></div>
-        <div class="cdot" style="background:#eab308" onclick="setTopColor('#eab308',this)"></div>
-        <div class="cdot" style="background:#a855f7" onclick="setTopColor('#a855f7',this)"></div>
-        <div class="cdot" style="background:#3b82f6" onclick="setTopColor('#3b82f6',this)"></div>
-        <input type="color" id="top-color-wheel" value="#e8394d" oninput="setTopColorCustom(this.value)" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #555;cursor:pointer;padding:0;background:none" title="Pick any color"/>
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="auth-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+        <span class="auth-logo-name">Royal<span>Forge</span></span>
+      </div>
+      <div class="auth-card">
+        <div class="auth-title">Create an <em>account</em></div>
+        <div class="auth-sub">Already have one? <a onclick="showLogin()">Log in instead</a></div>
+        <div class="auth-error" id="signup-error">An account with this email already exists.</div>
+        <div class="auth-success" id="signup-success">Account created! Signing you in...</div>
+        <div class="auth-field">
+          <label>Your Name</label>
+          <input class="auth-input" type="text" id="signup-name" placeholder="First name"/>
+        </div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" type="email" id="signup-email" placeholder="you@example.com"/>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input class="auth-input" type="password" id="signup-pw" placeholder="Choose a password (min 6 chars)" onkeydown="if(event.key==='Enter')doSignup()"/>
+        </div>
+        <button class="auth-btn" onclick="doSignup()">Create account &rarr;</button>
+        <div class="terms-note">By creating an account you agree to our <a>Terms of Service</a> and <a>Privacy Policy</a>.</div>
       </div>
     </div>
-    <div class="item-list" id="top-list"></div>
-    <button class="add-item-btn" onclick="addBannerItem('top')">+ Add top text</button>
-
-    <div class="row-lbl" style="margin-top:14px">Bottom text</div>
-    <div class="item-list" id="bot-list"></div>
-    <button class="add-item-btn" onclick="addBannerItem('bot')">+ Add bottom text</button>
-
-    <div class="strike-row" id="strike-toggle" onclick="toggleStrike()" style="margin-top:14px">
-      <div class="togbox" id="stog"></div>
-      <span class="strike-label">Strike layout &mdash; original price crossed out</span>
-    </div>
-    <div class="strike-inputs" id="strike-inputs">
-      <input class="si" id="si-orig" value="FULL PRICE" placeholder="Original price label" oninput="updSP()"/>
-      <input class="si" id="si-disc" value="50% OFF" placeholder="Discount label" oninput="updSP()"/>
-      <div class="strike-preview"><span class="sp-orig" id="sp-orig">FULL PRICE</span><span class="sp-disc" id="sp-disc">50% OFF</span></div>
-    </div>
-
-    <div class="row-lbl" style="margin-top:14px">Custom pairs <span class="info-dot" title="One pair per line: TOP TEXT | BOTTOM TEXT">i</span></div>
-    <textarea placeholder="40% OFF | ENDS TODAY&#10;HUGE SALE | LAST CHANCE&#10;2x DISCOUNT | CHECK COUPONS"></textarea>
   </div>
-
-  <!-- FULL TEXT HOOKS -->
-  <div class="sec" id="sec-fulltext" style="display:none">
-    <div class="sec-label">Full Text Hooks <span class="info-dot" title="One random line per video from your selection">i</span></div>
-    <div class="sec-desc">Check the ones you want. Edit any line. One random line per video.</div>
-    <div class="item-list" id="hook-list"></div>
-    <button class="add-item-btn" onclick="addHookItem()" style="margin-top:5px">+ Add hook</button>
-    <div class="row-lbl" style="margin-top:14px">Custom lines <span class="info-dot" title="Type your lines then click Add to list">i</span></div>
-    <textarea id="custom-lines" placeholder="Type your hook here...&#10;Another great hook on the next line..."></textarea>
-    <button class="add-to-list-btn" onclick="addCustomToList()">Add to list</button>
-  </div>
-
-  <!-- VIDEOS -->
-  <div class="sec">
-    <div class="sec-label">Videos <span class="info-dot" title="BOF (14-18s) and MOF (7-10s) auto-detected by duration">i</span></div>
-    <div class="drop-zone" id="drop-zone"
-         onclick="document.getElementById('file-in').click()"
-         ondragover="event.preventDefault();this.classList.add('over')"
-         ondragleave="this.classList.remove('over')"
-         ondrop="handleDrop(event)">
-      <div class="dz-text">Drag and drop video files here, or use Add files.</div>
-    </div>
-    <div class="file-list" id="file-list"></div>
-    <button class="add-files-btn" onclick="document.getElementById('file-in').click()">Add files...</button>
-  </div>
-
-  <button class="process-btn" onclick="processBatch()">Process batch</button>
-
-</div>
 </div>
 
-<!-- ===== SETTINGS ===== -->
-<div class="view" id="view-settings">
-<div class="settings-view">
-  <div class="set-back" onclick="showDash()">
-    <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
-    Back
-  </div>
-  <div class="set-title">Settings</div>
+<!-- ======= APP ======= -->
+<div class="view" id="view-app">
 
-  <div class="set-card">
-    <div class="set-card-title">Account</div>
-    <div class="set-row"><div class="set-lbl">Email</div><div class="set-email-display" id="set-email">you@example.com</div></div>
-    <div class="set-row"><div class="set-lbl">Display Name</div><input class="set-inp" id="set-name" value="Creator" placeholder="Your name" oninput="updateName(this.value)"/></div>
+  <div class="topbar">
+    <div class="app-logo" onclick="showAppDash()">
+      <div class="app-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+      <span class="app-logo-name">Royal<span>Forge</span></span>
+      <span class="app-logo-sub" id="user-email-display">you@example.com</span>
+    </div>
+    <div class="tbar-r">
+      <span class="pro-pill">Pro</span>
+      <span class="tcount" id="vid-count">0 videos today</span>
+      <button class="tbtn" onclick="showAppSettings()">Settings</button>
+      <button class="tbtn" onclick="doLogout()">Log out</button>
+    </div>
   </div>
 
-  <div class="set-card">
-    <div class="set-card-title">TikTok Account</div>
-    <div class="tt-row">
-      <div style="font-size:18px">&#9679;</div>
-      <div class="tt-info">
-        <div class="tt-name" id="set-tt-name">Not connected</div>
-        <div class="tt-status" id="set-tt-status">Connect to import your TikTok Showcase products</div>
+  <!-- DASHBOARD -->
+  <div class="app-view on" id="app-dash">
+    <div class="dash">
+      <div class="dash-hi">Hi, <span id="dash-name">Creator</span></div>
+      <div class="dash-sub">Your next batch is one click away.</div>
+      <button class="start-btn" onclick="showAppEditor()">Start batch</button>
+      <div class="recent-wrap">
+        <div class="recent-lbl">Recent Batches</div>
+        <div class="btable">
+          <div class="btable-head"><span>Date</span><span style="text-align:center">Videos</span><span>Status</span><span style="text-align:right"></span></div>
+          <div id="batch-rows"><div class="no-batches">No batches yet</div></div>
+        </div>
       </div>
-      <button class="set-btn" id="set-tt-btn" onclick="showImport()">Connect</button>
     </div>
   </div>
 
-  <div class="set-card">
-    <div class="set-card-title">Media Folder</div>
-    <div class="set-note">When you process a batch, a <strong>raw/</strong> folder and a <strong>ready/</strong> folder are created automatically. Original videos go to raw/, processed videos go to ready/.</div>
-    <div class="folder-display" id="set-folder">Folders created automatically on first batch</div>
-    <button class="set-btn" onclick="toast('Folder created automatically on first generate.')">View Folder</button>
+  <!-- EDITOR -->
+  <div class="app-view" id="app-editor">
+  <div class="editor">
+    <div class="ed-back" onclick="showAppDash()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
+      Back to dashboard
+    </div>
+
+    <div class="sec">
+      <div class="sec-label">Overlay Style <span class="info-dot">i</span></div>
+      <div class="ov-toggle" id="ov-toggle">
+        <button class="ov-btn active" onclick="setOvStyle('banner',this)">Banner</button>
+        <button class="ov-btn" onclick="setOvStyle('fulltext',this)">Full text</button>
+        <button class="ov-btn" onclick="setOvStyle('mix',this)">Mix both</button>
+      </div>
+    </div>
+
+    <div class="sec" id="sec-banner">
+      <div class="sec-label">Banner Hooks <span class="info-dot">i</span></div>
+      <div class="sec-desc">Check the ones you want active. Edit any text. Mixed randomly per video.</div>
+      <div class="row-lbl">
+        Top text
+        <div class="color-dots" id="top-color-dots">
+          <div class="cdot sel" style="background:#e03d52" onclick="setTopColor('#e03d52',this)"></div>
+          <div class="cdot" style="background:#fff;border-color:#555" onclick="setTopColor('#ffffff',this)"></div>
+          <div class="cdot" style="background:#c9a84c" onclick="setTopColor('#c9a84c',this)"></div>
+          <div class="cdot" style="background:#f97316" onclick="setTopColor('#f97316',this)"></div>
+          <div class="cdot" style="background:#a855f7" onclick="setTopColor('#a855f7',this)"></div>
+          <div class="cdot" style="background:#3b82f6" onclick="setTopColor('#3b82f6',this)"></div>
+          <input type="color" id="top-color-wheel" value="#e03d52" oninput="setTopColorCustom(this.value)" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #555;cursor:pointer;padding:0;background:none" title="Any color"/>
+        </div>
+      </div>
+      <div class="item-list" id="top-list"></div>
+      <button class="add-item-btn" onclick="addBannerItem('top')">+ Add top text</button>
+      <div class="row-lbl" style="margin-top:14px">Bottom text</div>
+      <div class="item-list" id="bot-list"></div>
+      <button class="add-item-btn" onclick="addBannerItem('bot')">+ Add bottom text</button>
+      <div class="strike-tog" onclick="toggleStrike()"><div class="togbox" id="stog"></div><span class="strike-label">Strike layout &mdash; crossed out price</span></div>
+      <div class="strike-inputs" id="strike-inputs">
+        <input class="si" id="si-orig" value="FULL PRICE" oninput="updSP()"/>
+        <input class="si" id="si-disc" value="50% OFF" oninput="updSP()"/>
+        <div class="strike-preview"><span class="sp-orig" id="sp-orig">FULL PRICE</span><span class="sp-disc" id="sp-disc">50% OFF</span></div>
+      </div>
+      <div class="row-lbl" style="margin-top:14px">Custom pairs <span class="info-dot">i</span></div>
+      <textarea placeholder="40% OFF | ENDS TODAY&#10;HUGE SALE | LAST CHANCE"></textarea>
+    </div>
+
+    <div class="sec" id="sec-fulltext" style="display:none">
+      <div class="sec-label">Full Text Hooks <span class="info-dot">i</span></div>
+      <div class="sec-desc">Check the ones you want. Edit any line. One random line per video.</div>
+      <div class="item-list" id="hook-list"></div>
+      <button class="add-item-btn" onclick="addHookItem()" style="margin-top:5px">+ Add hook</button>
+      <div class="row-lbl" style="margin-top:14px">Custom lines <span class="info-dot">i</span></div>
+      <textarea id="custom-lines" placeholder="Type your hook here...&#10;Another line..."></textarea>
+      <button class="add-to-list-btn" onclick="addCustomToList()">Add to list</button>
+    </div>
+
+    <div class="sec">
+      <div class="sec-label">Videos <span class="info-dot">i</span></div>
+      <div class="drop-zone" id="drop-zone"
+           onclick="document.getElementById('file-in').click()"
+           ondragover="event.preventDefault();this.classList.add('over')"
+           ondragleave="this.classList.remove('over')"
+           ondrop="handleDrop(event)">
+        <div class="dz-text">Drag and drop video files here, or use Add files.</div>
+      </div>
+      <div class="file-list" id="file-list"></div>
+      <button class="add-files-btn" onclick="document.getElementById('file-in').click()">Add files...</button>
+    </div>
+
+    <button class="process-btn" onclick="processBatch()">Process batch</button>
+  </div>
   </div>
 
-  <div class="set-card">
-    <div class="set-card-title">Subscription</div>
-    <div class="set-note">Manage your billing and plan in your browser.</div>
-    <button class="set-btn" onclick="toast('Opening dashboard...')">Open dashboard</button>
-  </div>
-
-  <div class="set-card">
-    <div class="set-card-title">Updates</div>
-    <div class="set-note">Check whether a newer version of ReelForge is available.</div>
-    <button class="set-btn" onclick="toast('You are on the latest version.')">Check for updates</button>
-  </div>
-
-  <div class="set-card">
-    <div class="set-card-title">Danger Zone</div>
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(232,57,77,.06);border:1px solid rgba(232,57,77,.2);border-radius:7px">
-      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--red)">Uninstall ReelForge</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Removes the app and local data.</div></div>
-      <button class="set-btn set-btn-red" onclick="toast('Please uninstall via your system settings.')">Uninstall</button>
+  <!-- SETTINGS -->
+  <div class="app-view" id="app-settings">
+  <div class="settings-view">
+    <div class="set-back" onclick="showAppDash()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>Back
+    </div>
+    <div class="set-title">Settings</div>
+    <div class="set-card">
+      <div class="set-card-title">Account</div>
+      <div class="set-row"><div class="set-lbl">Email</div><div class="set-val" id="set-email-disp"></div></div>
+      <div class="set-row"><div class="set-lbl">Display Name</div><input class="set-inp" id="set-name" placeholder="Your name" oninput="updateName(this.value)"/></div>
+    </div>
+    <div class="set-card">
+      <div class="set-card-title">Media Folder</div>
+      <div class="set-note">raw/ stores original clips. ready/ stores processed output. Both created automatically on first batch.</div>
+      <div class="folder-display" id="set-folder">Created automatically on first batch</div>
+    </div>
+    <div class="set-card">
+      <div class="set-card-title">Subscription</div>
+      <div class="set-note">Manage your billing and plan.</div>
+      <button class="set-btn set-btn-gold" onclick="toast('Opening dashboard...')">Open dashboard</button>
+    </div>
+    <div class="set-card">
+      <div class="set-card-title">Danger Zone</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(224,61,82,.06);border:1px solid rgba(224,61,82,.2);border-radius:7px">
+        <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--red)">Log out</div><div style="font-size:11px;color:var(--muted)">You'll be taken back to the home screen.</div></div>
+        <button class="set-btn set-btn-red" onclick="doLogout()">Log out</button>
+      </div>
     </div>
   </div>
-</div>
-</div>
-
-<!-- IMPORT MODAL -->
-<div class="modal-bg" id="import-modal">
-  <div class="modal">
-    <h3>Import TikTok Showcase</h3>
-    <p class="modal-sub">Enter your TikTok username to import products from your showcase. Product images will be saved to your library.</p>
-    <div class="modal-lbl">Your TikTok Username</div>
-    <input class="modal-inp" id="tt-user" placeholder="yourhandle (no @)"/>
-    <div class="modal-lbl">Country / Region</div>
-    <select class="modal-sel"><option>United States</option><option>United Kingdom</option><option>Canada</option><option>Australia</option></select>
-    <div class="modal-btns">
-      <button class="modal-cancel" onclick="closeImport()">Cancel</button>
-      <button class="modal-import" onclick="doImport()">Import Products</button>
-    </div>
   </div>
-</div>
+
+</div><!-- /app -->
 
 <!-- PROCESSING -->
 <div class="proc-bg" id="proc-bg">
@@ -451,10 +661,7 @@ input[type=file]{display:none}
   <div class="done-box">
     <h2>Batch complete</h2>
     <p id="done-msg">Processed 0 video(s).</p>
-    <div class="folder-tags">
-      <span class="ftag">&#128193; raw/</span>
-      <span class="ftag" style="color:var(--green)">&#10003; ready/</span>
-    </div>
+    <div class="folder-tags"><span class="ftag">&#128193; raw/</span><span class="ftag" style="color:var(--green)">&#10003; ready/</span></div>
     <div class="done-btns">
       <button class="done-open" onclick="openReady()">Open ready/ folder</button>
       <button class="done-back" onclick="closeDone()">Back to home</button>
@@ -463,78 +670,119 @@ input[type=file]{display:none}
 </div>
 
 <script>
-// ===== STATE =====
-let batches = JSON.parse(localStorage.getItem('rf_b')||'[]');
+// ===== AUTH STATE =====
+let currentUser = JSON.parse(localStorage.getItem('rf_user')||'null');
+let accounts = JSON.parse(localStorage.getItem('rf_accounts')||'[]');
+let batches = JSON.parse(localStorage.getItem('rf_batches')||'[]');
 let vidCount = parseInt(localStorage.getItem('rf_vc')||'0',10);
-let ttHandle = localStorage.getItem('rf_tt')||'';
 let folderPath = localStorage.getItem('rf_fp')||'';
-let userName = localStorage.getItem('rf_name')||'Creator';
 let ovStyle = 'banner';
 let strikeOn = false;
-let topColor = '#e8394d';
+let topColor = '#e03d52';
 let files = [];
 
-// TOP TEXT CHIPS
 let topChips = [
-  {label:'40% OFF',on:true},
-  {label:'LARGE SALE',on:true},
-  {label:'50% OFF',on:true},
-  {label:'2x DISCOUNT',on:true},
-  {label:'TRIPLE DISCOUNT',on:true}
+  {label:'40% OFF',on:true,color:'#e03d52'},
+  {label:'LARGE SALE',on:true,color:'#e03d52'},
+  {label:'50% OFF',on:true,color:'#ffffff'},
+  {label:'2x DISCOUNT',on:true,color:'#e03d52'},
+  {label:'TRIPLE DISCOUNT',on:true,color:'#e03d52'}
 ];
-// BOTTOM TEXT CHIPS
 let botChips = [
   {label:'CHECK COUPONS',on:true},
   {label:'LAST CHANCE',on:true},
   {label:'LIMITED \uD83D\uDED2 LEFT',on:true}
 ];
-// FULL TEXT HOOKS - iPhone emoji style
 let hooks = [
   {text:'If you waited until today you absolutely won because this is dirt cheap rn with free shipping',on:true},
   {text:'Ur card won\'t decline on this... it\'s violently discounted rn \uD83D\uDE3F\uD83D\uDE00',on:false},
   {text:'TikTok bullied the price down and now this is on a massive sale \uD83D\uDE2D',on:false},
   {text:'Someone f*cked up at TikTok cus this just went on a massive discount \uD83D\uDEA8',on:false},
   {text:'Anyone else grabbing a boatload of this today since it\'s a fraction of the price? \uD83D\uDC40',on:false},
-  {text:'When a company accidentally overproduced their best product so they\'re VIOLENTLY discounted today \uD83D\uDE2D\uD83D\uDE00',on:false},
   {text:'Wait for it... you\'ll want to see this before you scroll \uD83D\uDE33',on:false},
   {text:'Give me 7 seconds before you decide anything \u23F3',on:false}
 ];
 
-// ===== DETECT FUNNEL BY DURATION =====
-// BOF = 14-18s (product visible, pushing the sale)
-// MOF = 7-12s  (delays product, builds trust)
-function autoFunnel(d){ return (d===null||d===undefined||d>12) ? 'bof' : 'mof'; }
-function fmtD(d){ if(d===null) return '...'; const s=Math.round(d); return Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60); }
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function autoFunnel(d){return(d===null||d===undefined||d>12)?'bof':'mof';}
+function fmtD(d){if(d===null)return '...';const s=Math.round(d);return Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);}
 
 // ===== VIEWS =====
-function showView(id){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
-  document.getElementById(id).classList.add('on');
-}
-function showDash(){ showView('view-dash'); renderBatches(); }
-function showEditor(){ showView('view-editor'); }
-function showSettings(){
-  initSettings();
-  showView('view-settings');
-}
+function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.getElementById(id).classList.add('on');}
+function showLand(){showView('view-land');}
+function showLogin(){showView('view-login');document.getElementById('login-error').classList.remove('show');}
+function showSignup(){showView('view-signup');document.getElementById('signup-error').classList.remove('show');document.getElementById('signup-success').classList.remove('show');}
 
-// ===== DASHBOARD =====
-function renderBatches(){
-  document.getElementById('dash-hi').textContent='Hi, '+userName;
+function showApp(){
+  showView('view-app');
+  document.getElementById('user-email-display').textContent=currentUser.email;
+  document.getElementById('dash-name').textContent=currentUser.name||'Creator';
   document.getElementById('vid-count').textContent=vidCount+' videos today';
-  const el=document.getElementById('batch-rows');
-  if(!batches.length){ el.innerHTML='<div class="no-batches">No batches yet</div>'; return; }
-  el.innerHTML=batches.map(b=>`
-    <div class="brow">
-      <span class="brow-date">${b.date}</span>
-      <span class="brow-ct">${b.count}</span>
-      <span class="brow-status">COMPLETE</span>
-      <span class="brow-open" onclick="toast('Opening ready/ folder...')">Open folder</span>
-    </div>`).join('');
+  renderBatches();
+  renderBannerList('top');
+  renderBannerList('bot');
+  renderHooks();
+  showAppDash();
+}
+function showAppDash(){document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));document.getElementById('app-dash').classList.add('on');renderBatches();}
+function showAppEditor(){document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));document.getElementById('app-editor').classList.add('on');}
+function showAppSettings(){
+  document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('app-settings').classList.add('on');
+  document.getElementById('set-email-disp').textContent=currentUser.email;
+  document.getElementById('set-name').value=currentUser.name||'';
+  const fp=localStorage.getItem('rf_fp')||'';
+  if(fp){document.getElementById('set-folder').textContent=fp+'/raw   |   '+fp+'/ready';document.getElementById('set-folder').className='folder-display set';}
 }
 
-// ===== OVERLAY STYLE =====
+// ===== AUTH =====
+function doSignup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim().toLowerCase();
+  const pw=document.getElementById('signup-pw').value;
+  const err=document.getElementById('signup-error');
+  const suc=document.getElementById('signup-success');
+  err.classList.remove('show'); suc.classList.remove('show');
+  if(!name||!email||!pw){err.textContent='Please fill in all fields.';err.classList.add('show');return;}
+  if(pw.length<6){err.textContent='Password must be at least 6 characters.';err.classList.add('show');return;}
+  if(accounts.find(a=>a.email===email)){err.textContent='An account with this email already exists.';err.classList.add('show');return;}
+  const user={name,email,pw};
+  accounts.push(user);
+  localStorage.setItem('rf_accounts',JSON.stringify(accounts));
+  currentUser={name,email};
+  localStorage.setItem('rf_user',JSON.stringify(currentUser));
+  suc.classList.add('show');
+  setTimeout(()=>showApp(),1000);
+}
+
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim().toLowerCase();
+  const pw=document.getElementById('login-pw').value;
+  const err=document.getElementById('login-error');
+  err.classList.remove('show');
+  const account=accounts.find(a=>a.email===email&&a.pw===pw);
+  if(!account){err.classList.add('show');return;}
+  currentUser={name:account.name,email:account.email};
+  localStorage.setItem('rf_user',JSON.stringify(currentUser));
+  showApp();
+}
+
+function doLogout(){
+  currentUser=null;
+  localStorage.removeItem('rf_user');
+  showLand();
+}
+
+function updateName(v){
+  if(!currentUser)return;
+  currentUser.name=v||'Creator';
+  localStorage.setItem('rf_user',JSON.stringify(currentUser));
+  document.getElementById('dash-name').textContent=currentUser.name;
+  const acc=accounts.find(a=>a.email===currentUser.email);
+  if(acc){acc.name=currentUser.name;localStorage.setItem('rf_accounts',JSON.stringify(accounts));}
+}
+
+// ===== EDITOR LOGIC =====
 function setOvStyle(s,btn){
   ovStyle=s;
   document.querySelectorAll('.ov-btn').forEach(b=>b.classList.remove('active'));
@@ -543,83 +791,51 @@ function setOvStyle(s,btn){
   document.getElementById('sec-fulltext').style.display=(s==='banner')?'none':'';
 }
 
-// ===== BANNER ITEMS (editable rows) =====
 function renderBannerList(type){
-  const items = type==='top' ? topChips : botChips;
-  const el = document.getElementById(type==='top'?'top-list':'bot-list');
-  el.innerHTML = items.map((it,i)=>`
+  const items=type==='top'?topChips:botChips;
+  const el=document.getElementById(type==='top'?'top-list':'bot-list');
+  el.innerHTML=items.map((it,i)=>`
     <div class="item-row ${it.on?'on':''}">
-      <div class="item-chk ${it.on?'on':''}" onclick="toggleBanner('${type}',${i})"></div>
-      ${type==='top' ? `<input type="color" class="item-col" value="${it.color||'#e8394d'}" id="bc-${i}" onchange="${type}Chips[${i}].color=this.value" title="Text color"/>` : ''}
+      <div class="item-chk ${it.on?'on':''}" onclick="${type==='top'?'top':'bot'}Chips[${i}].on=!${type==='top'?'top':'bot'}Chips[${i}].on;renderBannerList('${type}')"></div>
+      ${type==='top'?`<input type="color" class="item-col" value="${it.color||'#e03d52'}" id="bc-${i}" onchange="topChips[${i}].color=this.value"/>`:'' }
       <input class="item-inp" type="text" value="${esc(it.label)}" placeholder="Enter text..." id="bi-${type}-${i}"/>
-      <button class="item-del" onclick="${type}Chips.splice(${i},1);renderBannerList('${type}')" title="Remove">&#215;</button>
+      <button class="item-del" onclick="${type==='top'?'top':'bot'}Chips.splice(${i},1);renderBannerList('${type}')">&#215;</button>
     </div>`).join('');
-  items.forEach((_,i)=>{
-    const inp=document.getElementById('bi-'+type+'-'+i);
-    if(inp) inp.oninput=()=>{ (type==='top'?topChips:botChips)[i].label=inp.value; };
-  });
-}
-function toggleBanner(type,i){
-  (type==='top'?topChips:botChips)[i].on = !(type==='top'?topChips:botChips)[i].on;
-  renderBannerList(type);
-}
-function addBannerItem(type){
-  (type==='top'?topChips:botChips).push({label:'',on:true,color:'#e8394d'});
-  renderBannerList(type);
-  setTimeout(()=>{
-    const el=document.getElementById(type==='top'?'top-list':'bot-list');
-    const inputs=el.querySelectorAll('.item-inp');
-    if(inputs.length) inputs[inputs.length-1].focus();
-  },30);
+  items.forEach((_,i)=>{const inp=document.getElementById('bi-'+type+'-'+i);if(inp)inp.oninput=()=>{(type==='top'?topChips:botChips)[i].label=inp.value;};});
 }
 
-// ===== HOOK ITEMS (editable rows) =====
+function addBannerItem(type){
+  (type==='top'?topChips:botChips).push({label:'',on:true,color:'#e03d52'});
+  renderBannerList(type);
+  setTimeout(()=>{const el=document.getElementById(type==='top'?'top-list':'bot-list');const ins=el.querySelectorAll('.item-inp');if(ins.length)ins[ins.length-1].focus();},30);
+}
+
 function renderHooks(){
   const el=document.getElementById('hook-list');
   el.innerHTML=hooks.map((h,i)=>`
-    <div class="item-row ${h.on?'on mof-row':''}">
-      <div class="item-chk ${h.on?'on':''}" onclick="toggleHook(${i})"></div>
+    <div class="item-row ${h.on?'on':''}">
+      <div class="item-chk ${h.on?'on':''}" onclick="hooks[${i}].on=!hooks[${i}].on;renderHooks()"></div>
       <input class="item-inp" type="text" value="${esc(h.text)}" placeholder="Hook text..." id="hi-${i}"/>
-      <button class="item-del" onclick="hooks.splice(${i},1);renderHooks()" title="Remove">&#215;</button>
+      <button class="item-del" onclick="hooks.splice(${i},1);renderHooks()">&#215;</button>
     </div>`).join('');
-  hooks.forEach((_,i)=>{
-    const inp=document.getElementById('hi-'+i);
-    if(inp) inp.oninput=()=>{ hooks[i].text=inp.value; };
-  });
+  hooks.forEach((_,i)=>{const inp=document.getElementById('hi-'+i);if(inp)inp.oninput=()=>{hooks[i].text=inp.value;};});
 }
-function toggleHook(i){ hooks[i].on=!hooks[i].on; renderHooks(); }
+
 function addHookItem(){
   hooks.push({text:'',on:true});
   renderHooks();
-  setTimeout(()=>{
-    const el=document.getElementById('hook-list');
-    const inputs=el.querySelectorAll('.item-inp');
-    if(inputs.length) inputs[inputs.length-1].focus();
-  },30);
+  setTimeout(()=>{const el=document.getElementById('hook-list');const ins=el.querySelectorAll('.item-inp');if(ins.length)ins[ins.length-1].focus();},30);
 }
+
 function addCustomToList(){
   const ta=document.getElementById('custom-lines');
   const lines=ta.value.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
-  if(!lines.length){ toast('Type at least one line above first.'); return; }
+  if(!lines.length){toast('Type at least one line first.');return;}
   lines.forEach(l=>hooks.push({text:l,on:true}));
-  ta.value='';
-  renderHooks();
+  ta.value='';renderHooks();
   toast('Added '+lines.length+' line'+(lines.length!==1?'s':'')+' to your hooks.');
 }
 
-// ===== TOP COLOR =====
-function setTopColor(c,el){
-  topColor=c;
-  document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));
-  if(el) el.classList.add('sel');
-  document.getElementById('top-color-wheel').value=c;
-}
-function setTopColorCustom(c){
-  topColor=c;
-  document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));
-}
-
-// ===== STRIKE =====
 function toggleStrike(){
   strikeOn=!strikeOn;
   document.getElementById('stog').className='togbox'+(strikeOn?' on':'');
@@ -629,94 +845,62 @@ function updSP(){
   document.getElementById('sp-orig').textContent=document.getElementById('si-orig').value||'FULL PRICE';
   document.getElementById('sp-disc').textContent=document.getElementById('si-disc').value||'50% OFF';
 }
-
-// ===== HOOKS =====
-function renderHooks(){
-  const el=document.getElementById('hook-list');
-  el.innerHTML=hooks.map((h,i)=>`
-    <div class="hook-row ${h.on?'on':''}" onclick="toggleHook(${i})">
-      <div class="hook-chk"></div>
-      <span class="hook-txt">${esc(h.text)}</span>
-    </div>`).join('');
-}
-function toggleHook(i){ hooks[i].on=!hooks[i].on; renderHooks(); }
+function setTopColor(c,el){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('top-color-wheel').value=c;}
+function setTopColorCustom(c){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));}
 
 // ===== FILES =====
 function handleFiles(fl){
   for(const f of fl){
-    if(files.find(x=>x.file.name===f.name)) continue;
+    if(files.find(x=>x.file.name===f.name))continue;
     const entry={file:f,funnel:'bof',duration:null};
     files.push(entry);
     const url=URL.createObjectURL(f);
     const v=document.createElement('video');
-    v.preload='metadata'; v.src=url;
+    v.preload='metadata';v.src=url;
     v.onloadedmetadata=()=>{
       const idx=files.indexOf(entry);
-      if(idx!==-1){
-        files[idx].duration=v.duration;
-        const s=Math.round(v.duration),mm=Math.floor(s/60),ss=s%60;
-        files[idx].funnel=autoFunnel(v.duration);
-      }
-      URL.revokeObjectURL(url);
-      renderFiles();
+      if(idx!==-1){files[idx].duration=v.duration;files[idx].funnel=autoFunnel(v.duration);}
+      URL.revokeObjectURL(url);renderFiles();
     };
   }
   renderFiles();
 }
-function handleDrop(e){
-  e.preventDefault();
-  document.getElementById('drop-zone').classList.remove('over');
-  handleFiles(e.dataTransfer.files);
-}
-function removeFile(i){ files.splice(i,1); renderFiles(); }
-
+function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('over');handleFiles(e.dataTransfer.files);}
+function removeFile(i){files.splice(i,1);renderFiles();}
 function renderFiles(){
   const el=document.getElementById('file-list');
-  el.innerHTML=files.map((f,i)=>{
-    const isBof=f.funnel==='bof';
-    return `<div class="file-item ${isBof?'is-bof':'is-mof'}">
+  el.innerHTML=files.map((f,i)=>`
+    <div class="file-item ${f.funnel==='bof'?'is-bof':'is-mof'}">
       <div class="fi-left">
         <div class="fi-thumb" id="fth-${i}">&#127909;</div>
         <div class="fi-info">
-          <div class="fi-name" title="${esc(f.file.name)}">${esc(f.file.name)}</div>
+          <div class="fi-name">${esc(f.file.name)}</div>
           <div class="fi-meta">
-            <span class="fi-badge ${isBof?'fi-bof':'fi-mof'}">${isBof?'BOF':'MOF'}</span>
+            <span class="fi-badge ${f.funnel==='bof'?'fi-bof':'fi-mof'}">${f.funnel==='bof'?'BOF':'MOF'}</span>
             <span class="fi-dur">${fmtD(f.duration)}</span>
             <span class="fi-auto">${f.duration!==null?'auto':'reading...'}</span>
           </div>
         </div>
       </div>
       <button class="fi-rm" onclick="removeFile(${i})">&#215;</button>
-    </div>`;
-  }).join('');
+    </div>`).join('');
   files.forEach((f,i)=>{
     const th=document.getElementById('fth-'+i);
     if(th&&!th.querySelector('video')){
       const tv=document.createElement('video');
-      tv.src=URL.createObjectURL(f.file);
-      tv.muted=true; tv.playsInline=true; tv.preload='metadata';
+      tv.src=URL.createObjectURL(f.file);tv.muted=true;tv.playsInline=true;tv.preload='metadata';
       tv.style.cssText='width:100%;height:100%;object-fit:cover';
-      tv.onloadedmetadata=()=>{ tv.currentTime=0.5; };
-      th.innerHTML=''; th.appendChild(tv);
+      tv.onloadedmetadata=()=>{tv.currentTime=0.5;};
+      th.innerHTML='';th.appendChild(tv);
     }
   });
 }
 
 // ===== PROCESS =====
 function processBatch(){
-  if(!files.length){ toast('Add at least one video first.'); return; }
-  const total=files.length;
-  const bof=files.filter(f=>f.funnel==='bof').length;
-  const mof=files.filter(f=>f.funnel==='mof').length;
-
-  // Create raw + ready folders on first batch
-  if(!folderPath){
-    folderPath='~/Downloads/ReelForge';
-    localStorage.setItem('rf_fp',folderPath);
-    document.getElementById('set-folder').textContent=folderPath+'/raw   |   '+folderPath+'/ready';
-    document.getElementById('set-folder').className='folder-display set';
-  }
-
+  if(!files.length){toast('Add at least one video first.');return;}
+  const total=files.length,bof=files.filter(f=>f.funnel==='bof').length,mof=files.filter(f=>f.funnel==='mof').length;
+  if(!folderPath){folderPath='~/Downloads/RoyalForge';localStorage.setItem('rf_fp',folderPath);}
   document.getElementById('proc-bg').classList.add('on');
   let cur=0;
   function step(){
@@ -724,81 +908,42 @@ function processBatch(){
       document.getElementById('proc-bg').classList.remove('on');
       batches.unshift({date:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}),count:total,bof,mof});
       vidCount+=total;
-      localStorage.setItem('rf_b',JSON.stringify(batches.slice(0,20)));
+      localStorage.setItem('rf_batches',JSON.stringify(batches.slice(0,20)));
       localStorage.setItem('rf_vc',vidCount);
+      document.getElementById('vid-count').textContent=vidCount+' videos today';
       document.getElementById('done-msg').textContent='Processed '+total+' video'+(total!==1?'s':'')+'. '+bof+' BOF, '+mof+' MOF.';
       document.getElementById('done-bg').classList.add('on');
-      files=[]; renderFiles(); return;
+      files=[];renderFiles();return;
     }
     document.getElementById('prog-fill').style.width=Math.round((cur/total)*100)+'%';
-    document.getElementById('proc-fname').textContent=(cur+1)+'/'+total+' \u2014 Processing...';
+    document.getElementById('proc-fname').textContent=(cur+1)+'/'+total+' - Processing...';
     document.getElementById('proc-stat').textContent=files[cur]?files[cur].file.name:'';
-    cur++;
-    setTimeout(step,700+Math.random()*400);
+    cur++;setTimeout(step,700+Math.random()*400);
   }
   step();
 }
-function openReady(){
-  document.getElementById('done-bg').classList.remove('on');
-  toast('ready/ folder: '+folderPath+'/ready');
-  showDash();
-}
-function closeDone(){ document.getElementById('done-bg').classList.remove('on'); showDash(); }
+function openReady(){document.getElementById('done-bg').classList.remove('on');toast('ready/ folder: '+folderPath+'/ready');showAppDash();}
+function closeDone(){document.getElementById('done-bg').classList.remove('on');showAppDash();}
 
-// ===== SETTINGS =====
-function updateName(v){
-  userName=v||'Creator';
-  localStorage.setItem('rf_name',userName);
-  document.getElementById('dash-hi').textContent='Hi, '+userName;
-}
-function initSettings(){
-  document.getElementById('set-name').value=userName;
-  const h=localStorage.getItem('rf_tt')||'';
-  if(h){
-    document.getElementById('set-tt-name').textContent='@'+h;
-    document.getElementById('set-tt-status').textContent='Connected';
-    document.getElementById('set-tt-status').className='tt-status live';
-    document.getElementById('set-tt-btn').textContent='Disconnect';
-  }
-  const fp=localStorage.getItem('rf_fp')||'';
-  if(fp){
-    document.getElementById('set-folder').textContent=fp+'/raw   |   '+fp+'/ready';
-    document.getElementById('set-folder').className='folder-display set';
-  }
-}
-
-// ===== IMPORT =====
-function showImport(){ document.getElementById('import-modal').classList.add('on'); }
-function closeImport(){ document.getElementById('import-modal').classList.remove('on'); }
-function doImport(){
-  const h=document.getElementById('tt-user').value.replace('@','').trim();
-  if(!h){ toast('Enter your TikTok username.'); return; }
-  closeImport(); toast('Importing @'+h+'...');
-  setTimeout(()=>{
-    localStorage.setItem('rf_tt',h);
-    ttHandle=h;
-    document.getElementById('set-tt-name').textContent='@'+h;
-    document.getElementById('set-tt-status').textContent='Connected';
-    document.getElementById('set-tt-status').className='tt-status live';
-    document.getElementById('set-tt-btn').textContent='Disconnect';
-    toast('Connected @'+h);
-  },1200);
+// ===== BATCHES =====
+function renderBatches(){
+  const el=document.getElementById('batch-rows');
+  if(!batches.length){el.innerHTML='<div class="no-batches">No batches yet</div>';return;}
+  el.innerHTML=batches.map(b=>`
+    <div class="brow">
+      <span class="brow-date">${b.date}</span>
+      <span class="brow-ct">${b.count}</span>
+      <span class="brow-status">COMPLETE</span>
+      <span class="brow-open" onclick="toast('Opening ready/ folder...')">Open folder</span>
+    </div>`).join('');
 }
 
 // ===== TOAST =====
-function toast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('on');
-  setTimeout(()=>el.classList.remove('on'),2600);
-}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),2600);}
 
 // ===== INIT =====
-renderBatches();
-renderBannerList('top');
-renderBannerList('bot');
-renderHooks();
-document.getElementById('dash-hi').textContent='Hi, '+userName;
-document.getElementById('vid-count').textContent=vidCount+' videos today';
+// If already logged in, go straight to app
+if(currentUser){showApp();}else{showLand();}
 </script>
 </body>
 </html>
