@@ -494,10 +494,74 @@ textarea::placeholder{color:var(--muted2)}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:9px 18px;font-size:12px;color:var(--txt);opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.6)}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* LOADING SCREEN */
+.loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .5s ease}
+.loader.fade{opacity:0;pointer-events:none}
+.loader-logo{display:flex;align-items:center;gap:10px}
+.loader-mark{width:44px;height:44px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:12px;display:flex;align-items:center;justify-content:center;animation:loader-pulse 1.5s ease infinite}
+.loader-mark svg{width:18px;height:18px;fill:#000}
+.loader-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:800;color:var(--txt)}
+.loader-name span{color:var(--gold)}
+.loader-bar{width:120px;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+.loader-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;animation:loader-fill 1.4s ease forwards}
+@keyframes loader-pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.4)}50%{box-shadow:0 0 0 8px rgba(201,168,76,0)}}
+@keyframes loader-fill{0%{width:0%}100%{width:100%}}
+
+/* EMPTY STATE */
+.empty-state{padding:40px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty-icon{width:52px;height:52px;background:var(--card2);border:1px solid var(--border2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:4px}
+.empty-title{font-size:15px;font-weight:600}
+.empty-sub{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px}
+.empty-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:9px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-top:4px}
+.empty-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+/* DASHBOARD GREETING ROW */
+.dash-greeting-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.dash-greeting-time{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);color:var(--gold)}
+
+/* MOBILE */
+@media(max-width:700px){
+  .editor-shell-2col{grid-template-columns:1fr;padding:16px 12px 80px}
+  .preview-panel{display:none}
+  .dash-stats{grid-template-columns:1fr 1fr;max-width:100%}
+  .land-nav{padding:14px 20px}
+  .land-nav-links{display:none}
+  .hero{padding:90px 20px 40px}
+  .hero h1{font-size:clamp(32px,8vw,52px)}
+  .hiw-section{padding:60px 20px}
+  .hiw-steps{grid-template-columns:1fr;gap:16px}
+  .hiw-steps::before{display:none}
+  .feat-section{padding:0 20px 60px}
+  .feat-grid{grid-template-columns:1fr}
+  .feat-card.wide{grid-column:span 1}
+  .testi-section{padding:0 20px 60px}
+  .testi-grid{grid-template-columns:1fr}
+  .price-section{padding:60px 20px}
+  .pricing-wrap{grid-template-columns:1fr}
+  .faq-section{padding:0 20px 60px}
+  .cta-band{margin:0 20px 60px;padding:36px 24px}
+  .land-footer{padding:24px 20px;grid-template-columns:1fr;text-align:center;gap:12px}
+  .footer-copy{text-align:center}
+  .btable-head,.brow{grid-template-columns:1fr 100px 80px}
+  .proof-strip{gap:32px;padding:20px}
+  .auth-card{padding:28px 20px}
+  .topbar{padding:10px 14px}
+  .tcount{display:none}
+}
+
 input[type=file]{display:none}
 </style>
 </head>
 <body>
+
+<!-- LOADING SCREEN -->
+<div class="loader" id="loader">
+  <div class="loader-logo">
+    <div class="loader-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+    <span class="loader-name">Royal<span>Forge</span></span>
+  </div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
 
 <!-- ONBOARDING MODAL -->
 <div class="onboard-bg" id="onboard-bg">
@@ -978,6 +1042,9 @@ input[type=file]{display:none}
   <!-- DASHBOARD -->
   <div class="app-view on" id="app-dash">
     <div class="dash">
+      <div class="dash-greeting-row">
+        <span class="dash-greeting-time" id="dash-time-pill">Good morning</span>
+      </div>
       <div class="dash-hi">Hi, <span id="dash-name">Creator</span></div>
       <div class="dash-sub">Your next batch is one click away.</div>
 
@@ -1012,7 +1079,14 @@ input[type=file]{display:none}
             <span>Status</span>
             <span style="text-align:right">Folder</span>
           </div>
-          <div id="batch-rows"><div class="no-batches">No batches yet</div></div>
+          <div id="batch-rows">
+            <div class="empty-state">
+              <div class="empty-icon">&#127909;</div>
+              <div class="empty-title">No batches yet</div>
+              <div class="empty-sub">Drop your first clips and hit Process batch to get started.</div>
+              <button class="empty-btn" onclick="showAppEditor()">Start your first batch</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1253,6 +1327,7 @@ function showApp(){
   document.getElementById('user-email-display').textContent=currentUser.email;
   document.getElementById('dash-name').textContent=currentUser.name||'Creator';
   document.getElementById('vid-count').textContent=vidCount+' videos today';
+  setTimePill();
   renderBatches();
   renderBannerList('top');
   renderBannerList('bot');
@@ -1512,7 +1587,15 @@ function renderBatches(){
   if(smof) smof.textContent=totalMof;
 
   const el=document.getElementById('batch-rows');
-  if(!batches.length){el.innerHTML='<div class="no-batches">No batches yet</div>';return;}
+  if(!batches.length){
+    el.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">&#127909;</div>
+      <div class="empty-title">No batches yet</div>
+      <div class="empty-sub">Drop your first clips and hit Process batch to get started.</div>
+      <button class="empty-btn" onclick="showAppEditor()">Start your first batch</button>
+    </div>`;
+    return;
+  }
   el.innerHTML=batches.map(b=>`
     <div class="brow">
       <span class="brow-date">${b.date}</span>
@@ -1709,6 +1792,24 @@ function doImport(){
   },1200);
 }
 
+// ===== LOADER =====
+function hideLoader(){
+  const l=document.getElementById('loader');
+  if(l){l.classList.add('fade');setTimeout(()=>{l.style.display='none';},500);}
+}
+
+// ===== TIME GREETING =====
+function getTimePill(){
+  const h=new Date().getHours();
+  if(h<12) return 'Good morning';
+  if(h<17) return 'Good afternoon';
+  return 'Good evening';
+}
+function setTimePill(){
+  const el=document.getElementById('dash-time-pill');
+  if(el) el.textContent=getTimePill();
+}
+
 // ===== SCROLL REVEAL =====
 const revealObserver = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
@@ -1716,8 +1817,11 @@ const revealObserver = new IntersectionObserver((entries)=>{
 document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
 
 // ===== INIT =====
-// If already logged in, go straight to app
-if(currentUser){showApp();}else{showLand();}
+// Hide loader after 1.5s then show correct view
+setTimeout(()=>{
+  hideLoader();
+  if(currentUser){showApp();}else{showLand();}
+},1500);
 </script>
 </body>
 </html>
