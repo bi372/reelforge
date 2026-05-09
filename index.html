@@ -519,6 +519,31 @@ textarea::placeholder{color:var(--muted2)}
 .dash-greeting-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .dash-greeting-time{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);color:var(--gold)}
 
+/* VIDEO COUNTER BAR */
+.vid-counter{display:flex;align-items:center;justify-content:space-between;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px}
+.vc-left{display:flex;align-items:center;gap:10px}
+.vc-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--gold);line-height:1}
+.vc-label{font-size:11px;color:var(--muted);margin-top:1px}
+.vc-pills{display:flex;gap:5px}
+.vc-empty{font-size:12px;color:var(--muted2);font-style:italic}
+
+/* CHANGE PASSWORD */
+.pw-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0}
+.pw-toggle-lbl{font-size:12px;color:var(--muted)}
+.pw-toggle-btn{font-size:11px;color:var(--gold);font-weight:600;cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
+.pw-form{display:none;flex-direction:column;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.pw-form.show{display:flex}
+.pw-err{font-size:11px;color:var(--red);display:none}
+.pw-err.show{display:block}
+.pw-ok{font-size:11px;color:var(--green);display:none}
+.pw-ok.show{display:block}
+
+/* VERSION BADGE */
+.ver-footer{display:flex;align-items:center;justify-content:space-between;padding:18px 0 6px;margin-top:8px;border-top:1px solid var(--border)}
+.ver-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.18);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:600}
+.ver-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.ver-copy{font-size:11px;color:var(--muted2)}
+
 /* MOBILE */
 @media(max-width:700px){
   .editor-shell-2col{grid-template-columns:1fr;padding:16px 12px 80px}
@@ -1167,6 +1192,17 @@ input[type=file]{display:none}
       <button class="add-files-btn" onclick="document.getElementById('file-in').click()">Add files...</button>
     </div>
 
+    <div class="vid-counter" id="vid-counter-bar">
+      <div class="vc-left">
+        <div>
+          <div class="vc-num" id="vc-num">0</div>
+          <div class="vc-label">videos ready</div>
+        </div>
+        <div class="vc-pills" id="vc-pills"></div>
+      </div>
+      <span class="vc-empty" id="vc-empty">Add videos above to get started</span>
+    </div>
+
     <button class="process-btn" onclick="processBatch()">Process batch</button>
     </div>
 
@@ -1197,6 +1233,20 @@ input[type=file]{display:none}
       <div class="set-card-title">Account</div>
       <div class="set-row"><div class="set-lbl">Email</div><div class="set-val" id="set-email-disp"></div></div>
       <div class="set-row"><div class="set-lbl">Display Name</div><input class="set-inp" id="set-name" placeholder="Your name" oninput="updateName(this.value)"/></div>
+      <div class="set-row">
+        <div class="pw-toggle">
+          <span class="pw-toggle-lbl">Password</span>
+          <button class="pw-toggle-btn" onclick="togglePwForm()">Change password</button>
+        </div>
+        <div class="pw-form" id="pw-form">
+          <input class="set-inp" type="password" id="pw-curr" placeholder="Current password"/>
+          <input class="set-inp" type="password" id="pw-new" placeholder="New password (min 6 chars)"/>
+          <input class="set-inp" type="password" id="pw-confirm" placeholder="Confirm new password"/>
+          <div class="pw-err" id="pw-err">Passwords don't match or current password is wrong.</div>
+          <div class="pw-ok" id="pw-ok">Password updated successfully!</div>
+          <button class="set-btn" onclick="doChangePassword()" style="align-self:flex-start">Update password</button>
+        </div>
+      </div>
     </div>
     <div class="set-card">
       <div class="set-card-title">TikTok Account</div>
@@ -1230,6 +1280,10 @@ input[type=file]{display:none}
         <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--red)">Log out</div><div style="font-size:11px;color:var(--muted)">You'll be taken back to the home screen.</div></div>
         <button class="set-btn set-btn-red" onclick="doLogout()">Log out</button>
       </div>
+    </div>
+    <div class="ver-footer">
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0 &mdash; RoyalForge</div>
+      <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
   </div>
@@ -1490,13 +1544,13 @@ function handleFiles(fl){
     v.onloadedmetadata=()=>{
       const idx=files.indexOf(entry);
       if(idx!==-1){files[idx].duration=v.duration;files[idx].funnel=autoFunnel(v.duration);}
-      URL.revokeObjectURL(url);renderFiles();
+      URL.revokeObjectURL(url);renderFiles();updateVidCounter();
     };
   }
-  renderFiles();
+  renderFiles();updateVidCounter();
 }
 function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('over');handleFiles(e.dataTransfer.files);}
-function removeFile(i){files.splice(i,1);renderFiles();}
+function removeFile(i){files.splice(i,1);renderFiles();updateVidCounter();}
 function renderFiles(){
   const el=document.getElementById('file-list');
   el.innerHTML=files.map((f,i)=>`
@@ -1559,7 +1613,7 @@ function processBatch(){
       document.getElementById('vid-count').textContent=vidCount+' videos today';
       document.getElementById('done-msg').textContent='Processed '+total+' video'+(total!==1?'s':'')+'. '+bof+' BOF, '+mof+' MOF.';
       document.getElementById('done-bg').classList.add('on');
-      files=[];renderFiles();return;
+      files=[];renderFiles();updateVidCounter();return;
     }
     document.getElementById('prog-fill').style.width=Math.round((cur/total)*100)+'%';
     document.getElementById('proc-fname').textContent=(cur+1)+'/'+total+' - Processing...';
@@ -1790,6 +1844,55 @@ function doImport(){
     if(btn) btn.textContent='Disconnect';
     toast('Connected @'+h+' successfully!');
   },1200);
+}
+
+// ===== CHANGE PASSWORD =====
+function togglePwForm(){
+  const f=document.getElementById('pw-form');
+  f.classList.toggle('show');
+  document.getElementById('pw-err').classList.remove('show');
+  document.getElementById('pw-ok').classList.remove('show');
+  document.getElementById('pw-curr').value='';
+  document.getElementById('pw-new').value='';
+  document.getElementById('pw-confirm').value='';
+}
+
+function doChangePassword(){
+  const curr=document.getElementById('pw-curr').value;
+  const nw=document.getElementById('pw-new').value;
+  const conf=document.getElementById('pw-confirm').value;
+  const err=document.getElementById('pw-err');
+  const ok=document.getElementById('pw-ok');
+  err.classList.remove('show'); ok.classList.remove('show');
+  if(!curr||!nw||!conf){err.textContent='Please fill in all fields.';err.classList.add('show');return;}
+  if(nw.length<6){err.textContent='New password must be at least 6 characters.';err.classList.add('show');return;}
+  if(nw!==conf){err.textContent="New passwords don't match.";err.classList.add('show');return;}
+  const acc=accounts.find(a=>a.email===currentUser.email);
+  if(!acc||acc.pw!==curr){err.textContent='Current password is incorrect.';err.classList.add('show');return;}
+  acc.pw=nw;
+  localStorage.setItem('rf_accounts',JSON.stringify(accounts));
+  ok.classList.add('show');
+  setTimeout(()=>{ togglePwForm(); },2000);
+}
+
+// ===== VIDEO COUNTER =====
+function updateVidCounter(){
+  const total=files.length;
+  const bof=files.filter(f=>f.funnel==='bof').length;
+  const mof=files.filter(f=>f.funnel==='mof').length;
+  const numEl=document.getElementById('vc-num');
+  const pillsEl=document.getElementById('vc-pills');
+  const emptyEl=document.getElementById('vc-empty');
+  if(!numEl) return;
+  numEl.textContent=total;
+  if(total>0){
+    pillsEl.innerHTML=`<span class="split-bof">${bof} BOF</span><span class="split-mof">${mof} MOF</span>`;
+    pillsEl.style.display='flex';
+    emptyEl.style.display='none';
+  } else {
+    pillsEl.style.display='none';
+    emptyEl.style.display='block';
+  }
 }
 
 // ===== LOADER =====
