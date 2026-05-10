@@ -676,11 +676,11 @@ input[type=file]{display:none}
       <button class="hero-cta-ghost" onclick="showLogin()">Already have an account</button>
     </div>
     <div class="download-wrap">
-      <a href="https://github.com/bi372/reelforge/releases/download/v1.0.0/RoyalForge.Setup.1.0.0.exe" class="download-btn" download>
+      <a href="https://github.com/bi372/reelforge/releases/download/v1.0.1/RoyalForge.Setup.1.0.1.exe" class="download-btn" download>
         <svg viewBox="0 0 24 24"><path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-6 2h12v2H6v-2z"/></svg>
         Download for Windows
       </a>
-      <div class="download-meta">Windows 10/11 &middot; v1.0.0 &middot; 72MB &middot; Free to start</div>
+      <div class="download-meta">Windows 10/11 &middot; v1.0.1 &middot; 170MB &middot; FFmpeg included</div>
     </div>
     <div class="hero-proof"><span>Free to start</span> &nbsp;&middot;&nbsp; <span>No credit card required</span> &nbsp;&middot;&nbsp; <span>Cancel anytime</span></div>
   </div>
@@ -1802,7 +1802,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
 
   // Output folder
   const customFolder = localStorage.getItem('rf_custom_folder');
-  const homeDir = 'C:\\Users\\wpc80';
+  const homeDir = window.electronAPI && window.electronAPI.homeDir ? window.electronAPI.homeDir : (process.env.USERPROFILE || process.env.HOME || 'C:\\Users\\User');
   const readyFolder = customFolder || (homeDir+'\\Downloads\\RoyalForge\\ready');
   folderPath = homeDir+'\\Downloads\\RoyalForge';
   localStorage.setItem('rf_fp', folderPath);
@@ -1898,7 +1898,9 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
 
 function openReady(){
   document.getElementById('done-bg').classList.remove('on');
-  const readyPath='C:\\Users\\wpc80\\Downloads\\RoyalForge\\ready';
+  const customFolder2 = localStorage.getItem('rf_custom_folder');
+  const homeDir2 = window.electronAPI && window.electronAPI.homeDir ? window.electronAPI.homeDir : (process.env.USERPROFILE || 'C:\\Users\\User');
+  const readyPath = customFolder2 || (homeDir2+'\\Downloads\\RoyalForge\\ready');
   if(window.electronAPI && window.electronAPI.openFolder){
     window.electronAPI.openFolder(readyPath);
   } else {
