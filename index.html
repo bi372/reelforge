@@ -575,6 +575,11 @@ textarea::placeholder{color:var(--muted2)}
 }
 
 input[type=file]{display:none}
+.download-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:16px 36px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;letter-spacing:.1px}
+.download-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 32px var(--gold-glow)}
+.download-btn svg{width:20px;height:20px;fill:#000;flex-shrink:0}
+.download-meta{font-size:12px;color:var(--muted2);margin-top:10px}
+.download-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:40px}
 .bg-style-none{color:#fff;background:transparent!important;border-color:rgba(255,255,255,.4)!important;text-shadow:0 0 4px rgba(0,0,0,.8)}
 .bg-style-semi{color:#fff;background:rgba(0,0,0,.4)!important;border-color:transparent!important}
 .bg-style-solid{color:#000;background:#fff!important;border-color:transparent!important}
@@ -669,6 +674,13 @@ input[type=file]{display:none}
     <div class="hero-cta-row">
       <button class="hero-cta" onclick="showSignup()">Start for free &rarr;</button>
       <button class="hero-cta-ghost" onclick="showLogin()">Already have an account</button>
+    </div>
+    <div class="download-wrap">
+      <a href="https://github.com/bi372/reelforge/releases/download/v1.0.0/RoyalForge.Setup.1.0.0.exe" class="download-btn" download>
+        <svg viewBox="0 0 24 24"><path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-6 2h12v2H6v-2z"/></svg>
+        Download for Windows
+      </a>
+      <div class="download-meta">Windows 10/11 &middot; v1.0.0 &middot; 72MB &middot; Free to start</div>
     </div>
     <div class="hero-proof"><span>Free to start</span> &nbsp;&middot;&nbsp; <span>No credit card required</span> &nbsp;&middot;&nbsp; <span>Cancel anytime</span></div>
   </div>
