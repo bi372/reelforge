@@ -575,6 +575,12 @@ textarea::placeholder{color:var(--muted2)}
 }
 
 input[type=file]{display:none}
+.update-bar{display:none;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;padding:8px 20px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;transition:opacity .2s}
+.update-bar:hover{opacity:.9}
+.update-bar.show{display:block}
+.pos-row{display:flex;align-items:center;gap:6px;margin-top:10px}
+.pos-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:5px 12px;cursor:pointer;color:var(--muted);font-size:11px;font-family:'Inter',sans-serif;font-weight:600;transition:all .2s;flex:1;text-align:center}
+.pos-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
 .download-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:16px 36px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;letter-spacing:.1px}
 .download-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 32px var(--gold-glow)}
 .download-btn svg{width:20px;height:20px;fill:#000;flex-shrink:0}
@@ -595,6 +601,18 @@ input[type=file]{display:none}
 .size-row{display:flex;align-items:center;gap:8px;margin-top:12px}
 .size-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 14px;cursor:pointer;color:var(--muted);transition:all .2s;font-family:'Inter',sans-serif;font-weight:700}
 .size-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
+<style>
+@font-face{font-family:'RF-Bebas';src:url('fonts/bebas.ttf')}
+@font-face{font-family:'RF-Playfair';src:url('fonts/playfair.ttf')}
+@font-face{font-family:'RF-Pacifico';src:url('fonts/pacifico.ttf')}
+@font-face{font-family:'RF-Oswald';src:url('fonts/oswald.ttf')}
+@font-face{font-family:'RF-Abril';src:url('fonts/abril.ttf')}
+@font-face{font-family:'RF-Dancing';src:url('fonts/dancing.ttf')}
+@font-face{font-family:'RF-Courier';src:url('fonts/courier.ttf')}
+@font-face{font-family:'RF-Special';src:url('fonts/specialelite.ttf')}
+@font-face{font-family:'RF-Comic';src:url('fonts/comicneue.ttf')}
+@font-face{font-family:'RF-BlackHan';src:url('fonts/blackhan.ttf')}
+</style>
 </style>
 </head>
 <body>
@@ -676,11 +694,11 @@ input[type=file]{display:none}
       <button class="hero-cta-ghost" onclick="showLogin()">Already have an account</button>
     </div>
     <div class="download-wrap">
-      <a href="https://github.com/bi372/reelforge/releases/download/v1.0.1/RoyalForge.Setup.1.0.1.exe" class="download-btn" download>
+      <a href="https://github.com/bi372/reelforge/releases/download/v1.0.2/RoyalForge.Setup.1.0.2.exe" class="download-btn" download>
         <svg viewBox="0 0 24 24"><path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-6 2h12v2H6v-2z"/></svg>
         Download for Windows
       </a>
-      <div class="download-meta">Windows 10/11 &middot; v1.0.1 &middot; 170MB &middot; FFmpeg included</div>
+      <div class="download-meta">Windows 10/11 &middot; v1.0.2 &middot; 170MB &middot; FFmpeg included</div>
     </div>
     <div class="hero-proof"><span>Free to start</span> &nbsp;&middot;&nbsp; <span>No credit card required</span> &nbsp;&middot;&nbsp; <span>Cancel anytime</span></div>
   </div>
@@ -1079,7 +1097,7 @@ input[type=file]{display:none}
 
   <div class="topbar">
     <div class="app-logo" onclick="showAppDash()">
-      <div class="app-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+      <div class="app-logo-mark"><img src="icon.png" style="width:26px;height:26px;border-radius:7px;object-fit:cover"/></div>
       <span class="app-logo-name">Royal<span>Forge</span></span>
       <span class="app-logo-sub" id="user-email-display">you@example.com</span>
     </div>
@@ -1090,6 +1108,8 @@ input[type=file]{display:none}
       <button class="tbtn" onclick="doLogout()">Log out</button>
     </div>
   </div>
+
+  <div class="update-bar" id="update-bar" onclick="openUpdateLink()"></div>
 
   <!-- DASHBOARD -->
   <div class="app-view on" id="app-dash">
@@ -1162,17 +1182,17 @@ input[type=file]{display:none}
     <div class="sec">
       <div class="sec-label">Font &amp; Size <span class="info-dot">i</span></div>
       <div class="font-picker-wrap"><div class="font-picker-row" id="font-picker-row">
-        <div class="font-opt active" onclick="setFont('classic',this)"><div class="font-opt-preview" style="font-family:Arial,sans-serif;font-weight:700">Aa</div><div class="font-opt-name">Classic</div></div>
-        <div class="font-opt" onclick="setFont('elegance',this)"><div class="font-opt-preview" style="font-family:'Playfair Display',serif">Aa</div><div class="font-opt-name">Elegance</div></div>
-        <div class="font-opt" onclick="setFont('neon',this)"><div class="font-opt-preview" style="font-family:Impact,sans-serif;letter-spacing:2px">Aa</div><div class="font-opt-name">Neon</div></div>
-        <div class="font-opt" onclick="setFont('retro',this)"><div class="font-opt-preview" style="font-family:cursive">Aa</div><div class="font-opt-name">Retro</div></div>
-        <div class="font-opt" onclick="setFont('comic',this)"><div class="font-opt-preview" style="font-family:'Comic Sans MS',cursive">Aa</div><div class="font-opt-name">Comic</div></div>
-        <div class="font-opt" onclick="setFont('tallhaus',this)"><div class="font-opt-preview" style="font-family:Impact,sans-serif;letter-spacing:1px">Aa</div><div class="font-opt-name">Tallhaus</div></div>
-        <div class="font-opt" onclick="setFont('vintage',this)"><div class="font-opt-preview" style="font-family:Georgia,serif;font-weight:800">Aa</div><div class="font-opt-name">Vintage</div></div>
-        <div class="font-opt" onclick="setFont('bomb',this)"><div class="font-opt-preview" style="font-family:Impact,sans-serif;font-size:22px">Aa</div><div class="font-opt-name">Bomb</div></div>
-        <div class="font-opt" onclick="setFont('signature',this)"><div class="font-opt-preview" style="font-family:cursive;font-size:22px">Aa</div><div class="font-opt-name">Signature</div></div>
-        <div class="font-opt" onclick="setFont('printer',this)"><div class="font-opt-preview" style="font-family:'Courier New',monospace">Aa</div><div class="font-opt-name">Printer</div></div>
-        <div class="font-opt" onclick="setFont('typewriter',this)"><div class="font-opt-preview" style="font-family:'Courier New',monospace;font-size:15px">Aa</div><div class="font-opt-name">Typewriter</div></div>
+        <div class="font-opt active" onclick="setFont('classic',this)"><div class="font-opt-preview" style="font-family:Arial,sans-serif;font-weight:700;font-size:16px">ABC</div><div class="font-opt-name">Arial</div></div>
+        <div class="font-opt" onclick="setFont('elegance',this)"><div class="font-opt-preview" style="font-family:'RF-Playfair',serif;font-size:16px">ABC</div><div class="font-opt-name">Playfair</div></div>
+        <div class="font-opt" onclick="setFont('neon',this)"><div class="font-opt-preview" style="font-family:'RF-Bebas',sans-serif;font-size:22px;letter-spacing:2px">ABC</div><div class="font-opt-name">Bebas</div></div>
+        <div class="font-opt" onclick="setFont('retro',this)"><div class="font-opt-preview" style="font-family:'RF-Pacifico',cursive;font-size:14px">Abc</div><div class="font-opt-name">Pacifico</div></div>
+        <div class="font-opt" onclick="setFont('comic',this)"><div class="font-opt-preview" style="font-family:'RF-Comic',cursive;font-size:16px">Abc</div><div class="font-opt-name">Comic Neue</div></div>
+        <div class="font-opt" onclick="setFont('tallhaus',this)"><div class="font-opt-preview" style="font-family:'RF-Oswald',sans-serif;font-size:18px">ABC</div><div class="font-opt-name">Oswald</div></div>
+        <div class="font-opt" onclick="setFont('vintage',this)"><div class="font-opt-preview" style="font-family:'RF-Abril',serif;font-size:16px">Abc</div><div class="font-opt-name">Abril</div></div>
+        <div class="font-opt" onclick="setFont('bomb',this)"><div class="font-opt-preview" style="font-family:'RF-BlackHan',sans-serif;font-size:16px">ABC</div><div class="font-opt-name">Black Han</div></div>
+        <div class="font-opt" onclick="setFont('signature',this)"><div class="font-opt-preview" style="font-family:'RF-Dancing',cursive;font-size:18px">Abc</div><div class="font-opt-name">Dancing</div></div>
+        <div class="font-opt" onclick="setFont('printer',this)"><div class="font-opt-preview" style="font-family:'RF-Courier',monospace;font-size:15px">ABC</div><div class="font-opt-name">Courier</div></div>
+        <div class="font-opt" onclick="setFont('typewriter',this)"><div class="font-opt-preview" style="font-family:'RF-Special',monospace;font-size:14px">Abc</div><div class="font-opt-name">Special Elite</div></div>
       </div></div>
       <div class="size-row">
         <span style="font-size:11px;color:var(--muted)">A</span>
@@ -1183,6 +1203,7 @@ input[type=file]{display:none}
         <span id="font-size-val" style="font-size:11px;color:var(--gold);min-width:24px;text-align:right">52</span>
 
       </div>
+
     </div>
 
     <div class="sec">
@@ -1293,7 +1314,9 @@ input[type=file]{display:none}
         <div class="phone-bg">
           <div class="phone-product-emoji" id="prev-emoji">&#129514;</div>
         </div>
-        <div class="phone-overlay top-pos" id="phone-overlay-content"></div>
+        <div id="phone-overlay-content" style="position:absolute;left:0;right:0;top:14px;display:flex;flex-direction:column;gap:4px;padding:0 10px;cursor:grab;user-select:none" 
+    onmousedown="startDrag(event)"></div>
+  <div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:9px;color:rgba(255,255,255,.25);pointer-events:none">drag to reposition</div>
       </div>
       <div class="preview-hint">Updates as you edit. Tap cycle to see different variants.</div>
       <button class="preview-cycle-btn" onclick="cyclePreview()">Cycle variants</button>
@@ -1418,6 +1441,31 @@ input[type=file]{display:none}
 </div>
 
 <script>
+
+const CURRENT_VERSION = '1.0.1';
+function checkForUpdates() {
+  fetch('https://api.github.com/repos/bi372/reelforge/releases/latest')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.tag_name) return;
+      const latest = data.tag_name.replace('v','');
+      if (latest !== CURRENT_VERSION) {
+        const bar = document.getElementById('update-bar');
+        if (bar) {
+          bar.textContent = 'Γ¼å RoyalForge ' + data.tag_name + ' is available ΓÇö click to download';
+          bar.classList.add('show');
+          bar._url = data.html_url;
+        }
+      }
+    })
+    .catch(() => {}) // silent fail if offline
+}
+function openUpdateLink() {
+  const bar = document.getElementById('update-bar');
+  if (bar && bar._url && window.electronAPI && window.electronAPI.openFolder) {
+    require('electron').shell.openExternal(bar._url);
+  }
+}
 // ===== AUTH STATE =====
 let currentUser = JSON.parse(localStorage.getItem('rf_user')||'null');
 let accounts = JSON.parse(localStorage.getItem('rf_accounts')||'[]');
@@ -1425,6 +1473,36 @@ let batches = JSON.parse(localStorage.getItem('rf_batches')||'[]');
 let folderPath = localStorage.getItem('rf_fp')||'';
 let ovStyle = 'banner';
 let selectedFont = 'classic';
+let textYPercent = 5; // percentage from top
+let isDragging = false;
+let dragStartY = 0;
+let dragStartPct = 0;
+
+function startDrag(e) {
+  isDragging = true;
+  dragStartY = e.clientY;
+  dragStartPct = textYPercent;
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', stopDrag);
+  e.preventDefault();
+}
+function onDrag(e) {
+  if (!isDragging) return;
+  const frame = document.querySelector('.phone-frame');
+  if (!frame) return;
+  const frameH = frame.offsetHeight;
+  const delta = e.clientY - dragStartY;
+  const deltaPct = (delta / frameH) * 100;
+  textYPercent = Math.max(0, Math.min(85, dragStartPct + deltaPct));
+  const el = document.getElementById('phone-overlay-content');
+  if (el) el.style.top = textYPercent + '%';
+  saveSettings();
+}
+function stopDrag() {
+  isDragging = false;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', stopDrag);
+}
 let topBgIdx = 0; // 0=solid-color, 1=outline, 2=plain text
 let botBgIdx = 0; // 0=solid-color, 1=outline, 2=plain text
 let hookBgIdx = 0; // 0=solid-color, 1=outline, 2=plain text
@@ -1527,6 +1605,10 @@ function showLogin(){showView('view-login');document.getElementById('login-error
 function showSignup(){showView('view-signup');document.getElementById('signup-error').classList.remove('show');document.getElementById('signup-success').classList.remove('show');}
 
 function showApp(){
+  // Cache home directory
+  if(window.electronAPI && window.electronAPI.getHomeDir){
+    window.electronAPI.getHomeDir().then(d=>{ if(d) localStorage.setItem('rf_homedir',d); });
+  }
   showView('view-app');
   document.getElementById('user-email-display').textContent=currentUser.email;
   document.getElementById('dash-name').textContent=currentUser.name||'Creator';
@@ -1802,7 +1884,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
 
   // Output folder
   const customFolder = localStorage.getItem('rf_custom_folder');
-  const homeDir = window.electronAPI && window.electronAPI.homeDir ? window.electronAPI.homeDir : (process.env.USERPROFILE || process.env.HOME || 'C:\\Users\\User');
+  const homeDir = localStorage.getItem('rf_homedir') || 'C:\\Users\\User';
   const readyFolder = customFolder || (homeDir+'\\Downloads\\RoyalForge\\ready');
   folderPath = homeDir+'\\Downloads\\RoyalForge';
   localStorage.setItem('rf_fp', folderPath);
@@ -1875,9 +1957,9 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     try{
       if((api||ipcRenderer) && inputPath){
         if(api){
-          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle});
+          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent});
         } else {
-          await ipcRenderer.invoke('process-video',{inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle});
+          await ipcRenderer.invoke('process-video',{inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent});
         }
       } else {
         console.log('Skipped ΓÇö no api or path. Path was:', inputPath, 'api:', !!api, 'ipc:', !!ipcRenderer);
@@ -1896,10 +1978,10 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
   step();
 }
 
-function openReady(){
+async function openReady(){
   document.getElementById('done-bg').classList.remove('on');
   const customFolder2 = localStorage.getItem('rf_custom_folder');
-  const homeDir2 = window.electronAPI && window.electronAPI.homeDir ? window.electronAPI.homeDir : (process.env.USERPROFILE || 'C:\\Users\\User');
+  const homeDir2 = localStorage.getItem('rf_homedir') || 'C:\\Users\\User';
   const readyPath = customFolder2 || (homeDir2+'\\Downloads\\RoyalForge\\ready');
   if(window.electronAPI && window.electronAPI.openFolder){
     window.electronAPI.openFolder(readyPath);
@@ -1958,6 +2040,7 @@ let previewVariantIdx = 0;
 function updatePreview(){
   const el = document.getElementById('phone-overlay-content');
   if(!el) return;
+  // Position is controlled by drag
 
   const activeTop = topChips.filter(c=>c.on);
   const activeBot = botChips.filter(c=>c.on);
@@ -1965,10 +2048,17 @@ function updatePreview(){
 
 
 const fontFamilyMap = {
-  classic:'Arial,sans-serif',elegance:"'Playfair Display',serif",
-  neon:'Impact,sans-serif',retro:'cursive',comic:"'Comic Sans MS',cursive",
-  tallhaus:'Impact,sans-serif',vintage:'Georgia,serif',bomb:'Impact,sans-serif',
-  signature:'cursive',printer:"'Courier New',monospace",typewriter:"'Courier New',monospace"
+  classic:'Arial,sans-serif',
+  elegance:"'RF-Playfair',serif",
+  neon:"'RF-Bebas',sans-serif",
+  retro:"'RF-Pacifico',cursive",
+  comic:"'RF-Comic',cursive",
+  tallhaus:"'RF-Oswald',sans-serif",
+  vintage:"'RF-Abril',serif",
+  bomb:"'RF-BlackHan',sans-serif",
+  signature:"'RF-Dancing',cursive",
+  printer:"'RF-Courier',monospace",
+  typewriter:"'RF-Special',monospace"
 };
 const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
   let html = '';
@@ -2144,7 +2234,7 @@ function doImport(){
 function saveSettings(){
   localStorage.setItem('rf_settings', JSON.stringify({
     selectedFont, selectedFontSize, topColor, botColor, hookColor,
-    topBgIdx, botBgIdx, ovStyle
+    topBgIdx, botBgIdx, ovStyle, textYPercent
   }));
 }
 function loadSettings(){
@@ -2158,6 +2248,7 @@ function loadSettings(){
     if(s.topBgIdx!==undefined){ topBgIdx=s.topBgIdx; }
     if(s.botBgIdx!==undefined){ botBgIdx=s.botBgIdx; }
     if(s.ovStyle){ ovStyle=s.ovStyle; }
+    if(s.textYPercent !== undefined){ textYPercent=s.textYPercent; const el=document.getElementById('phone-overlay-content'); if(el) el.style.top=textYPercent+'%'; }
     // Apply font picker active state
     document.querySelectorAll('.font-opt').forEach(o=>o.classList.remove('active'));
     const activeFont = document.querySelector(`.font-opt[onclick*="${selectedFont}"]`);
@@ -2267,6 +2358,7 @@ document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
 setTimeout(()=>{
   hideLoader();
   if(currentUser){showApp();}else{showLand();}
+  setTimeout(checkForUpdates, 3000);
 },1500);
 </script>
 </body>
