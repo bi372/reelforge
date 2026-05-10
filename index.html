@@ -434,7 +434,7 @@ textarea::placeholder{color:var(--muted2)}
 .preview-panel{position:sticky;top:80px}
 .preview-panel-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;text-align:center}
 .phone-frame{width:100%;aspect-ratio:9/16;max-height:480px;border-radius:24px;overflow:hidden;position:relative;background:#111;border:2px solid var(--border2);box-shadow:0 20px 60px rgba(0,0,0,.6)}
-.phone-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1c1c1c 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center}
+.phone-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1c1c1c 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center;overflow:hidden}.phone-bg video,.phone-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.85}
 .phone-product-emoji{font-size:56px;opacity:.12;user-select:none}
 .phone-overlay{position:absolute;left:0;right:0;display:flex;flex-direction:column;gap:4px;padding:0 10px}
 .phone-overlay.top-pos{top:14px}
@@ -575,6 +575,25 @@ textarea::placeholder{color:var(--muted2)}
 }
 
 input[type=file]{display:none}
+.upgrade-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:500;align-items:center;justify-content:center}
+.upgrade-bg.show{display:flex}
+.upgrade-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px;width:560px;max-width:90vw}
+.upgrade-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px;text-align:center}
+.upgrade-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+.upgrade-plans{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.upgrade-plan{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;position:relative;transition:border-color .2s}
+.upgrade-plan.popular{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.04)}
+.upgrade-plan-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-size:10px;font-weight:700;padding:3px 12px;border-radius:20px;white-space:nowrap}
+.upgrade-plan-name{font-size:14px;font-weight:700;margin-bottom:8px}
+.upgrade-plan-price{font-family:'Playfair Display',serif;font-size:32px;font-weight:800;color:var(--gold);line-height:1}
+.upgrade-plan-per{font-size:11px;color:var(--muted);margin-bottom:14px}
+.upgrade-plan-features{font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:16px;text-align:left}
+.upgrade-plan-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.upgrade-plan-btn:hover{opacity:.9}
+.upgrade-plan-btn.ghost{background:none;border:1px solid var(--border2);color:var(--muted)}
+.upgrade-plan-btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
+.upgrade-close{display:block;text-align:center;margin-top:14px;font-size:12px;color:var(--muted2);cursor:pointer}
+.upgrade-close:hover{color:var(--muted)}
 .update-bar{display:none;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;padding:8px 20px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;transition:opacity .2s}
 .update-bar:hover{opacity:.9}
 .update-bar.show{display:block}
@@ -894,38 +913,38 @@ input[type=file]{display:none}
     <div class="reveal reveal-delay-2"><p class="price-sub2">Start free, upgrade when you're ready to scale.</p></div>
     <div class="pricing-wrap reveal reveal-delay-1">
       <div class="pc">
-        <div class="pc-name">Starter</div>
-        <div class="pc-price"><span class="cur">$</span><span class="amt">19</span></div>
+        <div class="pc-name">Forge</div>
+        <div class="pc-price"><span class="cur">$</span><span class="amt">29.99</span></div>
         <div class="pc-per">per month &mdash; cancel anytime</div>
         <div class="pc-divider"></div>
         <ul class="pc-list">
-          <li class="yes">25 videos per day</li>
-          <li class="yes">Banner &amp; full text overlays</li>
+          <li class="yes">50 videos per day</li>
+          <li class="yes">All overlay styles</li>
+          <li class="yes">All fonts</li>
           <li class="yes">BOF + MOF auto-tagging</li>
-          <li class="yes">Up to 5 custom hooks</li>
           <li class="yes">Local processing</li>
           <li class="no">Unlimited videos</li>
-          <li class="no">Unlimited custom hooks</li>
-          <li class="no">Priority processing</li>
+          <li class="no">Priority support</li>
+          <li class="no">Early access features</li>
         </ul>
-        <button class="pc-btn-ghost" onclick="showSignup()">Get started</button>
+        <button class="pc-btn-ghost" onclick="showSignup();showUpgrade()">Get started</button>
       </div>
       <div class="pc hot">
-        <div class="pc-name">Pro</div>
-        <div class="pc-price"><span class="cur">$</span><span class="amt">39</span></div>
+        <div class="pc-name">Royal</div>
+        <div class="pc-price"><span class="cur">$</span><span class="amt">39.99</span></div>
         <div class="pc-per">per month &mdash; cancel anytime</div>
         <div class="pc-divider"></div>
         <ul class="pc-list">
           <li class="yes">Unlimited videos per day</li>
-          <li class="yes">Banner &amp; full text overlays</li>
+          <li class="yes">All overlay styles</li>
+          <li class="yes">All fonts</li>
           <li class="yes">BOF + MOF auto-tagging</li>
-          <li class="yes">Unlimited custom hooks</li>
           <li class="yes">Local processing</li>
-          <li class="yes">Priority processing</li>
-          <li class="yes">Unlimited custom hooks</li>
-          <li class="yes">Early access to new features</li>
+          <li class="yes">Priority support</li>
+          <li class="yes">Early access features</li>
+          <li class="yes">Everything in Forge</li>
         </ul>
-        <button class="pc-btn" onclick="showSignup()">Go unlimited</button>
+        <button class="pc-btn" onclick="showSignup();showUpgrade()">Go unlimited</button>
       </div>
     </div>
     <div class="price-note reveal">Free to start &middot; No credit card required &middot; Cancel anytime</div>
@@ -1102,7 +1121,7 @@ input[type=file]{display:none}
       <span class="app-logo-sub" id="user-email-display">you@example.com</span>
     </div>
     <div class="tbar-r">
-      <span class="pro-pill">Pro</span>
+      <span class="pro-pill" onclick="showUpgrade()" style="cursor:pointer">Upgrade</span>
       <span class="tcount" id="vid-count">0 videos today</span>
       <button class="tbtn" onclick="showAppSettings()">Settings</button>
       <button class="tbtn" onclick="doLogout()">Log out</button>
@@ -1398,6 +1417,39 @@ input[type=file]{display:none}
 
 </div><!-- /app -->
 
+<!-- UPGRADE MODAL -->
+<div class="upgrade-bg" id="upgrade-bg">
+  <div class="upgrade-box">
+    <div class="upgrade-title">Upgrade RoyalForge</div>
+    <div class="upgrade-sub">Choose the plan that fits your workflow</div>
+    <div class="upgrade-plans">
+      <div class="upgrade-plan">
+        <div class="upgrade-plan-name">Free</div>
+        <div class="upgrade-plan-price">$0</div>
+        <div class="upgrade-plan-per">forever</div>
+        <div class="upgrade-plan-features">Γ£ô 5 videos/day<br>Γ£ô All overlay styles<br>Γ£ô All fonts<br>Γ£ù Limited batch size</div>
+        <button class="upgrade-plan-btn ghost" onclick="closeUpgrade()">Current plan</button>
+      </div>
+      <div class="upgrade-plan">
+        <div class="upgrade-plan-name">Forge</div>
+        <div class="upgrade-plan-price">$29<span style="font-size:16px">.99</span></div>
+        <div class="upgrade-plan-per">per month</div>
+        <div class="upgrade-plan-features">Γ£ô 50 videos/day<br>Γ£ô All overlay styles<br>Γ£ô All fonts<br>Γ£ô Priority support</div>
+        <button class="upgrade-plan-btn" onclick="openStripe('forge')">Get Forge</button>
+      </div>
+      <div class="upgrade-plan popular">
+        <div class="upgrade-plan-badge">Most Popular</div>
+        <div class="upgrade-plan-name">Royal</div>
+        <div class="upgrade-plan-price">$39<span style="font-size:16px">.99</span></div>
+        <div class="upgrade-plan-per">per month</div>
+        <div class="upgrade-plan-features">Γ£ô Unlimited videos<br>Γ£ô All overlay styles<br>Γ£ô All fonts<br>Γ£ô Priority support</div>
+        <button class="upgrade-plan-btn" onclick="openStripe('royal')">Get Royal</button>
+      </div>
+    </div>
+    <span class="upgrade-close" onclick="closeUpgrade()">Maybe later</span>
+  </div>
+</div>
+
 <!-- IMPORT MODAL -->
 <div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;align-items:center;justify-content:center" id="import-modal">
   <div style="background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:28px;width:420px;max-width:90vw">
@@ -1442,7 +1494,7 @@ input[type=file]{display:none}
 
 <script>
 
-const CURRENT_VERSION = '1.0.1';
+const CURRENT_VERSION = '1.0.2';
 function checkForUpdates() {
   fetch('https://api.github.com/repos/bi372/reelforge/releases/latest')
     .then(r => r.json())
@@ -1465,6 +1517,25 @@ function openUpdateLink() {
   if (bar && bar._url && window.electronAPI && window.electronAPI.openFolder) {
     require('electron').shell.openExternal(bar._url);
   }
+}
+
+const STRIPE_FORGE = 'https://buy.stripe.com/test_fZucN48vs6us6Ip8ag6g800';
+const STRIPE_ROYAL = 'https://buy.stripe.com/test_6oUaEW3b81a8aYFaio6g801';
+
+function showUpgrade(){
+  document.getElementById('upgrade-bg').classList.add('show');
+}
+function closeUpgrade(){
+  document.getElementById('upgrade-bg').classList.remove('show');
+}
+function openStripe(plan){
+  const url = plan === 'forge' ? STRIPE_FORGE : STRIPE_ROYAL;
+  if(window.electronAPI && window.electronAPI.openExternal){
+    window.electronAPI.openExternal(url);
+  } else {
+    window.open(url, '_blank');
+  }
+  closeUpgrade();
 }
 // ===== AUTH STATE =====
 let currentUser = JSON.parse(localStorage.getItem('rf_user')||'null');
@@ -1818,8 +1889,8 @@ function handleFiles(fl){
   renderFiles();updateVidCounter();
 }
 function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('over');handleFiles(e.dataTransfer.files);}
-function removeFile(i){files.splice(i,1);renderFiles();updateVidCounter();}
-function renderFiles(){
+function removeFile(i){files.splice(i,1);renderFiles();updateVidCounter();updatePreviewBg();}
+function renderFiles(){ updatePreviewBg();
   const el=document.getElementById('file-list');
   el.innerHTML=files.map((f,i)=>`
     <div class="file-item ${f.funnel==='bof'?'is-bof':'is-mof'}">
@@ -2036,7 +2107,72 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 const PREVIEW_EMOJIS = ['&#129514;','&#129749;','&#127960;','&#128138;','&#127381;','&#128167;'];
 let previewEmojiIdx = 0;
 let previewVariantIdx = 0;
+let previewVideoIdx = 0;
+let previewCycleTimer = null;
 
+function updatePreviewBg() {
+  const bg = document.querySelector('.phone-bg');
+  if (!bg) return;
+  bg.querySelectorAll('video,img').forEach(el => el.remove());
+  
+  // Clear existing timer
+  if (previewCycleTimer) { clearInterval(previewCycleTimer); previewCycleTimer = null; }
+  
+  if (files.length === 0) {
+    const emoji = document.getElementById('prev-emoji');
+    if (emoji) emoji.style.display = '';
+    return;
+  }
+  
+  const emoji = document.getElementById('prev-emoji');
+  if (emoji) emoji.style.display = 'none';
+  
+  previewVideoIdx = 0;
+  showPreviewVideo(bg, 0);
+  
+  // Cycle through videos if more than one
+  if (files.length > 1) {
+    previewCycleTimer = setInterval(() => {
+      previewVideoIdx = (previewVideoIdx + 1) % files.length;
+      showPreviewVideo(bg, previewVideoIdx);
+    }, 6000);
+  }
+}
+
+function showPreviewVideo(bg, idx) {
+  bg.querySelectorAll('video').forEach(el => el.remove());
+  const f = files[idx];
+  if (!f) return;
+  const vid = document.createElement('video');
+  vid.muted = true;
+  vid.playsInline = true;
+  vid.preload = 'metadata';
+  vid.loop = true;
+  vid.autoplay = true;
+  vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.85;transition:opacity .5s';
+  if (f.file.path) {
+    vid.src = 'file:///' + f.file.path.replace(/\\/g, '/');
+  } else if (f.file._blob) {
+    vid.src = URL.createObjectURL(f.file._blob);
+  }
+  vid.onloadedmetadata = () => { vid.currentTime = 0; vid.play(); };
+  bg.insertBefore(vid, bg.firstChild);
+  
+  // Show video indicator if multiple
+  let indicator = document.getElementById('preview-vid-indicator');
+  if (files.length > 1) {
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.id = 'preview-vid-indicator';
+      indicator.style.cssText = 'position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;z-index:10;font-family:Inter,sans-serif';
+      const frame = document.querySelector('.phone-frame');
+      if (frame) frame.appendChild(indicator);
+    }
+    indicator.textContent = (idx+1) + ' / ' + files.length;
+  } else if (indicator) {
+    indicator.remove();
+  }
+}
 function updatePreview(){
   const el = document.getElementById('phone-overlay-content');
   if(!el) return;
