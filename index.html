@@ -441,7 +441,7 @@ textarea::placeholder{color:var(--muted2)}
 .phone-overlay.center-pos{top:50%;transform:translateY(-50%)}
 .phone-overlay.bottom-pos{bottom:14px}
 .phone-banner{border-radius:5px;padding:6px 12px;font-weight:800;text-align:center;letter-spacing:.5px;line-height:1.2;font-family:'Inter',sans-serif;word-break:break-word}
-.phone-fulltext{color:#fff;text-align:center;line-height:1.5;font-size:13px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.9);padding:0 6px;font-family:'Inter',sans-serif;word-break:break-word}
+.phone-fulltext{text-align:center;line-height:1.5;font-size:13px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.9);padding:0 6px;font-family:'Inter',sans-serif;word-break:break-word}
 .phone-strike{display:flex;flex-direction:column;gap:3px;align-items:flex-start;padding:0 2px}
 .phone-strike-orig{font-size:13px;font-weight:800;color:rgba(255,255,255,.7);text-decoration:line-through;letter-spacing:.3px}
 .phone-strike-disc{font-size:15px;font-weight:800;background:var(--red);color:#fff;padding:2px 10px;border-radius:4px;letter-spacing:.5px}
@@ -575,6 +575,21 @@ textarea::placeholder{color:var(--muted2)}
 }
 
 input[type=file]{display:none}
+.bg-style-none{color:#fff;background:transparent!important;border-color:rgba(255,255,255,.4)!important;text-shadow:0 0 4px rgba(0,0,0,.8)}
+.bg-style-semi{color:#fff;background:rgba(0,0,0,.4)!important;border-color:transparent!important}
+.bg-style-solid{color:#000;background:#fff!important;border-color:transparent!important}
+.bg-style-color{color:#fff;background:var(--red)!important;border-color:transparent!important}
+.font-picker-wrap{overflow-x:auto;padding-bottom:6px;margin-top:10px}
+.font-picker-wrap::-webkit-scrollbar{height:3px}
+.font-picker-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.font-picker-row{display:flex;gap:8px;width:max-content}
+.font-opt{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:76px}
+.font-opt.active{border-color:var(--gold);background:rgba(201,168,76,.06)}
+.font-opt-preview{font-size:18px;color:var(--txt);line-height:1}
+.font-opt-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.size-row{display:flex;align-items:center;gap:8px;margin-top:12px}
+.size-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 14px;cursor:pointer;color:var(--muted);transition:all .2s;font-family:'Inter',sans-serif;font-weight:700}
+.size-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
 </style>
 </head>
 <body>
@@ -717,7 +732,7 @@ input[type=file]{display:none}
   <div class="proof-strip reveal">
     <div class="proof-item"><div class="proof-num">50+</div><div class="proof-label">Videos per batch</div></div>
     <div class="proof-item"><div class="proof-num">90%</div><div class="proof-label">Less editing time</div></div>
-    <div class="proof-item"><div class="proof-num">2</div><div class="proof-label">Funnel types — BOF &amp; MOF</div></div>
+    <div class="proof-item"><div class="proof-num">2</div><div class="proof-label">Funnel types ΓÇö BOF &amp; MOF</div></div>
     <div class="proof-item"><div class="proof-num">0</div><div class="proof-label">Cloud uploads needed</div></div>
   </div>
 
@@ -897,7 +912,7 @@ input[type=file]{display:none}
           <span class="faq-q-txt">Does it work on Mac and Windows?</span>
           <div class="faq-icon">+</div>
         </div>
-        <div class="faq-a"><p class="faq-a-txt">Yes. RoyalForge runs in your browser as a web app so it works on any device — Mac, Windows, or anything with a modern browser. No installation required. Just open it from your desktop shortcut and you're ready to go.</p></div>
+        <div class="faq-a"><p class="faq-a-txt">Yes. RoyalForge runs in your browser as a web app so it works on any device ΓÇö Mac, Windows, or anything with a modern browser. No installation required. Just open it from your desktop shortcut and you're ready to go.</p></div>
       </div>
 
       <div class="faq-item reveal" onclick="toggleFaq(this)">
@@ -905,7 +920,7 @@ input[type=file]{display:none}
           <span class="faq-q-txt">Will TikTok ban me for using this?</span>
           <div class="faq-icon">+</div>
         </div>
-        <div class="faq-a"><p class="faq-a-txt">No. RoyalForge just burns text overlays onto your video files locally — the same thing you'd do manually in CapCut or any editor. TikTok sees a normal video. There's no bot, no automation on TikTok's side, and no API access. You upload the finished video yourself just like you always do.</p></div>
+        <div class="faq-a"><p class="faq-a-txt">No. RoyalForge just burns text overlays onto your video files locally ΓÇö the same thing you'd do manually in CapCut or any editor. TikTok sees a normal video. There's no bot, no automation on TikTok's side, and no API access. You upload the finished video yourself just like you always do.</p></div>
       </div>
 
       <div class="faq-item reveal" onclick="toggleFaq(this)">
@@ -921,7 +936,7 @@ input[type=file]{display:none}
           <span class="faq-q-txt">Do my videos get uploaded to any server?</span>
           <div class="faq-icon">+</div>
         </div>
-        <div class="faq-a"><p class="faq-a-txt">No. Everything happens locally on your machine. Your raw clips go into a raw/ folder on your computer, get processed, and the finished versions land in a ready/ folder — all without any cloud upload. Your footage never leaves your device.</p></div>
+        <div class="faq-a"><p class="faq-a-txt">No. Everything happens locally on your machine. Your raw clips go into a raw/ folder on your computer, get processed, and the finished versions land in a ready/ folder ΓÇö all without any cloud upload. Your footage never leaves your device.</p></div>
       </div>
 
       <div class="faq-item reveal" onclick="toggleFaq(this)">
@@ -929,7 +944,7 @@ input[type=file]{display:none}
           <span class="faq-q-txt">How many videos can I process at once?</span>
           <div class="faq-icon">+</div>
         </div>
-        <div class="faq-a"><p class="faq-a-txt">Starter plan users can process up to 25 videos per day. Pro plan users get unlimited videos per day with no cap. You can drop all your clips in at once and process the whole batch in one go — no need to run multiple sessions.</p></div>
+        <div class="faq-a"><p class="faq-a-txt">Starter plan users can process up to 25 videos per day. Pro plan users get unlimited videos per day with no cap. You can drop all your clips in at once and process the whole batch in one go ΓÇö no need to run multiple sessions.</p></div>
       </div>
 
       <div class="faq-item reveal" onclick="toggleFaq(this)">
@@ -937,7 +952,7 @@ input[type=file]{display:none}
           <span class="faq-q-txt">Can I customize the overlay text?</span>
           <div class="faq-icon">+</div>
         </div>
-        <div class="faq-a"><p class="faq-a-txt">Completely. Every line of text is editable — you can change the default hooks, delete ones you don't want, add your own custom lines, and pick your own colors. Your hooks are yours. RoyalForge just makes it fast to apply them to dozens of videos at once.</p></div>
+        <div class="faq-a"><p class="faq-a-txt">Completely. Every line of text is editable ΓÇö you can change the default hooks, delete ones you don't want, add your own custom lines, and pick your own colors. Your hooks are yours. RoyalForge just makes it fast to apply them to dozens of videos at once.</p></div>
       </div>
 
       <div class="faq-item reveal" onclick="toggleFaq(this)">
@@ -945,7 +960,7 @@ input[type=file]{display:none}
           <span class="faq-q-txt">Is there a free trial?</span>
           <div class="faq-icon">+</div>
         </div>
-        <div class="faq-a"><p class="faq-a-txt">Yes — you can sign up and start using RoyalForge for free. The free tier lets you explore the editor and run small batches so you can see the workflow before committing to a plan. No credit card required to get started.</p></div>
+        <div class="faq-a"><p class="faq-a-txt">Yes ΓÇö you can sign up and start using RoyalForge for free. The free tier lets you explore the editor and run small batches so you can see the workflow before committing to a plan. No credit card required to get started.</p></div>
       </div>
 
       <div class="faq-item reveal" onclick="toggleFaq(this)">
@@ -1130,6 +1145,34 @@ input[type=file]{display:none}
     <!-- LEFT: CONTROLS -->
     <div class="editor-controls">
 
+    
+
+    <div class="sec">
+      <div class="sec-label">Font &amp; Size <span class="info-dot">i</span></div>
+      <div class="font-picker-wrap"><div class="font-picker-row" id="font-picker-row">
+        <div class="font-opt active" onclick="setFont('classic',this)"><div class="font-opt-preview" style="font-family:Arial,sans-serif;font-weight:700">Aa</div><div class="font-opt-name">Classic</div></div>
+        <div class="font-opt" onclick="setFont('elegance',this)"><div class="font-opt-preview" style="font-family:'Playfair Display',serif">Aa</div><div class="font-opt-name">Elegance</div></div>
+        <div class="font-opt" onclick="setFont('neon',this)"><div class="font-opt-preview" style="font-family:Impact,sans-serif;letter-spacing:2px">Aa</div><div class="font-opt-name">Neon</div></div>
+        <div class="font-opt" onclick="setFont('retro',this)"><div class="font-opt-preview" style="font-family:cursive">Aa</div><div class="font-opt-name">Retro</div></div>
+        <div class="font-opt" onclick="setFont('comic',this)"><div class="font-opt-preview" style="font-family:'Comic Sans MS',cursive">Aa</div><div class="font-opt-name">Comic</div></div>
+        <div class="font-opt" onclick="setFont('tallhaus',this)"><div class="font-opt-preview" style="font-family:Impact,sans-serif;letter-spacing:1px">Aa</div><div class="font-opt-name">Tallhaus</div></div>
+        <div class="font-opt" onclick="setFont('vintage',this)"><div class="font-opt-preview" style="font-family:Georgia,serif;font-weight:800">Aa</div><div class="font-opt-name">Vintage</div></div>
+        <div class="font-opt" onclick="setFont('bomb',this)"><div class="font-opt-preview" style="font-family:Impact,sans-serif;font-size:22px">Aa</div><div class="font-opt-name">Bomb</div></div>
+        <div class="font-opt" onclick="setFont('signature',this)"><div class="font-opt-preview" style="font-family:cursive;font-size:22px">Aa</div><div class="font-opt-name">Signature</div></div>
+        <div class="font-opt" onclick="setFont('printer',this)"><div class="font-opt-preview" style="font-family:'Courier New',monospace">Aa</div><div class="font-opt-name">Printer</div></div>
+        <div class="font-opt" onclick="setFont('typewriter',this)"><div class="font-opt-preview" style="font-family:'Courier New',monospace;font-size:15px">Aa</div><div class="font-opt-name">Typewriter</div></div>
+      </div></div>
+      <div class="size-row">
+        <span style="font-size:11px;color:var(--muted)">A</span>
+        <input type="range" id="font-size-slider" min="24" max="100" value="52"
+          oninput="selectedFontSize=parseInt(this.value);document.getElementById('font-size-val').textContent=this.value;saveSettings();updatePreview();"
+          style="flex:1;accent-color:var(--gold);cursor:pointer"/>
+        <span style="font-size:20px;color:var(--muted)">A</span>
+        <span id="font-size-val" style="font-size:11px;color:var(--gold);min-width:24px;text-align:right">52</span>
+
+      </div>
+    </div>
+
     <div class="sec">
       <div class="sec-label">Overlay Style <span class="info-dot">i</span></div>
       <div class="ov-toggle" id="ov-toggle">
@@ -1144,6 +1187,7 @@ input[type=file]{display:none}
       <div class="sec-desc">Check the ones you want active. Edit any text. Mixed randomly per video.</div>
       <div class="row-lbl">
         Top text
+        <button id="top-bg-btn" onclick="cycleTopBg()" title="Tap to cycle background style" style="margin-left:8px;background:#e03d52;color:#fff;border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif;letter-spacing:.5px">bg</button>
         <div class="color-dots" id="top-color-dots">
           <div class="cdot sel" style="background:#e03d52" onclick="setTopColor('#e03d52',this)"></div>
           <div class="cdot" style="background:#fff;border-color:#555" onclick="setTopColor('#ffffff',this)"></div>
@@ -1151,12 +1195,23 @@ input[type=file]{display:none}
           <div class="cdot" style="background:#f97316" onclick="setTopColor('#f97316',this)"></div>
           <div class="cdot" style="background:#a855f7" onclick="setTopColor('#a855f7',this)"></div>
           <div class="cdot" style="background:#3b82f6" onclick="setTopColor('#3b82f6',this)"></div>
-          <input type="color" id="top-color-wheel" value="#e03d52" oninput="setTopColorCustom(this.value)" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #555;cursor:pointer;padding:0;background:none" title="Any color"/>
+          <input type="color" id="top-color-wheel" value="#e03d52" oninput="setTopColorCustom(this.value);updatePreview()" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #555;cursor:pointer;padding:0;background:none" title="Any color"/>
         </div>
       </div>
       <div class="item-list" id="top-list"></div>
       <button class="add-item-btn" onclick="addBannerItem('top')">+ Add top text</button>
-      <div class="row-lbl" style="margin-top:14px">Bottom text</div>
+      <div class="row-lbl" style="margin-top:14px">Bottom text
+        <button id="bot-bg-btn" onclick="cycleBotBg()" title="Tap to cycle background style" style="margin-left:8px;background:#ffffff;color:#000;border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif;letter-spacing:.5px">bg</button>
+        <div class="color-dots" id="bot-color-dots">
+          <div class="cdot" style="background:#e03d52" onclick="setBotColor('#e03d52',this)"></div>
+          <div class="cdot sel" style="background:#fff;border-color:#555" onclick="setBotColor('#ffffff',this)"></div>
+          <div class="cdot" style="background:#c9a84c" onclick="setBotColor('#c9a84c',this)"></div>
+          <div class="cdot" style="background:#f97316" onclick="setBotColor('#f97316',this)"></div>
+          <div class="cdot" style="background:#a855f7" onclick="setBotColor('#a855f7',this)"></div>
+          <div class="cdot" style="background:#3b82f6" onclick="setBotColor('#3b82f6',this)"></div>
+          <input type="color" id="bot-color-wheel" value="#ffffff" oninput="setBotColorCustom(this.value)" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #555;cursor:pointer;padding:0;background:none" title="Any color"/>
+        </div>
+      </div>
       <div class="item-list" id="bot-list"></div>
       <button class="add-item-btn" onclick="addBannerItem('bot')">+ Add bottom text</button>
       <div class="strike-tog" onclick="toggleStrike()"><div class="togbox" id="stog"></div><span class="strike-label">Strike layout &mdash; crossed out price</span></div>
@@ -1171,6 +1226,19 @@ input[type=file]{display:none}
 
     <div class="sec" id="sec-fulltext" style="display:none">
       <div class="sec-label">Full Text Hooks <span class="info-dot">i</span></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+        <span style="font-size:11px;color:var(--muted)">Color</span>
+        <button id="hook-bg-btn" onclick="cycleHookBg()" title="Tap to cycle background style" style="background:#ffffff;color:#000;border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif;letter-spacing:.5px">bg</button>
+        <div class="color-dots" id="hook-color-dots">
+          <div class="cdot" style="background:#e03d52" onclick="setHookColor('#e03d52',this)"></div>
+          <div class="cdot sel" style="background:#fff;border-color:#555" onclick="setHookColor('#ffffff',this)"></div>
+          <div class="cdot" style="background:#c9a84c" onclick="setHookColor('#c9a84c',this)"></div>
+          <div class="cdot" style="background:#f97316" onclick="setHookColor('#f97316',this)"></div>
+          <div class="cdot" style="background:#a855f7" onclick="setHookColor('#a855f7',this)"></div>
+          <div class="cdot" style="background:#3b82f6" onclick="setHookColor('#3b82f6',this)"></div>
+          <input type="color" id="hook-color-wheel" value="#ffffff" oninput="setHookColorCustom(this.value)" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #555;cursor:pointer;padding:0;background:none" title="Any color"/>
+        </div>
+      </div>
       <div class="sec-desc">Check the ones you want. Edit any line. One random line per video.</div>
       <div class="item-list" id="hook-list"></div>
       <button class="add-item-btn" onclick="addHookItem()" style="margin-top:5px">+ Add hook</button>
@@ -1182,14 +1250,14 @@ input[type=file]{display:none}
     <div class="sec">
       <div class="sec-label">Videos <span class="info-dot">i</span></div>
       <div class="drop-zone" id="drop-zone"
-           onclick="document.getElementById('file-in').click()"
+           onclick="pickFilesNative()"
            ondragover="event.preventDefault();this.classList.add('over')"
            ondragleave="this.classList.remove('over')"
            ondrop="handleDrop(event)">
-        <div class="dz-text">Drag and drop video files here, or use Add files.</div>
+        <div class="dz-text">Drag and drop video files here, or click to browse.</div>
       </div>
       <div class="file-list" id="file-list"></div>
-      <button class="add-files-btn" onclick="document.getElementById('file-in').click()">Add files...</button>
+      <button class="add-files-btn" onclick="pickFilesNative()">Add files...</button>
     </div>
 
     <div class="vid-counter" id="vid-counter-bar">
@@ -1260,9 +1328,14 @@ input[type=file]{display:none}
       </div>
     </div>
     <div class="set-card">
-      <div class="set-card-title">Media Folder</div>
-      <div class="set-note">raw/ stores original clips. ready/ stores processed output. Both created automatically on first batch.</div>
-      <div class="folder-display" id="set-folder">Created automatically on first batch</div>
+      <div class="set-card-title">Output Folder</div>
+      <div class="set-note">Processed videos are saved here. Defaults to Downloads\RoyalForge\ready</div>
+      <div class="folder-display" id="set-folder">Downloads\RoyalForge\ready (default)</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input class="set-inp" id="custom-folder-inp" placeholder="C:\Users\you\Videos\ready" style="flex:1"/>
+        <button class="set-btn" onclick="saveCustomFolder()">Save</button>
+        <button class="set-btn" onclick="resetFolder()">Reset</button>
+      </div>
     </div>
     <div class="set-card">
       <div class="set-card-title">Subscription</div>
@@ -1307,22 +1380,27 @@ input[type=file]{display:none}
 <!-- PROCESSING -->
 <div class="proc-bg" id="proc-bg">
   <div class="proc-box">
-    <h2>Processing</h2>
+    <h2>Processing batch</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span id="proc-fname" style="font-size:12px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Preparing...</span>
+      <span id="proc-counter" style="font-size:12px;color:var(--gold);font-weight:700;flex-shrink:0;margin-left:8px">0 / 0</span>
+    </div>
     <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
-    <div class="proc-fname" id="proc-fname">Preparing...</div>
-    <div class="proc-stat" id="proc-stat"></div>
+    <div id="proc-stat" style="font-size:11px;color:var(--muted2);margin-top:6px;text-align:center">Starting...</div>
+    <div id="proc-eta" style="font-size:11px;color:var(--muted2);margin-top:3px;text-align:center"></div>
   </div>
 </div>
 
 <!-- DONE -->
 <div class="done-bg" id="done-bg">
   <div class="done-box">
-    <h2>Batch complete</h2>
-    <p id="done-msg">Processed 0 video(s).</p>
-    <div class="folder-tags"><span class="ftag">&#128193; raw/</span><span class="ftag" style="color:var(--green)">&#10003; ready/</span></div>
+    <div style="font-size:32px;margin-bottom:8px">Γ£à</div>
+    <h2>Batch complete!</h2>
+    <p id="done-msg" style="margin-bottom:16px">Processed 0 video(s).</p>
+    <div id="done-stats" style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"></div>
     <div class="done-btns">
       <button class="done-open" onclick="openReady()">Open ready/ folder</button>
-      <button class="done-back" onclick="closeDone()">Back to home</button>
+      <button class="done-back" onclick="closeDone()">New batch</button>
     </div>
   </div>
 </div>
@@ -1334,8 +1412,68 @@ let accounts = JSON.parse(localStorage.getItem('rf_accounts')||'[]');
 let batches = JSON.parse(localStorage.getItem('rf_batches')||'[]');
 let folderPath = localStorage.getItem('rf_fp')||'';
 let ovStyle = 'banner';
+let selectedFont = 'classic';
+let topBgIdx = 0; // 0=solid-color, 1=outline, 2=plain text
+let botBgIdx = 0; // 0=solid-color, 1=outline, 2=plain text
+let hookBgIdx = 0; // 0=solid-color, 1=outline, 2=plain text
+function getBgForIdx(idx, color) {
+  const col = color || '#e03d52';
+  const isLightCol = isLight(col);
+  const outlineColor = (col==='#ffffff'||col==='#fff') ? '#000' : '#fff';
+  const outline = '-2px -2px 0 '+outlineColor+',2px -2px 0 '+outlineColor+',-2px 2px 0 '+outlineColor+',2px 2px 0 '+outlineColor+',-2px 0 0 '+outlineColor+',2px 0 0 '+outlineColor+',0 -2px 0 '+outlineColor+',0 2px 0 '+outlineColor;
+  if(idx===0) return {box:col, textColor:isLightCol?'#000':'#fff', shadow:'none'};
+  if(idx===1) return {box:'transparent', textColor:col, shadow:outline};
+  return {box:'transparent', textColor:col, shadow:'none'};
+}
+function cycleTopBg(){
+  topBgIdx=(topBgIdx+1)%3;
+  const btn=document.getElementById('top-bg-btn');
+  if(topBgIdx===0){btn.style.cssText='margin-left:8px;background:'+topColor+';color:'+(isLight(topColor)?'#000':'#fff')+';border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else if(topBgIdx===1){btn.style.cssText='margin-left:8px;background:transparent;color:'+topColor+';border:1px solid '+topColor+';border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else{btn.style.cssText='margin-left:8px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  updatePreview();
+}
+function cycleBotBg(){
+  botBgIdx=(botBgIdx+1)%3;
+  const btn=document.getElementById('bot-bg-btn');
+  if(botBgIdx===0){btn.style.cssText='margin-left:8px;background:'+botColor+';color:'+(isLight(botColor)?'#000':'#fff')+';border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else if(botBgIdx===1){btn.style.cssText='margin-left:8px;background:transparent;color:'+botColor+';border:1px solid '+botColor+';border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else{btn.style.cssText='margin-left:8px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  updatePreview();
+}
+function cycleHookBg(){
+  hookBgIdx=(hookBgIdx+1)%3;
+  const btn=document.getElementById('hook-bg-btn');
+  if(hookBgIdx===0){btn.style.cssText='margin-left:8px;background:'+hookColor+';color:'+(isLight(hookColor)?'#000':'#fff')+';border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else if(hookBgIdx===1){btn.style.cssText='margin-left:8px;background:transparent;color:'+hookColor+';border:1px solid '+hookColor+';border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else{btn.style.cssText='margin-left:8px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  updatePreview();
+}
+let bgStyleIdx = 2; // 0=none, 1=semi-dark, 2=solid-color
+function cycleBgStyle(){
+  bgStyleIdx = (bgStyleIdx+1) % 3;
+  const btn = document.getElementById('bg-style-btn');
+  const styles = [
+    {bg:'transparent',color:'#fff',border:'rgba(255,255,255,.3)',shadow:'0 2px 8px rgba(0,0,0,.9)'},
+    {bg:'rgba(0,0,0,0.5)',color:'#fff',border:'transparent',shadow:'none'},
+    {bg:'var(--red)',color:'#fff',border:'transparent',shadow:'none'}
+  ];
+  const s = styles[bgStyleIdx];
+  btn.style.cssText = 'background:'+s.bg+';color:'+s.color+';border:1px solid '+s.border+';border-radius:7px;padding:5px 10px;cursor:pointer;font-family:Inter,sans-serif;font-size:13px;font-weight:900;margin-left:6px;min-width:36px;letter-spacing:-0.5px;text-shadow:'+s.shadow;
+  updatePreview();
+}
+function getBgStyle(color){
+  if(bgStyleIdx===0) return {box:'transparent',textColor:'#fff',textShadow:'0 2px 8px rgba(0,0,0,.9)'};
+  if(bgStyleIdx===1) return {box:'rgba(0,0,0,0.5)',textColor:'#fff',textShadow:'none'};
+  return {box:color,textColor:'#fff',textShadow:'none'};
+}
+let selectedFontSize = 52;
+function setFont(key,el){selectedFont=key;document.querySelectorAll('.font-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');saveSettings();updatePreview();}
+
 let strikeOn = false;
 let topColor = '#e03d52';
+let botColor = '#ffffff';
+let hookColor = '#ffffff';
 let files = [];
 
 // Daily reset - if last save was a different day, reset today count
@@ -1393,7 +1531,7 @@ function showAppDash(){document.querySelectorAll('.app-view').forEach(v=>v.class
 function showAppEditor(){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
   document.getElementById('app-editor').classList.add('on');
-  setTimeout(updatePreview,50);
+  setTimeout(()=>{loadSettings();updatePreview();},50);
 }
 function showAppSettings(){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
@@ -1529,20 +1667,56 @@ function updSP(){
   document.getElementById('sp-orig').textContent=document.getElementById('si-orig').value||'FULL PRICE';
   document.getElementById('sp-disc').textContent=document.getElementById('si-disc').value||'50% OFF';
 }
-function setTopColor(c,el){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('top-color-wheel').value=c;updatePreview();}
-function setTopColorCustom(c){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));updatePreview();}
+function setTopColor(c,el){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('top-color-wheel').value=c;saveSettings();updatePreview();}
+function setTopColorCustom(c){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));saveSettings();updatePreview();}
+function setBotColor(c,el){botColor=c;document.querySelectorAll('#bot-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('bot-color-wheel').value=c;saveSettings();updatePreview();}
+function setBotColorCustom(c){botColor=c;document.querySelectorAll('#bot-color-dots .cdot').forEach(d=>d.classList.remove('sel'));saveSettings();updatePreview();}
+function setHookColor(c,el){hookColor=c;document.querySelectorAll('#hook-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('hook-color-wheel').value=c;saveSettings();updatePreview();}
+function setHookColorCustom(c){hookColor=c;document.querySelectorAll('#hook-color-dots .cdot').forEach(d=>d.classList.remove('sel'));updatePreview();}
+
+// ===== NATIVE FILE PICKER =====
+async function pickFilesNative(){
+  try {
+    const api = window.electronAPI;
+    if(api && api.pickFiles){
+      const paths = await api.pickFiles();
+      if(!paths || !paths.length) return;
+      for(const filePath of paths){
+        const name = filePath.split('\\').pop().split('/').pop();
+        if(files.find(x=>x.file.name===name)) continue;
+        const entry = { file: { name, path: filePath }, funnel:'bof', duration:null };
+        files.push(entry);
+        // Get duration via video element
+        const url = 'file://'+filePath.replace(/\\/g,'/');
+        const v = document.createElement('video');
+        v.preload='metadata'; v.src=url;
+        v.onloadedmetadata=(()=>{
+          const idx=files.findIndex(f=>f.file.path===filePath);
+          if(idx!==-1){ files[idx].duration=v.duration; files[idx].funnel=autoFunnel(v.duration); }
+          renderFiles(); updateVidCounter();
+        });
+      }
+      renderFiles(); updateVidCounter();
+    } else {
+      document.getElementById('file-in').click();
+    }
+  } catch(e){
+    console.error('File picker error:', e);
+    document.getElementById('file-in').click();
+  }
+}
 
 // ===== FILES =====
 function handleFiles(fl){
   for(const f of fl){
     if(files.find(x=>x.file.name===f.name))continue;
-    const entry={file:f,funnel:'bof',duration:null};
+    const entry={file:{name:f.name, path:f.path||'', _blob:f},funnel:'bof',duration:null};
     files.push(entry);
     const url=URL.createObjectURL(f);
     const v=document.createElement('video');
     v.preload='metadata';v.src=url;
     v.onloadedmetadata=()=>{
-      const idx=files.indexOf(entry);
+      const idx=files.findIndex(x=>x.file.name===f.name);
       if(idx!==-1){files[idx].duration=v.duration;files[idx].funnel=autoFunnel(v.duration);}
       URL.revokeObjectURL(url);renderFiles();updateVidCounter();
     };
@@ -1570,24 +1744,32 @@ function renderFiles(){
     </div>`).join('');
   files.forEach((f,i)=>{
     const th=document.getElementById('fth-'+i);
-    if(th&&!th.querySelector('video')){
+    if(!th) return;
+    try{
       const tv=document.createElement('video');
-      tv.src=URL.createObjectURL(f.file);tv.muted=true;tv.playsInline=true;tv.preload='metadata';
+      // Use file path if available (Electron native picker), otherwise blob URL
+      if(f.file.path){
+        tv.src='file:///'+f.file.path.replace(/\\/g,'/');
+      } else if(f.file instanceof File){
+        tv.src=URL.createObjectURL(f.file);
+      } else { return; }
+      tv.muted=true;tv.playsInline=true;tv.preload='metadata';
       tv.style.cssText='width:100%;height:100%;object-fit:cover';
       tv.onloadedmetadata=()=>{tv.currentTime=0.5;};
       th.innerHTML='';th.appendChild(tv);
-    }
+    }catch(e){ console.log('Thumb error:',e); }
   });
 }
 
 // ===== PROCESS =====
-function processBatch(){
+async function processBatch(){
   if(!files.length){toast('Add at least one video first.');return;}
 
-  // Fix 3a: warn if no overlay text is checked
+topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)topChips[i].label=inp.value;});botChips.forEach((_,i)=>{const inp=document.getElementById('bi-bot-'+i);if(inp)botChips[i].label=inp.value;});hooks.forEach((_,i)=>{const inp=document.getElementById('hi-'+i);if(inp)hooks[i].text=inp.value;});
   const activeTop = topChips.filter(c=>c.on);
   const activeBot = botChips.filter(c=>c.on);
   const activeHooks = hooks.filter(h=>h.on);
+
   if(ovStyle==='banner' && !strikeOn && activeTop.length===0 && activeBot.length===0){
     toast('Check at least one top or bottom text item first.');return;
   }
@@ -1595,34 +1777,123 @@ function processBatch(){
     toast('Check at least one hook line first.');return;
   }
 
-  // Fix 3b: confirmation before processing
-  const total=files.length,bof=files.filter(f=>f.funnel==='bof').length,mof=files.filter(f=>f.funnel==='mof').length;
-  if(!confirm('Process '+total+' video'+(total!==1?'s':'')+' ('+bof+' BOF, '+mof+' MOF)? This cannot be undone.')){return;}
+  const total=files.length;
+  const bof=files.filter(f=>f.funnel==='bof').length;
+  const mof=files.filter(f=>f.funnel==='mof').length;
 
-  if(!folderPath){folderPath='~/Downloads/RoyalForge';localStorage.setItem('rf_fp',folderPath);}
+  if(!confirm('Process '+total+' video'+(total!==1?'s':'')+' ('+bof+' BOF, '+mof+' MOF)?\n\nFinished videos will be saved to:\nDownloads\\RoyalForge\\ready')){return;}
+
+  // Get API - works with both preload (contextIsolation) and nodeIntegration
+  const api = window.electronAPI || null;
+  let ipcRenderer = null;
+  try{ ipcRenderer = require('electron').ipcRenderer; }catch(e){}
+
+  // Output folder
+  const customFolder = localStorage.getItem('rf_custom_folder');
+  const homeDir = 'C:\\Users\\wpc80';
+  const readyFolder = customFolder || (homeDir+'\\Downloads\\RoyalForge\\ready');
+  folderPath = homeDir+'\\Downloads\\RoyalForge';
+  localStorage.setItem('rf_fp', folderPath);
+
   document.getElementById('proc-bg').classList.add('on');
+  document.getElementById('prog-fill').style.width='0%';
+
   let cur=0;
-  function step(){
-    if(cur>=total){
+  let failed=0;
+
+  async function step(){
+    if(cur >= total){
       document.getElementById('proc-bg').classList.remove('on');
-      batches.unshift({date:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}),count:total,bof,mof});
+      batches.unshift({
+        date:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}),
+        count:total, bof, mof
+      });
       vidCount+=total;
       localStorage.setItem('rf_batches',JSON.stringify(batches.slice(0,20)));
       localStorage.setItem('rf_vc',String(vidCount));
       localStorage.setItem('rf_lastday',today);
       document.getElementById('vid-count').textContent=vidCount+' videos today';
-      document.getElementById('done-msg').textContent='Processed '+total+' video'+(total!==1?'s':'')+'. '+bof+' BOF, '+mof+' MOF.';
+      const failNote = failed>0 ? '\n'+failed+' video(s) failed ΓÇö check file locations.' : '';
+      document.getElementById('done-msg').textContent='Processed '+(total-failed)+' of '+total+' video'+(total!==1?'s':'')+'.'+(failed>0?' '+failed+' failed.':'');
+      document.getElementById('done-stats').innerHTML=`
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;text-align:center">
+          <div style="font-size:20px;font-weight:800;color:var(--gold)">${total-failed}</div>
+          <div style="font-size:10px;color:var(--muted)">DONE</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(224,61,82,.3);border-radius:8px;padding:8px 16px;text-align:center">
+          <div style="font-size:20px;font-weight:800;color:var(--red)">${bof}</div>
+          <div style="font-size:10px;color:var(--muted)">BOF</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:8px 16px;text-align:center">
+          <div style="font-size:20px;font-weight:800;color:#a78bfa">${mof}</div>
+          <div style="font-size:10px;color:var(--muted)">MOF</div>
+        </div>`;
       document.getElementById('done-bg').classList.add('on');
-      files=[];renderFiles();updateVidCounter();return;
+      files=[];renderFiles();updateVidCounter();
+      return;
     }
+
+    const f = files[cur];
+    const inputPath = f.file.path;
+    const outputPath = readyFolder+'\\rf_'+f.file.name.replace(/\.[^.]+$/, '.mp4');
+
     document.getElementById('prog-fill').style.width=Math.round((cur/total)*100)+'%';
-    document.getElementById('proc-fname').textContent=(cur+1)+'/'+total+' - Processing...';
-    document.getElementById('proc-stat').textContent=files[cur]?files[cur].file.name:'';
-    cur++;setTimeout(step,700+Math.random()*400);
+    document.getElementById('proc-fname').textContent=(cur+1)+'/'+total+' \u2014 '+f.file.name;
+    document.getElementById('proc-stat').textContent='Processing with FFmpeg...';
+
+    // Build overlay text
+    let topText='', botText='';
+
+    if(ovStyle==='fulltext'){
+      if(activeHooks.length) topText=activeHooks[Math.floor(Math.random()*activeHooks.length)].text;
+    } else if(ovStyle==='banner'){
+      if(strikeOn){
+        topText=document.getElementById('si-orig').value||'FULL PRICE';
+        botText=document.getElementById('si-disc').value||'50% OFF';
+      } else {
+        if(activeTop.length) topText=activeTop[Math.floor(Math.random()*activeTop.length)].label;
+        if(activeBot.length) botText=activeBot[Math.floor(Math.random()*activeBot.length)].label;
+      }
+    } else {
+      // mix
+      if(activeTop.length) topText=activeTop[Math.floor(Math.random()*activeTop.length)].label;
+      if(activeBot.length) botText=activeBot[Math.floor(Math.random()*activeBot.length)].label;
+    }
+
+    try{
+      if((api||ipcRenderer) && inputPath){
+        if(api){
+          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle});
+        } else {
+          await ipcRenderer.invoke('process-video',{inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle});
+        }
+      } else {
+        console.log('Skipped ΓÇö no api or path. Path was:', inputPath, 'api:', !!api, 'ipc:', !!ipcRenderer);
+        failed++;
+      }
+    } catch(err){
+      console.error('FFmpeg error on',f.file.name,':',err);
+      failed++;
+    }
+
+    cur++;
+    document.getElementById('prog-fill').style.width=Math.round((cur/total)*100)+'%';
+    setTimeout(step,50);
   }
+
   step();
 }
-function openReady(){document.getElementById('done-bg').classList.remove('on');toast('ready/ folder: '+folderPath+'/ready');showAppDash();}
+
+function openReady(){
+  document.getElementById('done-bg').classList.remove('on');
+  const readyPath='C:\\Users\\wpc80\\Downloads\\RoyalForge\\ready';
+  if(window.electronAPI && window.electronAPI.openFolder){
+    window.electronAPI.openFolder(readyPath);
+  } else {
+    toast('Check Downloads\\RoyalForge\\ready folder');
+  }
+  showAppDash();
+}
 function closeDone(){document.getElementById('done-bg').classList.remove('on');showAppDash();}
 
 // ===== BATCHES =====
@@ -1678,13 +1949,22 @@ function updatePreview(){
   const activeBot = botChips.filter(c=>c.on);
   const activeHooks = hooks.filter(h=>h.on);
 
+
+const fontFamilyMap = {
+  classic:'Arial,sans-serif',elegance:"'Playfair Display',serif",
+  neon:'Impact,sans-serif',retro:'cursive',comic:"'Comic Sans MS',cursive",
+  tallhaus:'Impact,sans-serif',vintage:'Georgia,serif',bomb:'Impact,sans-serif',
+  signature:'cursive',printer:"'Courier New',monospace",typewriter:"'Courier New',monospace"
+};
+const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
   let html = '';
 
   if(ovStyle === 'fulltext'){
     // Show a random active hook
     if(activeHooks.length){
       const h = activeHooks[previewVariantIdx % activeHooks.length];
-      html = `<div class="phone-fulltext">${esc(h.text)}</div>`;
+      const hbs=getBgForIdx(hookBgIdx,hookColor||'#fff');
+      html = `<div class="phone-fulltext" style="font-family:${previewFont};font-size:${Math.round(selectedFontSize*0.22)}px;color:${hbs.textColor};background:${hbs.box};text-shadow:${hbs.shadow};padding:8px 12px;border-radius:5px">${esc(h.text)}</div>`;
     }
   } else if(ovStyle === 'banner'){
     if(strikeOn){
@@ -1697,21 +1977,21 @@ function updatePreview(){
     } else {
       const top = activeTop.length ? activeTop[previewVariantIdx % activeTop.length] : null;
       const bot = activeBot.length ? activeBot[previewVariantIdx % activeBot.length] : null;
-      const topBg = top ? top.color || '#e03d52' : '#e03d52';
+      const topBg = topColor || '#e03d52';
       const topTextColor = isLight(topBg) ? '#000' : '#fff';
-      if(top) html += `<div class="phone-banner" style="background:${topBg};color:${topTextColor};font-size:13px">${esc(top.label)}</div>`;
-      if(bot) html += `<div class="phone-banner" style="background:#fff;color:#000;font-size:12px">${esc(bot.label)}</div>`;
+      if(top){const tbs=getBgForIdx(topBgIdx,topBg);html += `<div class="phone-banner" style="background:${tbs.box};color:${tbs.textColor};font-size:${Math.round(selectedFontSize*0.25)}px;font-family:${previewFont};font-weight:800;text-shadow:${tbs.shadow};border-radius:5px;padding:6px 12px">${esc(top.label)}</div>`;}
+      if(bot){const bbs=getBgForIdx(botBgIdx,botColor||'#ffffff');html += `<div class="phone-banner" style="background:${bbs.box};color:${bbs.textColor};font-size:${Math.round(selectedFontSize*0.20)}px;font-family:${previewFont};font-weight:800;border-radius:5px;padding:5px 12px;text-shadow:${bbs.shadow}">${esc(bot.label)}</div>`;}
     }
   } else {
     // Mix: show banner on top, hook below
     const top = activeTop.length ? activeTop[previewVariantIdx % activeTop.length] : null;
     const bot = activeBot.length ? activeBot[previewVariantIdx % activeBot.length] : null;
     const hook = activeHooks.length ? activeHooks[previewVariantIdx % activeHooks.length] : null;
-    const topBg = top ? top.color || '#e03d52' : '#e03d52';
+    const topBg = topColor || '#e03d52';
     const topTextColor = isLight(topBg) ? '#000' : '#fff';
-    if(top) html += `<div class="phone-banner" style="background:${topBg};color:${topTextColor};font-size:12px">${esc(top.label)}</div>`;
-    if(bot) html += `<div class="phone-banner" style="background:#fff;color:#000;font-size:11px">${esc(bot.label)}</div>`;
-    if(hook) html += `<div class="phone-fulltext" style="margin-top:6px;font-size:11px">${esc(hook.text)}</div>`;
+    if(top){const tbs=getBgForIdx(topBgIdx,topColor||'#e03d52');html += `<div class="phone-banner" style="background:${tbs.box};color:${tbs.textColor};font-size:${Math.round(selectedFontSize*0.20)}px;font-family:${previewFont};font-weight:800;text-shadow:${tbs.shadow};border-radius:5px;padding:5px 12px">${esc(top.label)}</div>`;}
+    if(bot){const bbs=getBgForIdx(botBgIdx,botColor||'#ffffff');html += `<div class="phone-banner" style="background:${bbs.box};color:${bbs.textColor};font-size:${Math.round(selectedFontSize*0.18)}px;font-family:${previewFont};font-weight:800;text-shadow:${bbs.shadow};border-radius:5px;padding:4px 12px">${esc(bot.label)}</div>`;}
+    if(hook){const mhbs=getBgForIdx(hookBgIdx,hookColor||'#fff');html += `<div class="phone-fulltext" style="margin-top:6px;font-size:${Math.round(selectedFontSize*0.18)}px;font-family:${previewFont};color:${mhbs.textColor};background:${mhbs.box};text-shadow:${mhbs.shadow};padding:6px 10px;border-radius:5px">${esc(hook.text)}</div>`;}
   }
 
   el.innerHTML = html || '<div style="font-size:10px;color:rgba(255,255,255,.3);text-align:center">Add text above to see preview</div>';
@@ -1844,6 +2124,55 @@ function doImport(){
     if(btn) btn.textContent='Disconnect';
     toast('Connected @'+h+' successfully!');
   },1200);
+}
+
+// ===== SAVE/LOAD SETTINGS =====
+function saveSettings(){
+  localStorage.setItem('rf_settings', JSON.stringify({
+    selectedFont, selectedFontSize, topColor, botColor, hookColor,
+    topBgIdx, botBgIdx, ovStyle
+  }));
+}
+function loadSettings(){
+  try {
+    const s = JSON.parse(localStorage.getItem('rf_settings')||'{}');
+    if(s.selectedFont){ selectedFont=s.selectedFont; }
+    if(s.selectedFontSize){ selectedFontSize=s.selectedFontSize; const sl=document.getElementById('font-size-slider'); if(sl){sl.value=selectedFontSize; document.getElementById('font-size-val').textContent=selectedFontSize;} }
+    if(s.topColor){ topColor=s.topColor; document.getElementById('top-color-wheel').value=topColor; }
+    if(s.botColor){ botColor=s.botColor; document.getElementById('bot-color-wheel').value=botColor; }
+    if(s.hookColor){ hookColor=s.hookColor; document.getElementById('hook-color-wheel').value=hookColor; }
+    if(s.topBgIdx!==undefined){ topBgIdx=s.topBgIdx; }
+    if(s.botBgIdx!==undefined){ botBgIdx=s.botBgIdx; }
+    if(s.ovStyle){ ovStyle=s.ovStyle; }
+    // Apply font picker active state
+    document.querySelectorAll('.font-opt').forEach(o=>o.classList.remove('active'));
+    const activeFont = document.querySelector(`.font-opt[onclick*="${selectedFont}"]`);
+    if(activeFont) activeFont.classList.add('active');
+    // Apply overlay style
+    document.querySelectorAll('.ov-btn').forEach(b=>b.classList.remove('active'));
+    const activeOv = document.querySelector(`.ov-btn[onclick*="${ovStyle}"]`);
+    if(activeOv) activeOv.classList.add('active');
+    if(ovStyle==='fulltext'){ document.getElementById('sec-banner').style.display='none'; document.getElementById('sec-fulltext').style.display=''; }
+    else if(ovStyle==='mix'){ document.getElementById('sec-fulltext').style.display=''; }
+  } catch(e){ console.log('Settings load error:', e); }
+}
+
+
+// ===== CUSTOM OUTPUT FOLDER =====
+function saveCustomFolder(){
+  const val = document.getElementById('custom-folder-inp').value.trim();
+  if(!val){toast('Enter a folder path first.');return;}
+  localStorage.setItem('rf_custom_folder', val);
+  document.getElementById('set-folder').textContent = val;
+  document.getElementById('set-folder').className = 'folder-display set';
+  toast('Output folder saved!');
+}
+function resetFolder(){
+  localStorage.removeItem('rf_custom_folder');
+  document.getElementById('custom-folder-inp').value = '';
+  document.getElementById('set-folder').textContent = 'Downloads\\RoyalForge\\ready (default)';
+  document.getElementById('set-folder').className = 'folder-display';
+  toast('Reset to default folder.');
 }
 
 // ===== CHANGE PASSWORD =====
