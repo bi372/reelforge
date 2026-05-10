@@ -1393,8 +1393,17 @@ input[type=file]{display:none}
     </div>
     <div class="set-card">
       <div class="set-card-title">Subscription</div>
-      <div class="set-note">Manage your billing and plan.</div>
-      <button class="set-btn set-btn-gold" onclick="toast('Opening dashboard...')">Open dashboard</button>
+      <div class="set-note">Enter your email to verify your plan after subscribing.</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input class="set-inp" id="license-email" placeholder="your@email.com" style="flex:1"/>
+        <button class="set-btn set-btn-gold" onclick="verifyLicense()">Verify</button>
+      </div>
+      <div id="license-status" style="font-size:12px;color:var(--muted)">
+        Current plan: <strong id="plan-display" style="color:var(--gold)">Free</strong>
+      </div>
+      <div style="margin-top:10px">
+        <button class="set-btn" onclick="showUpgrade()">Upgrade plan</button>
+      </div>
     </div>
     <div class="set-card">
       <div class="set-card-title">Updates</div>
@@ -1537,6 +1546,65 @@ function openStripe(plan){
   }
   closeUpgrade();
 }
+
+const LICENSE_API = 'https://royalforge-api.netlify.app/.netlify/functions/verify-license';
+let currentPlan = localStorage.getItem('rf_plan') || 'free';
+let planLimits = { free: 5, forge: 50, royal: Infinity };
+
+function updatePlanDisplay() {
+  const el = document.getElementById('plan-display');
+  if (el) {
+    el.textContent = currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1);
+    el.style.color = currentPlan === 'royal' ? 'var(--gold)' : currentPlan === 'forge' ? '#a78bfa' : 'var(--muted)';
+  }
+  // Update topbar pill
+  const pill = document.querySelector('.pro-pill');
+  if (pill) {
+    pill.textContent = currentPlan === 'royal' ? '≡ƒææ Royal' : currentPlan === 'forge' ? '≡ƒöÑ Forge' : 'Upgrade';
+  }
+}
+
+async function verifyLicense() {
+  const emailEl = document.getElementById('license-email');
+  const email = emailEl ? emailEl.value.trim() : '';
+  if (!email) { toast('Enter your email first.'); return; }
+  
+  const statusEl = document.getElementById('license-status');
+  if (statusEl) statusEl.innerHTML = 'Verifying...';
+  
+  try {
+    const res = await fetch(LICENSE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    
+    if (data.plan && data.plan !== 'free') {
+      currentPlan = data.plan;
+      localStorage.setItem('rf_plan', data.plan);
+      localStorage.setItem('rf_plan_email', email);
+      toast('Plan verified! You are on ' + data.plan.charAt(0).toUpperCase() + data.plan.slice(1));
+      updatePlanDisplay();
+      if (statusEl) statusEl.innerHTML = 'Current plan: <strong style="color:var(--gold)">' + data.plan.charAt(0).toUpperCase() + data.plan.slice(1) + '</strong>';
+    } else {
+      toast('No active subscription found for this email.');
+      if (statusEl) statusEl.innerHTML = 'Current plan: <strong style="color:var(--muted)">Free</strong>';
+    }
+  } catch(e) {
+    toast('Could not verify ΓÇö check your connection.');
+    if (statusEl) statusEl.innerHTML = 'Current plan: <strong id="plan-display" style="color:var(--gold)">' + currentPlan + '</strong>';
+  }
+}
+
+function checkPlanLimit(count) {
+  const limit = planLimits[currentPlan] || 5;
+  if (count > limit) {
+    toast('Your ' + currentPlan + ' plan allows ' + limit + ' videos per batch. Upgrade to process more.');
+    return false;
+  }
+  return true;
+}
 // ===== AUTH STATE =====
 let currentUser = JSON.parse(localStorage.getItem('rf_user')||'null');
 let accounts = JSON.parse(localStorage.getItem('rf_accounts')||'[]');
@@ -1676,6 +1744,8 @@ function showLogin(){showView('view-login');document.getElementById('login-error
 function showSignup(){showView('view-signup');document.getElementById('signup-error').classList.remove('show');document.getElementById('signup-success').classList.remove('show');}
 
 function showApp(){
+  currentPlan = localStorage.getItem('rf_plan') || 'free';
+  updatePlanDisplay();
   // Cache home directory
   if(window.electronAPI && window.electronAPI.getHomeDir){
     window.electronAPI.getHomeDir().then(d=>{ if(d) localStorage.setItem('rf_homedir',d); });
@@ -1703,6 +1773,7 @@ function showAppSettings(){
   document.getElementById('app-settings').classList.add('on');
   document.getElementById('set-email-disp').textContent=currentUser.email;
   document.getElementById('set-name').value=currentUser.name||'';
+  const savedEmail=localStorage.getItem('rf_plan_email'); if(savedEmail){const le=document.getElementById('license-email');if(le)le.value=savedEmail;} updatePlanDisplay();
   const fp=localStorage.getItem('rf_fp')||'';
   if(fp){
     document.getElementById('set-folder').textContent=fp+'/raw   |   '+fp+'/ready';
@@ -1929,6 +2000,7 @@ function renderFiles(){ updatePreviewBg();
 // ===== PROCESS =====
 async function processBatch(){
   if(!files.length){toast('Add at least one video first.');return;}
+  if(!checkPlanLimit(files.length)){showUpgrade();return;}
 
 topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)topChips[i].label=inp.value;});botChips.forEach((_,i)=>{const inp=document.getElementById('bi-bot-'+i);if(inp)botChips[i].label=inp.value;});hooks.forEach((_,i)=>{const inp=document.getElementById('hi-'+i);if(inp)hooks[i].text=inp.value;});
   const activeTop = topChips.filter(c=>c.on);
