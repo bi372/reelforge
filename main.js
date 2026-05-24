@@ -1,8 +1,27 @@
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron')
+const { autoUpdater } = require('electron-updater')
 const path = require('path')
 const { execFile } = require('child_process')
 const fs = require('fs')
 const os = require('os')
+const https = require('https')
+
+// Download Noto Color Emoji font on first run for cross-platform emoji rendering
+function downloadNotoFont() {
+  const fontDir = path.join(__dirname, 'fonts')
+  const fontPath = path.join(fontDir, 'NotoColorEmoji.ttf')
+  if (fs.existsSync(fontPath)) return
+  try { fs.mkdirSync(fontDir, { recursive: true }) } catch(e) {}
+  const file = fs.createWriteStream(fontPath)
+  function get(u) {
+    https.get(u, (res) => {
+      if (res.statusCode === 301 || res.statusCode === 302) { get(res.headers.location); return }
+      res.pipe(file)
+      file.on('finish', () => { file.close(); console.log('Noto Color Emoji downloaded') })
+    }).on('error', (err) => { try { fs.unlinkSync(fontPath) } catch(e) {}; console.error('Noto download failed:', err.message) })
+  }
+  get('https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji@main/fonts/NotoColorEmoji.ttf')
+}
 
 function getFFmpegPath() {
   const bundledPath = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg.exe')
@@ -92,7 +111,7 @@ function createWindow() {
     icon: path.join(__dirname, 'app', 'icon.ico')
   })
   win.loadFile('app/index.html')
-  win.setMenuBarVisibility(false);win.webContents.openDevTools()
+  win.setMenuBarVisibility(false)
 }
 
 let processCounter = 0
@@ -146,7 +165,7 @@ ipcMain.handle('process-video', async (event, data) => {
     return new Promise((resolve, reject) => {
       // Scale PNG to fit 2160 wide, then overlay centered at topY position
       // transpose=2 handles -90 degree rotation metadata on iPhone videos
-      const filterComplex = `[0:v]scale=2160:-2[rot];[rot][1:v]overlay=0:0`
+      const filterComplex = `[0:v]scale=2160:-2[rot];[rot][1:v]overlay=0:0:enable='gte(t,0.1)'`
       const args = [
         '-i', inputPath,
         '-i', overlayPngPath,
@@ -190,13 +209,13 @@ function processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofS
       lines.forEach((line, i) => {
         const y = topY + (i * lineHeight)
         const escaped = escapeFFmpeg(line)
-        filters.push(`drawtext=fontfile='${FONT}':text='${escaped}':fontsize=${useSize}:fontcolor=${style.fontcolor}${boxPart}:x=(w-text_w)/2:y=${y}`)
+        filters.push(`drawtext=fontfile='${FONT}':text='${escaped}':fontsize=${useSize}:fontcolor=${style.fontcolor}${boxPart}:x=(w-text_w)/2:y=${y}:enable='gte(t,0.1)'`)
       })
     } else {
       const topFile = path.join(os.tmpdir(), `rf_top_${uid}.txt`)
       fs.writeFileSync(topFile, topText.trim(), 'utf8')
       const topPath = topFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
-      filters.push(`drawtext=fontfile='${FONT}':textfile='${topPath}':expansion=none:fontsize=${bofSize}:fontcolor=${style.fontcolor}${boxPart}:x=(w-text_w)/2:y=${topY}`)
+      filters.push(`drawtext=fontfile='${FONT}':textfile='${topPath}':expansion=none:fontsize=${bofSize}:fontcolor=${style.fontcolor}${boxPart}:x=(w-text_w)/2:y=${topY}:enable='gte(t,0.1)'`)
     }
   }
 
@@ -205,7 +224,7 @@ function processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofS
     const botPath = botFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
     const botStyle = getDrawtextStyle(botBgStyle, botCol)
     const boxPart = botStyle.box ? `:${botStyle.box}` : ''
-    filters.push(`drawtext=fontfile='${FONT}':textfile='${botPath}':expansion=none:fontsize=${bofBotSize}:fontcolor=${botStyle.fontcolor}${boxPart}:x=(w-text_w)/2:y=${botY}`)
+    filters.push(`drawtext=fontfile='${FONT}':textfile='${botPath}':expansion=none:fontsize=${bofBotSize}:fontcolor=${botStyle.fontcolor}${boxPart}:x=(w-text_w)/2:y=${botY}:enable='gte(t,0.1)'`)
   }
 
   if (filters.length === 0) filters.push('null')
@@ -242,7 +261,9 @@ ipcMain.handle('open-external', async (event, url) => { shell.openExternal(url) 
 ipcMain.handle('get-home-dir', async () => os.homedir())
 
 app.whenReady().then(() => {
+  downloadNotoFont()
   createWindow()
+  autoUpdater.checkForUpdatesAndNotify()
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
 })
 
