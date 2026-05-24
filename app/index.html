@@ -654,6 +654,7 @@ input[type=file]{display:none}
 @font-face{font-family:'RF-Special';src:url('fonts/specialelite.ttf')}
 @font-face{font-family:'RF-Comic';src:url('fonts/comicneue.ttf')}
 @font-face{font-family:'RF-BlackHan';src:url('fonts/blackhan.ttf')}
+input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, 'NotoColorEmoji', sans-serif; }
 </style>
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1370,7 +1371,7 @@ input[type=file]{display:none}
         <span style="font-size:10px;color:var(--muted2)">Text position</span>
         <span style="font-size:10px;color:var(--gold)" id="pos-pct-label">12%</span>
       </div>
-      <input type="range" id="pos-slider" min="3" max="12" value="12" 
+      <input type="range" id="pos-slider" min="3" max="15" value="12" 
         style="width:100%;accent-color:var(--gold);cursor:pointer"
         oninput="onPosSlider(this.value)"/>
     </div>
@@ -1407,17 +1408,7 @@ input[type=file]{display:none}
         </div>
       </div>
     </div>
-    <div class="set-card">
-      <div class="set-card-title">TikTok Account</div>
-      <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--card2);border:1px solid var(--border);border-radius:8px">
-        <div style="font-size:18px">&#9679;</div>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:600" id="set-tt-name">Not connected</div>
-          <div style="font-size:11px;color:var(--muted)" id="set-tt-status">Connect to import your TikTok Showcase products</div>
-        </div>
-        <button class="set-btn" id="set-tt-btn" onclick="showImportModal()">Connect</button>
-      </div>
-    </div>
+
     <div class="set-card">
       <div class="set-card-title">Output Folder</div>
       <div class="set-note">Processed videos are saved here. Defaults to Downloads\RoyalForge\ready</div>
@@ -1455,7 +1446,7 @@ input[type=file]{display:none}
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.6 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.16 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1496,19 +1487,7 @@ input[type=file]{display:none}
   </div>
 </div>
 
-<!-- IMPORT MODAL -->
-<div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;align-items:center;justify-content:center" id="import-modal">
-  <div style="background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:28px;width:420px;max-width:90vw">
-    <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:800;margin-bottom:5px">Import TikTok Showcase</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5">Enter your TikTok username to connect your account.</div>
-    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;font-weight:600">Your TikTok Username</div>
-    <input style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:18px" id="tt-user-inp" placeholder="yourhandle (no @)"/>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button style="background:none;border:1px solid var(--border2);border-radius:7px;padding:7px 16px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif" onclick="closeImportModal()">Cancel</button>
-      <button style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:7px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif" onclick="doImport()">Connect Account</button>
-    </div>
-  </div>
-</div>
+
 
 <!-- PROCESSING -->
 <div class="proc-bg" id="proc-bg">
@@ -1540,33 +1519,20 @@ input[type=file]{display:none}
 
 <script>
 
-const CURRENT_VERSION = '1.0.7';
+const CURRENT_VERSION = '1.0.8';
 function checkForUpdates() {
-  fetch('https://api.github.com/repos/bi372/reelforge/releases/latest')
-    .then(r => r.json())
-    .then(data => {
-      if (!data.tag_name) return;
-      const latest = data.tag_name.replace('v','');
-      if (latest !== CURRENT_VERSION) {
-        const bar = document.getElementById('update-bar');
-        if (bar) {
-          bar.textContent = '⬆ RoyalForge ' + data.tag_name + ' is available — click to download';
-          bar.classList.add('show');
-          bar._url = data.html_url;
-        }
-      }
-    })
-    .catch(() => {}) // silent fail if offline
+  // Update checking handled by electron-updater in main process
 }
 function openUpdateLink() {
   const bar = document.getElementById('update-bar');
-  if (bar && bar._url && window.electronAPI && window.electronAPI.openFolder) {
-    require('electron').shell.openExternal(bar._url);
-  }
+  if (bar && bar._downloading) return;
+  bar._downloading = true;
+  bar.textContent = '⬇ Downloading update... 0%';
+  if (window.electronAPI) window.electronAPI.startUpdateDownload();
 }
 
-const STRIPE_FORGE = 'https://buy.stripe.com/test_fZucN48vs6us6Ip8ag6g800';
-const STRIPE_ROYAL = 'https://buy.stripe.com/test_6oUaEW3b81a8aYFaio6g801';
+const STRIPE_FORGE = 'https://buy.stripe.com/bJebJ1f5AalO3lwfgi8AE00';
+const STRIPE_ROYAL = 'https://buy.stripe.com/6oU4gz7D80Le8FQ4BE8AE01';
 
 function showUpgrade(){
   document.getElementById('upgrade-bg').classList.add('show');
@@ -1646,7 +1612,7 @@ function checkPlanLimit(count) {
 function getWrappedLines(text, fontSizePx, containerWidthPx, fontFamily) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.font = 'bold ' + fontSizePx + 'px ' + (fontFamily || 'Arial');
+  ctx.font = 'bold ' + fontSizePx + 'px ' + (fontFamily || 'Arial') + ', NotoColorEmoji';
   const words = text.split(' ');
   const lines = [];
   let current = '';
@@ -1744,7 +1710,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
     const lineHeight = Math.round(fontSize * 0.88 + 44);
     const maxWidth = Math.round(VIDEO_W * 0.62);
 
-    ctx.font = '800 ' + fontSize + 'px ' + fontFamily;
+    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
 
     // Get text from preview element
     const child = Array.from(el.children).find(c => c.classList.contains('phone-fulltext')) || el.children[0];
@@ -1753,7 +1719,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
 
     // Pixel-based wrapping — adjusts with font size, handles emojis correctly
     const wrapWidth = Math.round(VIDEO_W * 0.96);
-    ctx.font = '800 ' + fontSize + 'px ' + fontFamily;
+    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
     const lines = [];
     const words = text.split(' ');
     let current = '';
@@ -1782,7 +1748,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         ctx.fillStyle = hbs.box;
         ctx.fillRect(x, currentY, boxW, boxH);
         ctx.fillStyle = hbs.textColor || '#ffffff';
-        ctx.font = '800 ' + fontSize + 'px ' + fontFamily;
+        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
@@ -1790,7 +1756,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         // Outline style — use strokeText
         const outlineColor = (hookColor === '#ffffff' || hookColor === '#fff') ? '#000000' : '#ffffff';
         const outlineW = Math.round(fontSize * 0.06);
-        ctx.font = '800 ' + fontSize + 'px ' + fontFamily;
+        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.strokeStyle = outlineColor;
@@ -1802,7 +1768,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
       } else {
         // Plain text
         ctx.fillStyle = hookColor || '#ffffff';
-        ctx.font = '800 ' + fontSize + 'px ' + fontFamily;
+        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
@@ -1827,7 +1793,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
           const origText = origEl.textContent.trim();
           // Get disc color first so slash matches the 50% OFF box exactly
           const slashColor = discEl ? window.getComputedStyle(discEl).backgroundColor : '#ff0000';
-          ctx.font = '800 ' + origFontSize + 'px ' + fontFamily;
+          ctx.font = '800 ' + origFontSize + 'px ' + fontFamily + ', NotoColorEmoji';
           const tW = ctx.measureText(origText).width;
           // No BOX_BORDER padding — just font size so it sits flush against 50% OFF box
           const textY = currentY + origFontSize / 2;
@@ -1855,7 +1821,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
           const discText = discEl.textContent.trim();
           const discStyle = window.getComputedStyle(discEl);
           const discBg = discStyle.backgroundColor;
-          ctx.font = '800 ' + discFontSize + 'px ' + fontFamily;
+          ctx.font = '800 ' + discFontSize + 'px ' + fontFamily + ', NotoColorEmoji';
           const tW = ctx.measureText(discText).width;
           const boxW = tW + BOX_BORDER * 2;
           const boxH = discFontSize + BOX_BORDER * 2;
@@ -1882,7 +1848,12 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         ? Math.round(selectedFontSize * VIDEO_SCALE * 0.78)
         : Math.round(selectedFontSize * VIDEO_SCALE);
 
-      ctx.font = '800 ' + fontSize + 'px ' + fontFamily;
+      let fontSize2 = fontSize;
+      ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', NotoColorEmoji';
+      while (ctx.measureText(text).width > VIDEO_W * 0.82 && fontSize2 > 80) {
+        fontSize2 -= 4;
+        ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', NotoColorEmoji';
+      }
       const textW = ctx.measureText(text).width;
       const boxW = textW + BOX_BORDER * 2;
       const boxH = fontSize + BOX_BORDER * 2;
@@ -1912,6 +1883,8 @@ async function captureOverlayPNG(uid, isFulltextParam) {
 
   const dataUrl = canvas.toDataURL('image/png');
   const base64 = dataUrl.replace(/^data:image\/png;base64,/, '');
+  // Free canvas memory immediately to prevent OOM crash on large batches
+  canvas.width = 0; canvas.height = 0;
 
   if (window.electronAPI && window.electronAPI.saveTempPNG) {
     return await window.electronAPI.saveTempPNG(base64, uid);
@@ -1926,22 +1899,18 @@ async function pickFilesNative(){
     if(api && api.pickFiles){
       const paths = await api.pickFiles();
       if(!paths || !paths.length) return;
+      // Use sequential queue — same as drag-drop, one video at a time
+      let pickerDupes = [];
       for(const filePath of paths){
         const name = filePath.split('\\').pop().split('/').pop();
-        if(files.find(x=>x.file.name===name)) continue;
+        if(files.find(x=>x.file.name===name)){ pickerDupes.push(name); continue; }
         const entry = { file: { name, path: filePath }, funnel:'bof', duration:null };
         files.push(entry);
-        // Get duration via video element
-        const url = 'file://'+filePath.replace(/\\/g,'/');
-        const v = document.createElement('video');
-        v.preload='metadata'; v.src=url;
-        v.onloadedmetadata=(()=>{
-          const idx=files.findIndex(f=>f.file.path===filePath);
-          if(idx!==-1){ files[idx].duration=v.duration; files[idx].funnel=autoFunnel(v.duration); }
-          renderFiles(); updateVidCounter();
-        });
+        _durationQueue.push({f:{path:filePath}, name});
       }
+      if(pickerDupes.length) toast(pickerDupes.length+' duplicate'+(pickerDupes.length>1?'s':'')+' skipped: '+pickerDupes.slice(0,2).map(n=>n.length>20?n.slice(0,20)+'…':n).join(', ')+(pickerDupes.length>2?' +more':''));
       renderFiles(); updateVidCounter();
+      _processDurationQueue();
     } else {
       document.getElementById('file-in').click();
     }
@@ -1992,26 +1961,13 @@ function dragEnd(e) {
   });
 }
 
-function handleFiles(fl){
-  for(const f of fl){
-    if(files.find(x=>x.file.name===f.name))continue;
-    const entry={file:{name:f.name, path:f.path||'', _blob:f},funnel:'bof',duration:null};
-    files.push(entry);
-    const url=URL.createObjectURL(f);
-    const v=document.createElement('video');
-    v.preload='metadata';v.src=url;
-    v.onloadedmetadata=()=>{
-      const idx=files.findIndex(x=>x.file.name===f.name);
-      if(idx!==-1){files[idx].duration=v.duration;files[idx].funnel=autoFunnel(v.duration);}
-      URL.revokeObjectURL(url);renderFiles();updateVidCounter();
-    };
-  }
-  renderFiles();updateVidCounter();
-}
-function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('over');handleFiles(e.dataTransfer.files);}
-function removeFile(i){files.splice(i,1);renderFiles();updateVidCounter();updatePreviewBg();}
-function renderFiles(){ updatePreviewBg();
+// Debounced renderFiles — prevents hammering the DOM during batch adds
+let _renderTimer = null;
+function renderFiles(){ clearTimeout(_renderTimer); _renderTimer = setTimeout(_doRenderFiles, 80); }
+
+function _doRenderFiles(){ updatePreviewBg();
   const el=document.getElementById('file-list');
+  if(!el) return;
   el.innerHTML=files.map((f,i)=>`
     <div class="file-item ${f.funnel==='bof'?'is-bof':'is-mof'}" draggable="true" ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})" ondrop="dragDrop(event,${i})" ondragend="dragEnd(event)" style="cursor:grab">
       <div class="fi-left">
@@ -2027,24 +1983,50 @@ function renderFiles(){ updatePreviewBg();
       </div>
       <button class="fi-rm" onclick="removeFile(${i})">&#215;</button>
     </div>`).join('');
-  files.forEach((f,i)=>{
-    const th=document.getElementById('fth-'+i);
-    if(!th) return;
-    try{
-      const tv=document.createElement('video');
-      // Use file path if available (Electron native picker), otherwise blob URL
-      if(f.file.path){
-        tv.src='file:///'+f.file.path.replace(/\\/g,'/');
-      } else if(f.file instanceof File){
-        tv.src=URL.createObjectURL(f.file);
-      } else { return; }
-      tv.muted=true;tv.playsInline=true;tv.preload='metadata';
-      tv.style.cssText='width:100%;height:100%;object-fit:cover';
-      tv.onloadedmetadata=()=>{tv.currentTime=0.5;};
-      th.innerHTML='';th.appendChild(tv);
-    }catch(e){ console.log('Thumb error:',e); }
-  });
+  // Thumbnails disabled — video elements cause OOM crash on large batches
 }
+
+// Read durations sequentially — one at a time to avoid memory overload
+let _durationQueue = [];
+let _durationRunning = false;
+function _processDurationQueue(){
+  if(_durationRunning || _durationQueue.length===0) return;
+  _durationRunning = true;
+  const {f, name} = _durationQueue.shift();
+  const v = document.createElement('video');
+  v.preload='metadata';
+  try {
+    v.src = f.path ? ('file:///'+f.path.split('\\').join('/')) : (f instanceof File ? URL.createObjectURL(f) : '');
+  } catch(e) { v.src=''; }
+  let settled = false;
+  const done = () => {
+    if(settled) return; settled=true;
+    const idx = files.findIndex(x=>x.file.name===name);
+    if(idx!==-1){ files[idx].duration=v.duration||null; files[idx].funnel=autoFunnel(v.duration||null); }
+    try{ v.src=''; v.load(); }catch(e){}
+    _durationRunning = false;
+    renderFiles(); updateVidCounter();
+    setTimeout(_processDurationQueue, 50); // small gap between reads
+  };
+  v.onloadedmetadata = done;
+  v.onerror = done;
+  setTimeout(done, 4000); // safety timeout
+}
+
+function handleFiles(fl){
+  let dupes = [];
+  for(const f of fl){
+    if(files.find(x=>x.file.name===f.name)){ dupes.push(f.name); continue; }
+    const entry={file:{name:f.name, path:f.path||'', _blob:f},funnel:'bof',duration:null};
+    files.push(entry);
+    _durationQueue.push({f, name:f.name});
+  }
+  if(dupes.length) toast(dupes.length + ' duplicate'+(dupes.length>1?'s':'')+' skipped: ' + dupes.slice(0,2).map(n=>n.length>20?n.slice(0,20)+'…':n).join(', ')+(dupes.length>2?' +more':''));
+  renderFiles(); updateVidCounter();
+  _processDurationQueue();
+}
+function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('over');handleFiles(e.dataTransfer.files);}
+function removeFile(i){files.splice(i,1);renderFiles();updateVidCounter();updatePreviewBg();}
 
 // ===== PROCESS =====
 
@@ -2054,6 +2036,18 @@ let accounts = JSON.parse(localStorage.getItem('rf_accounts')||'[]');
 let batches = JSON.parse(localStorage.getItem('rf_batches')||'[]');
 let folderPath = localStorage.getItem('rf_fp')||'';
 let ovStyle = 'banner';
+// Load Noto Color Emoji for cross-platform emoji rendering
+async function loadNotoFont() {
+  try {
+    const cdnUrl = 'https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji@main/fonts/NotoColorEmoji.ttf';
+    const font = new FontFace('NotoColorEmoji', 'url(' + cdnUrl + ')');
+    await font.load();
+    document.fonts.add(font);
+    console.log('Noto Color Emoji ready');
+  } catch(e) { console.log('Noto Color Emoji not available:', e.message); }
+}
+loadNotoFont();
+
 let selectedFont = 'classic';
 let textYPercent = 12;
 
@@ -2154,9 +2148,35 @@ function showLand(){showView('view-land');}
 function showLogin(){showView('view-login');document.getElementById('login-error').classList.remove('show');}
 function showSignup(){showView('view-signup');document.getElementById('signup-error').classList.remove('show');document.getElementById('signup-success').classList.remove('show');}
 
+async function silentVerifyPlan() {
+  const email = localStorage.getItem('rf_plan_email');
+  if (!email) return; // no email saved, stay free
+  // Only re-verify once every 6 hours to avoid hammering the server
+  const lastCheck = parseInt(localStorage.getItem('rf_plan_checked') || '0');
+  if (Date.now() - lastCheck < 6 * 60 * 60 * 1000) return;
+  try {
+    const res = await fetch(LICENSE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    const serverPlan = data.plan || 'free';
+    // Always trust the server — corrects any localStorage tampering
+    currentPlan = serverPlan;
+    localStorage.setItem('rf_plan', serverPlan);
+    localStorage.setItem('rf_plan_checked', Date.now().toString());
+    updatePlanDisplay();
+  } catch(e) {
+    // Offline — keep cached plan but don't update timestamp so we retry next launch
+  }
+}
+
 function showApp(){
   currentPlan = localStorage.getItem('rf_plan') || 'free';
   updatePlanDisplay();
+  // Silently re-verify plan with server to prevent localStorage tampering
+  silentVerifyPlan();
   if(window.electronAPI && window.electronAPI.getHomeDir){
     window.electronAPI.getHomeDir().then(d=>{ if(d) localStorage.setItem('rf_homedir',d); });
   }
@@ -2316,85 +2336,6 @@ function setHookColor(c,el){hookColor=c;document.querySelectorAll('#hook-color-d
 function setHookColorCustom(c){hookColor=c;document.querySelectorAll('#hook-color-dots .cdot').forEach(d=>d.classList.remove('sel'));updatePreview();}
 
 // ===== NATIVE FILE PICKER =====
-async function pickFilesNative(){
-  try {
-    const api = window.electronAPI;
-    if(api && api.pickFiles){
-      const paths = await api.pickFiles();
-      if(!paths || !paths.length) return;
-      for(const filePath of paths){
-        const name = filePath.split('\\').pop().split('/').pop();
-        if(files.find(x=>x.file.name===name)) continue;
-        const entry = { file: { name, path: filePath }, funnel:'bof', duration:null };
-        files.push(entry);
-        const url = 'file://'+filePath.replace(/\\/g,'/');
-        const v = document.createElement('video');
-        v.preload='metadata'; v.src=url;
-        v.onloadedmetadata=(()=>{
-          const idx=files.findIndex(f=>f.file.path===filePath);
-          if(idx!==-1){ files[idx].duration=v.duration; files[idx].funnel=autoFunnel(v.duration); }
-          renderFiles(); updateVidCounter();
-        });
-      }
-      renderFiles(); updateVidCounter();
-    } else {
-      document.getElementById('file-in').click();
-    }
-  } catch(e){ document.getElementById('file-in').click(); }
-}
-
-// ===== FILES =====
-function handleFiles(fl){
-  for(const f of fl){
-    if(files.find(x=>x.file.name===f.name))continue;
-    const entry={file:{name:f.name, path:f.path||'', _blob:f},funnel:'bof',duration:null};
-    files.push(entry);
-    const url=URL.createObjectURL(f);
-    const v=document.createElement('video');
-    v.preload='metadata';v.src=url;
-    v.onloadedmetadata=()=>{
-      const idx=files.findIndex(x=>x.file.name===f.name);
-      if(idx!==-1){files[idx].duration=v.duration;files[idx].funnel=autoFunnel(v.duration);}
-      URL.revokeObjectURL(url);renderFiles();updateVidCounter();
-    };
-  }
-  renderFiles();updateVidCounter();
-}
-function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('over');handleFiles(e.dataTransfer.files);}
-function removeFile(i){files.splice(i,1);renderFiles();updateVidCounter();updatePreviewBg();}
-function renderFiles(){ updatePreviewBg();
-  const el=document.getElementById('file-list');
-  el.innerHTML=files.map((f,i)=>`
-    <div class="file-item ${f.funnel==='bof'?'is-bof':'is-mof'}">
-      <div class="fi-left">
-        <div class="fi-thumb" id="fth-${i}">&#127909;</div>
-        <div class="fi-info">
-          <div class="fi-name">${esc(f.file.name)}</div>
-          <div class="fi-meta">
-            <span class="fi-badge ${f.funnel==='bof'?'fi-bof':'fi-mof'}">${f.funnel==='bof'?'BOF':'MOF'}</span>
-            <span class="fi-dur">${fmtD(f.duration)}</span>
-            <span class="fi-auto">${f.duration!==null?'auto':'reading...'}</span>
-          </div>
-        </div>
-      </div>
-      <button class="fi-rm" onclick="removeFile(${i})">&#215;</button>
-    </div>`).join('');
-  files.forEach((f,i)=>{
-    const th=document.getElementById('fth-'+i);
-    if(!th) return;
-    try{
-      const tv=document.createElement('video');
-      if(f.file.path){ tv.src='file:///'+f.file.path.replace(/\\/g,'/'); }
-      else if(f.file instanceof File){ tv.src=URL.createObjectURL(f.file); }
-      else { return; }
-      tv.muted=true;tv.playsInline=true;tv.preload='metadata';
-      tv.style.cssText='width:100%;height:100%;object-fit:cover';
-      tv.onloadedmetadata=()=>{tv.currentTime=0.5;};
-      th.innerHTML='';th.appendChild(tv);
-    }catch(e){}
-  });
-}
-
 async function processBatch(){
   if(!files.length){toast('Add at least one video first.');return;}
   if(!checkPlanLimit(files.length)){showUpgrade();return;}
@@ -2631,7 +2572,6 @@ function renderBatches(){
         <span class="split-mof">${b.mof||0} MOF</span>
       </div>
       <span class="brow-status">COMPLETE</span>
-      <span class="brow-open" onclick="toast('Opening ready/ folder...')">Open &rarr;</span>
     </div>`).join('');
 }
 
@@ -2760,7 +2700,7 @@ const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
       const bot = activeBot.length ? activeBot[previewVariantIdx % activeBot.length] : null;
       const topBg = topColor || '#e03d52';
       const topTextColor = isLight(topBg) ? '#000' : '#fff';
-      if(top){const tbs=getBgForIdx(topBgIdx,topBg);html += `<div class="phone-banner" style="white-space:nowrap;overflow:hidden;background:${tbs.box};color:${tbs.textColor};font-size:${previewFontSize}px;font-family:${previewFont};font-weight:800;text-shadow:${tbs.shadow};border-radius:5px;padding:6px 8px">${esc(top.label)}</div>`;}
+      if(top){const tbs=getBgForIdx(topBgIdx,topBg);const topFontSize=top.label.length>12?Math.round(previewFontSize*(12/top.label.length)*1.2):previewFontSize;html += `<div class="phone-banner" style="white-space:nowrap;overflow:hidden;background:${tbs.box};color:${tbs.textColor};font-size:${topFontSize}px;font-family:${previewFont};font-weight:800;text-shadow:${tbs.shadow};border-radius:5px;padding:6px 8px">${esc(top.label)}</div>`;}
       if(bot){const bbs=getBgForIdx(botBgIdx,botColor||'#ffffff');html += `<div class="phone-banner" style="white-space:nowrap;overflow:hidden;background:${bbs.box};color:${bbs.textColor};font-size:${previewFontSize}px;font-family:${previewFont};font-weight:800;border-radius:5px;padding:5px 8px;text-shadow:${bbs.shadow}">${esc(bot.label)}</div>`;}
     }
   } else {
@@ -2878,34 +2818,7 @@ function scrollToSection(id){
   window.scrollTo({top,behavior:'smooth'});
 }
 
-// ===== TIKTOK IMPORT =====
-let ttHandle = localStorage.getItem('rf_tt')||'';
 
-function showImportModal(){
-  const m=document.getElementById('import-modal');
-  m.style.display='flex';
-  document.getElementById('tt-user-inp').value='';
-}
-function closeImportModal(){
-  document.getElementById('import-modal').style.display='none';
-}
-function doImport(){
-  const h=document.getElementById('tt-user-inp').value.replace('@','').trim();
-  if(!h){toast('Enter your TikTok username first.');return;}
-  closeImportModal();
-  toast('Connecting @'+h+'...');
-  setTimeout(()=>{
-    localStorage.setItem('rf_tt',h);
-    ttHandle=h;
-    const nm=document.getElementById('set-tt-name');
-    const st=document.getElementById('set-tt-status');
-    const btn=document.getElementById('set-tt-btn');
-    if(nm) nm.textContent='@'+h;
-    if(st){st.textContent='Connected';st.style.color='var(--green)';}
-    if(btn) btn.textContent='Disconnect';
-    toast('Connected @'+h+' successfully!');
-  },1200);
-}
 
 // ===== SAVE/LOAD SETTINGS =====
 function saveSettings(){
@@ -3064,6 +2977,23 @@ const revealObserver = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
 },{threshold:0.12});
 document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+// ===== UPDATE LISTENERS =====
+if (window.electronAPI && window.electronAPI.onUpdateAvailable) {
+  window.electronAPI.onUpdateAvailable((version) => {
+    const bar = document.getElementById('update-bar');
+    if (bar) {
+      bar.textContent = '⬆ RoyalForge v' + version + ' available — click to update';
+      bar.classList.add('show');
+    }
+  });
+}
+if (window.electronAPI && window.electronAPI.onUpdateProgress) {
+  window.electronAPI.onUpdateProgress((pct) => {
+    const bar = document.getElementById('update-bar');
+    if (bar) bar.textContent = '⬇ Downloading update... ' + pct + '%';
+  });
+}
 
 // ===== INIT =====
 // Hide loader after 1.5s then show correct view
