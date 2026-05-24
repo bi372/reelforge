@@ -1,5 +1,13 @@
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron')
 const { autoUpdater } = require('electron-updater')
+let mainWin = null
+autoUpdater.autoDownload = true
+autoUpdater.autoInstallOnAppQuit = true
+autoUpdater.on('update-available', () => { if(mainWin) mainWin.webContents.send('update-available','new version') })
+autoUpdater.on('download-progress', (p) => { if(mainWin) mainWin.webContents.send('update-progress', Math.round(p.percent)) })
+autoUpdater.on('update-downloaded', () => { if(mainWin) mainWin.webContents.send('update-available','ready'); setTimeout(()=>autoUpdater.quitAndInstall(),3000) })
+
+
 const path = require('path')
 const { execFile } = require('child_process')
 const fs = require('fs')
@@ -101,7 +109,7 @@ function wrapText(text, maxChars) {
 }
 
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWin = new BrowserWindow({
     width: 1280, height: 820, minWidth: 900, minHeight: 600,
     webPreferences: {
       nodeIntegration: false, contextIsolation: true,
@@ -110,8 +118,8 @@ function createWindow() {
     title: 'RoyalForge', backgroundColor: '#080808',
     icon: path.join(__dirname, 'app', 'icon.ico')
   })
-  win.loadFile('app/index.html')
-  win.setMenuBarVisibility(false)
+  mainWin.loadFile('app/index.html')
+  mainWin.setMenuBarVisibility(false)
 }
 
 let processCounter = 0
@@ -263,7 +271,7 @@ ipcMain.handle('get-home-dir', async () => os.homedir())
 app.whenReady().then(() => {
   downloadNotoFont()
   createWindow()
-  autoUpdater.checkForUpdatesAndNotify()
+  try { autoUpdater.checkForUpdates() } catch(e) {}
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
 })
 
