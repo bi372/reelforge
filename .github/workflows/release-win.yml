@@ -18,10 +18,10 @@ jobs:
         run: |
           curl -L "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -o ffmpeg.zip
           Expand-Archive ffmpeg.zip -DestinationPath ffmpeg-temp
-          mkdir ffmpeg
-          copy "ffmpeg-temp\ffmpeg-*\bin\ffmpeg.exe" "ffmpeg\ffmpeg.exe"
-          rmdir /s /q ffmpeg-temp
-          del ffmpeg.zip
+          New-Item -ItemType Directory -Force -Path ffmpeg
+          Copy-Item "ffmpeg-temp\ffmpeg-*\bin\ffmpeg.exe" "ffmpeg\ffmpeg.exe"
+          Remove-Item -Recurse -Force ffmpeg-temp
+          Remove-Item ffmpeg.zip
       - name: Build Windows EXE
         run: npx electron-builder build --win --publish never
       - name: Upload to Release
