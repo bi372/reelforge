@@ -1,13 +1,4 @@
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron')
-const { autoUpdater } = require('electron-updater')
-let mainWin = null
-autoUpdater.autoDownload = true
-autoUpdater.autoInstallOnAppQuit = true
-autoUpdater.on('update-available', () => { if(mainWin) mainWin.webContents.send('update-available','new version') })
-autoUpdater.on('download-progress', (p) => { if(mainWin) mainWin.webContents.send('update-progress', Math.round(p.percent)) })
-autoUpdater.on('update-downloaded', () => { if(mainWin) mainWin.webContents.send('update-available','ready'); setTimeout(()=>autoUpdater.quitAndInstall(),3000) })
-
-
 const path = require('path')
 const { execFile } = require('child_process')
 const fs = require('fs')
@@ -16,7 +7,11 @@ const https = require('https')
 
 // Download Noto Color Emoji font on first run for cross-platform emoji rendering
 function downloadNotoFont() {
-  const fontDir = path.join(__dirname, 'fonts')
+  // Check bundled location first (resources/fonts in installed app)
+  const bundledFont = path.join(process.resourcesPath || __dirname, 'fonts', 'NotoColorEmoji.ttf')
+  if (fs.existsSync(bundledFont)) return // already bundled, no download needed
+  // Fall back to userData for download
+  const fontDir = path.join(app.getPath('userData'), 'fonts')
   const fontPath = path.join(fontDir, 'NotoColorEmoji.ttf')
   if (fs.existsSync(fontPath)) return
   try { fs.mkdirSync(fontDir, { recursive: true }) } catch(e) {}
@@ -109,7 +104,7 @@ function wrapText(text, maxChars) {
 }
 
 function createWindow() {
-  mainWin = new BrowserWindow({
+  const win = new BrowserWindow({
     width: 1280, height: 820, minWidth: 900, minHeight: 600,
     webPreferences: {
       nodeIntegration: false, contextIsolation: true,
@@ -118,8 +113,8 @@ function createWindow() {
     title: 'RoyalForge', backgroundColor: '#080808',
     icon: path.join(__dirname, 'app', 'icon.ico')
   })
-  mainWin.loadFile('app/index.html')
-  mainWin.setMenuBarVisibility(false)
+  win.loadFile('app/index.html')
+  win.setMenuBarVisibility(false)
 }
 
 let processCounter = 0
@@ -271,7 +266,6 @@ ipcMain.handle('get-home-dir', async () => os.homedir())
 app.whenReady().then(() => {
   downloadNotoFont()
   createWindow()
-  try { autoUpdater.checkForUpdates() } catch(e) {}
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
 })
 
