@@ -14,6 +14,14 @@ jobs:
         with:
           node-version: 20
       - run: npm install
+      - name: Download FFmpeg
+        run: |
+          curl -L "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -o ffmpeg.zip
+          Expand-Archive ffmpeg.zip -DestinationPath ffmpeg-temp
+          mkdir ffmpeg
+          copy "ffmpeg-temp\ffmpeg-*\bin\ffmpeg.exe" "ffmpeg\ffmpeg.exe"
+          rmdir /s /q ffmpeg-temp
+          del ffmpeg.zip
       - name: Build Windows EXE
         run: npx electron-builder build --win --publish never
       - name: Upload to Release
