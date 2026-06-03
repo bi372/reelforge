@@ -3,28 +3,8 @@ const path = require('path')
 const { execFile } = require('child_process')
 const fs = require('fs')
 const os = require('os')
-const https = require('https')
 
-// Download Noto Color Emoji font on first run for cross-platform emoji rendering
-function downloadNotoFont() {
-  // Check bundled location first (resources/fonts in installed app)
-  const bundledFont = path.join(process.resourcesPath || __dirname, 'fonts', 'NotoColorEmoji.ttf')
-  if (fs.existsSync(bundledFont)) return // already bundled, no download needed
-  // Fall back to userData for download
-  const fontDir = path.join(app.getPath('userData'), 'fonts')
-  const fontPath = path.join(fontDir, 'NotoColorEmoji.ttf')
-  if (fs.existsSync(fontPath)) return
-  try { fs.mkdirSync(fontDir, { recursive: true }) } catch(e) {}
-  const file = fs.createWriteStream(fontPath)
-  function get(u) {
-    https.get(u, (res) => {
-      if (res.statusCode === 301 || res.statusCode === 302) { get(res.headers.location); return }
-      res.pipe(file)
-      file.on('finish', () => { file.close(); console.log('Noto Color Emoji downloaded') })
-    }).on('error', (err) => { try { fs.unlinkSync(fontPath) } catch(e) {}; console.error('Noto download failed:', err.message) })
-  }
-  get('https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji@main/fonts/NotoColorEmoji.ttf')
-}
+
 
 function getFFmpegPath() {
   const bundledPath = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg.exe')
@@ -264,7 +244,6 @@ ipcMain.handle('open-external', async (event, url) => { shell.openExternal(url) 
 ipcMain.handle('get-home-dir', async () => os.homedir())
 
 app.whenReady().then(() => {
-  downloadNotoFont()
   createWindow()
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
 })
