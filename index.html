@@ -7,11 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#07070a;--card:#0f0f14;--card2:#16161d;--border:#1e1e28;--border2:#2a2a38;
-  --txt:#f0f0f5;--muted:#5a5a72;--muted2:#2e2e3e;--gold:#c9a84c;--gold2:#e8c46a;
-  --gold3:#f5d680;--red:#e03d52;--green:#22c55e;
-}
+:root{--bg:#07070a;--card:#0f0f14;--card2:#16161d;--border:#1e1e28;--border2:#2a2a38;--txt:#f0f0f5;--muted:#5a5a72;--muted2:#2e2e3e;--gold:#c9a84c;--gold2:#e8c46a;--gold3:#f5d680;--red:#e03d52;--green:#22c55e}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:15px;overflow-x:hidden;line-height:1.6}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,7,10,0.8);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.04)}
@@ -51,9 +47,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 48px;display:fl
 .mcard-bg-img{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px;opacity:.08}
 .mcard-content{position:absolute;top:10px;left:0;right:0;display:flex;flex-direction:column;gap:4px;padding:0 7px}
 .mc-banner{border-radius:4px;padding:4px 7px;font-size:9px;font-weight:800;letter-spacing:.5px;text-align:center}
-.mc-red{background:var(--red);color:#fff}
-.mc-white{background:#fff;color:#000}
-.mc-gold{background:var(--gold);color:#000}
+.mc-red{background:var(--red);color:#fff}.mc-white{background:#fff;color:#000}.mc-gold{background:var(--gold);color:#000}
 .mc-text{font-size:8px;color:#fff;text-align:center;line-height:1.5;padding:2px 4px;text-shadow:0 1px 3px rgba(0,0,0,.8)}
 .section{padding:110px 48px;max-width:1100px;margin:0 auto}
 .section-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
@@ -127,24 +121,8 @@ footer{border-top:1px solid var(--border);padding:36px 48px;display:flex;align-i
 .footer-copy{font-size:12px;color:var(--muted2)}
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
-.reveal-d1{transition-delay:.1s}
-.reveal-d2{transition-delay:.2s}
-.reveal-d3{transition-delay:.3s}
-@media(max-width:768px){
-  nav{padding:14px 20px}
-  .nav-links{display:none}
-  .hero{padding:90px 20px 60px}
-  .section{padding:70px 20px}
-  .steps{grid-template-columns:1fr;gap:32px}
-  .steps::before{display:none}
-  .feat-grid{grid-template-columns:1fr}
-  .feat.wide{grid-column:span 1}
-  .pricing-grid{grid-template-columns:1fr}
-  .proof-strip{gap:36px;padding:28px 20px}
-  .cta-band{margin:0 20px 70px;padding:48px 24px}
-  footer{flex-direction:column;align-items:center;text-align:center;padding:24px 20px}
-  .dl-btns{flex-direction:column;align-items:center}
-}
+.reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}
+@media(max-width:768px){nav{padding:14px 20px}.nav-links{display:none}.hero{padding:90px 20px 60px}.section{padding:70px 20px}.steps{grid-template-columns:1fr;gap:32px}.steps::before{display:none}.feat-grid{grid-template-columns:1fr}.feat.wide{grid-column:span 1}.pricing-grid{grid-template-columns:1fr}.proof-strip{gap:36px;padding:28px 20px}.cta-band{margin:0 20px 70px;padding:48px 24px}footer{flex-direction:column;align-items:center;text-align:center;padding:24px 20px}.dl-btns{flex-direction:column;align-items:center}}
 </style>
 </head>
 <body>
@@ -166,11 +144,11 @@ footer{border-top:1px solid var(--border);padding:36px 48px;display:flex;align-i
   <h1>Batch edit TikTok Shop<br>videos in <em>seconds.</em></h1>
   <p class="hero-sub">Add overlays, hooks, and urgency text to 50+ videos at once. Emojis included. No cloud uploads. Your videos never leave your machine.</p>
   <div class="dl-btns">
-    <a class="dl-btn" href="https://github.com/bi372/reelforge/releases/download/v1.0.32/RoyalForge.Setup.1.0.31.exe" download>
+    <a class="dl-btn" href="https://github.com/bi372/reelforge/releases/download/v1.0.32/RoyalForge.Setup.1.0.32.exe" download>
       <svg viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M17.71 7.71L12 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V9l-2.29-1.29zM14 13h-3v3H9v-3H6l4-4 4 4zm-3-7V3.5L17.5 10H12c-.55 0-1-.45-1-1z"/></svg>
       Download for Windows
     </a>
-    <a class="dl-btn-ghost" href="https://github.com/bi372/reelforge/releases/download/v1.0.32/RoyalForge-1.0.31-arm64.dmg" download>
+    <a class="dl-btn-ghost" href="https://github.com/bi372/reelforge/releases/download/v1.0.32/RoyalForge-1.0.32-arm64.dmg" download>
       <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
       Download for Mac
     </a>
@@ -217,21 +195,9 @@ footer{border-top:1px solid var(--border);padding:36px 48px;display:flex;align-i
   <div class="reveal reveal-d1"><h2 class="section-h">From raw clips to ready-to-post<br>in three steps.</h2></div>
   <div class="reveal reveal-d2"><p class="section-sub" style="margin:0 auto">No editing skills. No waiting. Drop your clips and ship.</p></div>
   <div class="steps">
-    <div class="step reveal reveal-d1">
-      <div class="step-num"><span>1</span></div>
-      <div class="step-title">Drop your videos</div>
-      <div class="step-desc">Add your raw .MOV or .MP4 clips. BOF and MOF are auto-detected by duration. No manual sorting needed.</div>
-    </div>
-    <div class="step reveal reveal-d2">
-      <div class="step-num"><span>2</span></div>
-      <div class="step-title">Configure your overlay</div>
-      <div class="step-desc">Pick banner, full text, or mix both. Edit every hook line. Add emojis. See it live in the preview.</div>
-    </div>
-    <div class="step reveal reveal-d3">
-      <div class="step-num"><span>3</span></div>
-      <div class="step-title">Process &amp; post</div>
-      <div class="step-desc">Hit Process batch. Every clip gets stamped and lands in your ready/ folder. Done in seconds.</div>
-    </div>
+    <div class="step reveal reveal-d1"><div class="step-num"><span>1</span></div><div class="step-title">Drop your videos</div><div class="step-desc">Add your raw .MOV or .MP4 clips. BOF and MOF are auto-detected by duration. No manual sorting needed.</div></div>
+    <div class="step reveal reveal-d2"><div class="step-num"><span>2</span></div><div class="step-title">Configure your overlay</div><div class="step-desc">Pick banner, full text, or mix both. Edit every hook line. Add emojis. See it live in the preview.</div></div>
+    <div class="step reveal reveal-d3"><div class="step-num"><span>3</span></div><div class="step-title">Process &amp; post</div><div class="step-desc">Hit Process batch. Every clip gets stamped and lands in your ready/ folder. Done in seconds.</div></div>
   </div>
 </section>
 <div class="proof-strip reveal">
@@ -245,37 +211,13 @@ footer{border-top:1px solid var(--border);padding:36px 48px;display:flex;align-i
   <div class="reveal reveal-d1"><h2 class="section-h">Everything you need.<br>Nothing you don't.</h2></div>
   <div class="reveal reveal-d2"><p class="section-sub">Built for creators who post volume, not hobbyists who edit one clip at a time.</p></div>
   <div class="feat-grid">
-    <div class="feat reveal reveal-d1">
-      <div class="feat-icon">⚡</div>
-      <div class="feat-title">Batch processing</div>
-      <div class="feat-desc">Process 50+ videos in one pass. Drop your clips, hit process, and walk away. No babysitting required.</div>
-      <div class="feat-badge">Up to 50 clips at once</div>
-    </div>
-    <div class="feat reveal reveal-d2">
-      <div class="feat-icon">🎯</div>
-      <div class="feat-title">BOF &amp; MOF auto-tagging</div>
-      <div class="feat-desc">Videos are automatically sorted by duration — shorter clips become MOF hook text, longer clips get BOF urgency banners.</div>
-      <div class="feat-badge">Zero manual sorting</div>
-    </div>
-    <div class="feat reveal reveal-d1">
-      <div class="feat-icon">🚨</div>
-      <div class="feat-title">Full emoji support</div>
-      <div class="feat-desc">Emojis render in full color on your burned videos — 🚨 🔥 😭 all show exactly as they appear in the preview.</div>
-      <div class="feat-badge">Color emoji in video</div>
-    </div>
-    <div class="feat reveal reveal-d2">
-      <div class="feat-icon">🔒</div>
-      <div class="feat-title">100% local processing</div>
-      <div class="feat-desc">Your videos never leave your computer. Everything runs on your machine with FFmpeg bundled inside the app.</div>
-      <div class="feat-badge">No cloud uploads</div>
-    </div>
+    <div class="feat reveal reveal-d1"><div class="feat-icon">⚡</div><div class="feat-title">Batch processing</div><div class="feat-desc">Process 50+ videos in one pass. Drop your clips, hit process, and walk away.</div><div class="feat-badge">Up to 50 clips at once</div></div>
+    <div class="feat reveal reveal-d2"><div class="feat-icon">🎯</div><div class="feat-title">BOF &amp; MOF auto-tagging</div><div class="feat-desc">Videos are automatically sorted by duration — shorter clips become MOF hook text, longer clips get BOF urgency banners.</div><div class="feat-badge">Zero manual sorting</div></div>
+    <div class="feat reveal reveal-d1"><div class="feat-icon">🚨</div><div class="feat-title">Full emoji support</div><div class="feat-desc">Emojis render in full color on your burned videos — 🚨 🔥 😭 all show exactly as they appear in the preview.</div><div class="feat-badge">Color emoji in video</div></div>
+    <div class="feat reveal reveal-d2"><div class="feat-icon">🔒</div><div class="feat-title">100% local processing</div><div class="feat-desc">Your videos never leave your computer. Everything runs on your machine with FFmpeg bundled inside the app.</div><div class="feat-badge">No cloud uploads</div></div>
     <div class="feat wide reveal">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center">
-        <div>
-          <div class="feat-icon">✏️</div>
-          <div class="feat-title">Banner + Full text overlays</div>
-          <div class="feat-desc">Banner mode adds urgency text boxes. Full text drops a hook line across the video. Mix mode automatically gives BOF videos banners and MOF videos hook text.</div>
-        </div>
+        <div><div class="feat-icon">✏️</div><div class="feat-title">Banner + Full text overlays</div><div class="feat-desc">Banner mode adds urgency text boxes. Full text drops a hook line across the video. Mix mode automatically gives BOF videos banners and MOF videos hook text.</div></div>
         <div style="background:var(--card2);border:1px solid var(--border2);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:8px">
           <div style="background:var(--red);color:#fff;border-radius:5px;padding:7px 14px;font-size:13px;font-weight:800;text-align:center">40% OFF 🚨</div>
           <div style="background:#fff;color:#000;border-radius:5px;padding:7px 14px;font-size:13px;font-weight:800;text-align:center">LAST CHANCE 🛒</div>
@@ -297,13 +239,7 @@ footer{border-top:1px solid var(--border);padding:36px 48px;display:flex;align-i
       <div class="pc-per">per month &mdash; 3-day free trial</div>
       <div class="pc-div"></div>
       <ul class="pc-list">
-        <li class="yes">50 videos per day</li>
-        <li class="yes">All overlay styles</li>
-        <li class="yes">All fonts + emoji support</li>
-        <li class="yes">BOF + MOF auto-tagging</li>
-        <li class="yes">Local processing</li>
-        <li class="no">Unlimited videos</li>
-        <li class="no">Priority support</li>
+        <li class="yes">50 videos per day</li><li class="yes">All overlay styles</li><li class="yes">All fonts + emoji support</li><li class="yes">BOF + MOF auto-tagging</li><li class="yes">Local processing</li><li class="no">Unlimited videos</li><li class="no">Priority support</li>
       </ul>
       <button class="pc-btn-ghost" onclick="window.location='https://buy.stripe.com/bJebJ1f5AalO3lwfgi8AE00'">Get Forge</button>
     </div>
@@ -313,13 +249,7 @@ footer{border-top:1px solid var(--border);padding:36px 48px;display:flex;align-i
       <div class="pc-per">per month &mdash; 3-day free trial</div>
       <div class="pc-div"></div>
       <ul class="pc-list">
-        <li class="yes">Unlimited videos per day</li>
-        <li class="yes">All overlay styles</li>
-        <li class="yes">All fonts + emoji support</li>
-        <li class="yes">BOF + MOF auto-tagging</li>
-        <li class="yes">Local processing</li>
-        <li class="yes">Priority support</li>
-        <li class="yes">Early access features</li>
+        <li class="yes">Unlimited videos per day</li><li class="yes">All overlay styles</li><li class="yes">All fonts + emoji support</li><li class="yes">BOF + MOF auto-tagging</li><li class="yes">Local processing</li><li class="yes">Priority support</li><li class="yes">Early access features</li>
       </ul>
       <button class="pc-btn" onclick="window.location='https://buy.stripe.com/6oU4gz7D80Le8FQ4BE8AE01'">Go unlimited</button>
     </div>
@@ -330,30 +260,12 @@ footer{border-top:1px solid var(--border);padding:36px 48px;display:flex;align-i
   <div class="reveal"><div class="section-tag">FAQ</div></div>
   <div class="reveal reveal-d1"><h2 class="section-h" style="margin-bottom:52px">Quick answers<br>before you start.</h2></div>
   <div class="faq-list">
-    <div class="faq-item reveal" onclick="toggleFaq(this)">
-      <div class="faq-q"><span class="faq-q-txt">Does it work on Mac and Windows?</span><div class="faq-icon">+</div></div>
-      <div class="faq-a"><p class="faq-a-txt">Yes! RoyalForge works on both Windows 10/11 and Mac (Apple Silicon M1/M2/M3). Download the right version for your system above. Mac users may need to right-click → Open the first time due to Apple's security settings.</p></div>
-    </div>
-    <div class="faq-item reveal" onclick="toggleFaq(this)">
-      <div class="faq-q"><span class="faq-q-txt">Will TikTok ban me for using this?</span><div class="faq-icon">+</div></div>
-      <div class="faq-a"><p class="faq-a-txt">No. RoyalForge burns text overlays onto your video files locally — the same thing you'd do manually in CapCut. TikTok sees a normal video. There's no bot, no automation on TikTok's side.</p></div>
-    </div>
-    <div class="faq-item reveal" onclick="toggleFaq(this)">
-      <div class="faq-q"><span class="faq-q-txt">Do my videos get uploaded anywhere?</span><div class="faq-icon">+</div></div>
-      <div class="faq-a"><p class="faq-a-txt">No. Everything runs locally on your machine. Your footage never leaves your device. The finished videos land in a ready/ folder on your computer.</p></div>
-    </div>
-    <div class="faq-item reveal" onclick="toggleFaq(this)">
-      <div class="faq-q"><span class="faq-q-txt">Do emojis actually show in the video?</span><div class="faq-icon">+</div></div>
-      <div class="faq-a"><p class="faq-a-txt">Yes — full color emoji support. 🚨 🔥 😭 all render correctly in the burned video exactly as they appear in the live preview.</p></div>
-    </div>
-    <div class="faq-item reveal" onclick="toggleFaq(this)">
-      <div class="faq-q"><span class="faq-q-txt">Is there a free trial?</span><div class="faq-icon">+</div></div>
-      <div class="faq-a"><p class="faq-a-txt">Yes — 3-day free trial on all paid plans. No credit card required to download and start with the free tier.</p></div>
-    </div>
-    <div class="faq-item reveal" onclick="toggleFaq(this)">
-      <div class="faq-q"><span class="faq-q-txt">Can I cancel anytime?</span><div class="faq-icon">+</div></div>
-      <div class="faq-a"><p class="faq-a-txt">Yes. No contracts, no fees. Cancel anytime from your account settings.</p></div>
-    </div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)"><div class="faq-q"><span class="faq-q-txt">Does it work on Mac and Windows?</span><div class="faq-icon">+</div></div><div class="faq-a"><p class="faq-a-txt">Yes! RoyalForge works on both Windows 10/11 and Mac (Apple Silicon M1/M2/M3). Mac users may need to right-click → Open the first time.</p></div></div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)"><div class="faq-q"><span class="faq-q-txt">Will TikTok ban me for using this?</span><div class="faq-icon">+</div></div><div class="faq-a"><p class="faq-a-txt">No. RoyalForge burns text overlays onto your video files locally — the same thing you'd do manually in CapCut. TikTok sees a normal video.</p></div></div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)"><div class="faq-q"><span class="faq-q-txt">Do my videos get uploaded anywhere?</span><div class="faq-icon">+</div></div><div class="faq-a"><p class="faq-a-txt">No. Everything runs locally on your machine. Your footage never leaves your device.</p></div></div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)"><div class="faq-q"><span class="faq-q-txt">Do emojis actually show in the video?</span><div class="faq-icon">+</div></div><div class="faq-a"><p class="faq-a-txt">Yes — full color emoji support. 🚨 🔥 😭 all render correctly in the burned video.</p></div></div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)"><div class="faq-q"><span class="faq-q-txt">Is there a free trial?</span><div class="faq-icon">+</div></div><div class="faq-a"><p class="faq-a-txt">Yes — 3-day free trial on all paid plans. No credit card required to download and start.</p></div></div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)"><div class="faq-q"><span class="faq-q-txt">Can I cancel anytime?</span><div class="faq-icon">+</div></div><div class="faq-a"><p class="faq-a-txt">Yes. No contracts, no fees. Cancel anytime from your account settings.</p></div></div>
   </div>
 </section>
 <div style="padding:110px 0 0">
@@ -361,11 +273,11 @@ footer{border-top:1px solid var(--border);padding:36px 48px;display:flex;align-i
     <h2>Ready to stop editing<br>one clip at a time?</h2>
     <p>Join TikTok Shop affiliates already shipping faster with RoyalForge.</p>
     <div class="dl-btns" style="justify-content:center">
-      <a class="dl-btn" href="https://github.com/bi372/reelforge/releases/download/v1.0.32/RoyalForge.Setup.1.0.31.exe" download style="display:inline-flex">
+      <a class="dl-btn" href="https://github.com/bi372/reelforge/releases/download/v1.0.32/RoyalForge.Setup.1.0.32.exe" download style="display:inline-flex">
         <svg viewBox="0 0 24 24"><path d="M17.71 7.71L12 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V9l-2.29-1.29zM14 13h-3v3H9v-3H6l4-4 4 4zm-3-7V3.5L17.5 10H12c-.55 0-1-.45-1-1z" fill="#000"/></svg>
         <span>Windows</span>
       </a>
-      <a class="dl-btn-ghost" href="https://github.com/bi372/reelforge/releases/download/v1.0.32/RoyalForge-1.0.31-arm64.dmg" download style="display:inline-flex">
+      <a class="dl-btn-ghost" href="https://github.com/bi372/reelforge/releases/download/v1.0.32/RoyalForge-1.0.32-arm64.dmg" download style="display:inline-flex">
         <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
         <span>Mac (Apple Silicon)</span>
       </a>
@@ -373,24 +285,13 @@ footer{border-top:1px solid var(--border);padding:36px 48px;display:flex;align-i
   </div>
 </div>
 <footer>
-  <div class="footer-logo">
-    <div class="footer-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
-    <span class="footer-logo-name">Royal<span>Forge</span></span>
-  </div>
-  <div class="footer-links">
-    <a>Terms</a><a>Privacy</a><a>Contact</a>
-  </div>
+  <div class="footer-logo"><div class="footer-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div><span class="footer-logo-name">Royal<span>Forge</span></span></div>
+  <div class="footer-links"><a>Terms</a><a>Privacy</a><a>Contact</a></div>
   <div class="footer-copy">&copy; 2026 RoyalForge. All rights reserved.</div>
 </footer>
 <script>
-function toggleFaq(item){
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(el=>el.classList.remove('open'));
-  if(!isOpen) item.classList.add('open');
-}
-const obs = new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
-},{threshold:0.1});
+function toggleFaq(item){const isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(el=>el.classList.remove('open'));if(!isOpen)item.classList.add('open');}
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 </script>
 </body>
