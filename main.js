@@ -86,7 +86,7 @@ function wrapText(text, maxChars) {
 }
 
 let mainWin = null
-autoUpdater.autoDownload = true
+autoUpdater.autoDownload = false
 autoUpdater.autoInstallOnAppQuit = true
 autoUpdater.on('update-available', () => { if(mainWin) mainWin.webContents.send('update-available', 'new version') })
 autoUpdater.on('download-progress', (p) => { if(mainWin) mainWin.webContents.send('update-progress', Math.round(p.percent)) })
