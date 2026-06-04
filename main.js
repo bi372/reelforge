@@ -28,7 +28,8 @@ const FONTS = {
   bomb:       'fonts\\blackhan.ttf',
   signature:  'fonts\\dancing.ttf',
   printer:    'fonts\\courier.ttf',
-  typewriter: 'fonts\\specialelite.ttf'
+  typewriter: 'fonts\\specialelite.ttf',
+  nunito:     'fonts\\nunito.ttf'
 }
 
 function getFontPath(fontKey) {
