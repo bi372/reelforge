@@ -1528,9 +1528,10 @@ function checkForUpdates() {
 function openUpdateLink() {
   const bar = document.getElementById('update-bar');
   if (bar && bar._downloading) return;
+  if (bar && bar._ready) { window.electronAPI && window.electronAPI.installUpdate && window.electronAPI.installUpdate(); return; }
   bar._downloading = true;
   bar.textContent = '⬇ Downloading update... 0%';
-  if (window.electronAPI) window.electronAPI.startUpdateDownload();
+  if (window.electronAPI && window.electronAPI.startUpdateDownload) window.electronAPI.startUpdateDownload();
 }
 
 const STRIPE_FORGE = 'https://buy.stripe.com/bJebJ1f5AalO3lwfgi8AE00';
@@ -2988,7 +2989,7 @@ if (window.electronAPI && window.electronAPI.onUpdateAvailable) {
   window.electronAPI.onUpdateAvailable((version) => {
     const bar = document.getElementById('update-bar');
     if (bar) {
-      bar.textContent = '⬆ RoyalForge v' + version + ' available — click to update';
+      bar.textContent = '⬆ RoyalForge v' + version + ' available — click to download';
       bar.classList.add('show');
     }
   });
@@ -2996,7 +2997,17 @@ if (window.electronAPI && window.electronAPI.onUpdateAvailable) {
 if (window.electronAPI && window.electronAPI.onUpdateProgress) {
   window.electronAPI.onUpdateProgress((pct) => {
     const bar = document.getElementById('update-bar');
-    if (bar) bar.textContent = '⬇ Downloading update... ' + pct + '%';
+    if (bar) bar.textContent = '⬇ Downloading... ' + pct + '%';
+  });
+}
+if (window.electronAPI && window.electronAPI.onUpdateDownloaded) {
+  window.electronAPI.onUpdateDownloaded(() => {
+    const bar = document.getElementById('update-bar');
+    if (bar) {
+      bar._ready = true;
+      bar._downloading = false;
+      bar.textContent = '✅ Update ready — click to install & restart';
+    }
   });
 }
 
