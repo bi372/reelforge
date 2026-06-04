@@ -654,6 +654,7 @@ input[type=file]{display:none}
 @font-face{font-family:'RF-Special';src:url('fonts/specialelite.ttf')}
 @font-face{font-family:'RF-Comic';src:url('fonts/comicneue.ttf')}
 @font-face{font-family:'RF-BlackHan';src:url('fonts/blackhan.ttf')}
+@font-face{font-family:'RF-Nunito';src:url('fonts/nunito.ttf')}
 input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, 'NotoColorEmoji', sans-serif; }
 </style>
 </style>
@@ -1238,6 +1239,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
         <div class="font-opt" onclick="setFont('signature',this)"><div class="font-opt-preview" style="font-family:'RF-Dancing',cursive;font-size:18px">Abc</div><div class="font-opt-name">Dancing</div></div>
         <div class="font-opt" onclick="setFont('printer',this)"><div class="font-opt-preview" style="font-family:'RF-Courier',monospace;font-size:15px">ABC</div><div class="font-opt-name">Courier</div></div>
         <div class="font-opt" onclick="setFont('typewriter',this)"><div class="font-opt-preview" style="font-family:'RF-Special',monospace;font-size:14px">Abc</div><div class="font-opt-name">Special Elite</div></div>
+        <div class="font-opt" onclick="setFont('nunito',this)"><div class="font-opt-preview" style="font-family:'RF-Nunito',sans-serif;font-size:16px;font-style:italic">Abc</div><div class="font-opt-name">Nunito</div></div>
       </div></div>
       <div class="size-row">
         <span style="font-size:11px;color:var(--muted)">A</span>
@@ -1551,7 +1553,7 @@ function openStripe(plan){
 }
 
 const LICENSE_API = 'https://royalforge-api.netlify.app/.netlify/functions/verify-license';
-let currentPlan = localStorage.getItem('rf_plan') || 'free';
+let currentPlan = localStorage.getItem('rf_plan') || 'royal';
 let planLimits = { free: 5, forge: 50, royal: Infinity };
 
 function updatePlanDisplay() {
@@ -1684,7 +1686,8 @@ async function captureOverlayPNG(uid, isFulltextParam) {
     bomb: 'fonts/blackhan.ttf',
     signature: 'fonts/dancing.ttf',
     printer: 'fonts/courier.ttf',
-    typewriter: 'fonts/specialelite.ttf'
+    typewriter: 'fonts/specialelite.ttf',
+    nunito: 'fonts/nunito.ttf'
   };
   const _fontFallback = {
     classic:'Arial',elegance:'RF-Playfair',neon:'RF-Bebas',retro:'RF-Pacifico',
@@ -2149,6 +2152,7 @@ function showLogin(){showView('view-login');document.getElementById('login-error
 function showSignup(){showView('view-signup');document.getElementById('signup-error').classList.remove('show');document.getElementById('signup-success').classList.remove('show');}
 
 async function silentVerifyPlan() {
+  if (!window.electronAPI) return; // skip in dev mode — stay Royal
   const email = localStorage.getItem('rf_plan_email');
   if (!email) return; // no email saved, stay free
   // Only re-verify once every 6 hours to avoid hammering the server
@@ -2669,7 +2673,8 @@ const fontFamilyMap = {
   bomb:"'RF-BlackHan',sans-serif",
   signature:"'RF-Dancing',cursive",
   printer:"'RF-Courier',monospace",
-  typewriter:"'RF-Special',monospace"
+  typewriter:"'RF-Special',monospace",
+  nunito:"'RF-Nunito',sans-serif"
 };
 const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
   const videoScale = 4;
