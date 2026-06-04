@@ -3000,16 +3000,7 @@ if (window.electronAPI && window.electronAPI.onUpdateProgress) {
     if (bar) bar.textContent = '⬇ Downloading... ' + pct + '%';
   });
 }
-if (window.electronAPI && window.electronAPI.onUpdateDownloaded) {
-  window.electronAPI.onUpdateDownloaded(() => {
-    const bar = document.getElementById('update-bar');
-    if (bar) {
-      bar._ready = true;
-      bar._downloading = false;
-      bar.textContent = '✅ Update ready — click to install & restart';
-    }
-  });
-}
+// Update installs automatically after download — no extra click needed
 
 // ===== INIT =====
 // Hide loader after 1.5s then show correct view
