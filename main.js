@@ -123,7 +123,7 @@ ipcMain.handle('process-video', async (event, data) => {
 
   const FONT = getFontPath(fontKey || 'classic')
   const fSize = fontSize || 52
-  const scale = 5
+  const scale = 2.5
   const BOX_BORDER = 22
   const bofSize = Math.round(fSize * scale)
   const bofBotSize = Math.round(fSize * scale * 0.78)
@@ -187,7 +187,7 @@ function processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofS
     const boxPart = style.box ? `:${style.box}` : ''
 
     if (isFulltext) {
-      const lines = (preWrappedLines && preWrappedLines.length > 0) ? preWrappedLines : wrapText(topText.trim(), 20)
+      const lines = (preWrappedLines && preWrappedLines.length > 0) ? preWrappedLines : wrapText(topText.trim(), 14)
       const lineHeight = Math.round(useSize * 0.72) + BOX_BORDER * 2
       lines.forEach((line, i) => {
         const y = topY + (i * lineHeight)
