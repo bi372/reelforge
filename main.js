@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron')
+const { autoUpdater } = require('electron-updater')
 const path = require('path')
 const { execFile } = require('child_process')
 const fs = require('fs')
@@ -83,6 +84,13 @@ function wrapText(text, maxChars) {
   return lines
 }
 
+let mainWin = null
+autoUpdater.autoDownload = true
+autoUpdater.autoInstallOnAppQuit = true
+autoUpdater.on('update-available', () => { if(mainWin) mainWin.webContents.send('update-available', 'new version') })
+autoUpdater.on('download-progress', (p) => { if(mainWin) mainWin.webContents.send('update-progress', Math.round(p.percent)) })
+autoUpdater.on('update-downloaded', () => { if(mainWin) mainWin.webContents.send('update-available', 'ready'); setTimeout(()=>autoUpdater.quitAndInstall(),3000) })
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280, height: 820, minWidth: 900, minHeight: 600,
@@ -93,6 +101,7 @@ function createWindow() {
     title: 'RoyalForge', backgroundColor: '#080808',
     icon: path.join(__dirname, 'app', 'icon.ico')
   })
+  mainWin = win
   win.loadFile('app/index.html')
   win.setMenuBarVisibility(false)
 }
@@ -245,6 +254,7 @@ ipcMain.handle('get-home-dir', async () => os.homedir())
 
 app.whenReady().then(() => {
   createWindow()
+  try { autoUpdater.checkForUpdates() } catch(e) {}
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
 })
 
