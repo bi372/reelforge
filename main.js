@@ -86,13 +86,11 @@ function wrapText(text, maxChars) {
 }
 
 let mainWin = null
-autoUpdater.autoDownload = false
+autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
-autoUpdater.on('update-available', (info) => { if(mainWin) mainWin.webContents.send('update-available', info.version) })
+autoUpdater.on('update-available', () => { if(mainWin) mainWin.webContents.send('update-available', 'new version') })
 autoUpdater.on('download-progress', (p) => { if(mainWin) mainWin.webContents.send('update-progress', Math.round(p.percent)) })
-autoUpdater.on('update-downloaded', () => { if(mainWin) mainWin.webContents.send('update-downloaded') })
-ipcMain.on('start-update-download', () => { autoUpdater.downloadUpdate() })
-ipcMain.on('install-update', () => { autoUpdater.quitAndInstall() })
+autoUpdater.on('update-downloaded', () => { if(mainWin) mainWin.webContents.send('update-progress', 100); setTimeout(() => autoUpdater.quitAndInstall(false, true), 2000) })
 
 function createWindow() {
   const win = new BrowserWindow({
