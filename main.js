@@ -57,7 +57,7 @@ function getDrawtextStyle(bgIdx, col) {
     return { fontcolor: textColor, box: `box=1:boxcolor=0x${cleanCol}@1.0:boxborderw=22` }
   }
   if (idx === 1) {
-    return { fontcolor: `0x${cleanCol}`, box: `borderw=5:bordercolor=0x${borderColor}` }
+    return { fontcolor: `0x${cleanCol}`, box: `borderw=14:bordercolor=0x${borderColor}` }
   }
   return { fontcolor: `0x${cleanCol}`, box: '' }
 }
