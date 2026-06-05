@@ -1875,7 +1875,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         // Outline style: strokeText with contrasting color + fillText with selected color
         const outCol = (color === '#ffffff' || color === '#fff') ? '#000000' : '#ffffff';
         ctx.lineJoin = 'round';
-        ctx.lineWidth = Math.round(fontSize * 0.20);
+        ctx.lineWidth = Math.round(fontSize * 0.12);
         ctx.strokeStyle = outCol;
         ctx.strokeText(text, VIDEO_W / 2, currentY + boxH / 2);
       }
