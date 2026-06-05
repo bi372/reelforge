@@ -1759,7 +1759,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
       } else if (hookBgIdx === 1) {
         // Outline style — use strokeText
         const outlineColor = (hookColor === '#ffffff' || hookColor === '#fff') ? '#000000' : '#ffffff';
-        const outlineW = Math.round(fontSize * 0.06);
+        const outlineW = Math.round(fontSize * 0.15);
         ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
