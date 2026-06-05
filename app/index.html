@@ -1759,7 +1759,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
       } else if (hookBgIdx === 1) {
         // Outline style — use strokeText
         const outlineColor = (hookColor === '#ffffff' || hookColor === '#fff') ? '#000000' : '#ffffff';
-        const outlineW = Math.round(fontSize * 0.15);
+        const outlineW = Math.round(fontSize * 0.06);
         ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -1875,7 +1875,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         // Outline style: strokeText with contrasting color + fillText with selected color
         const outCol = (color === '#ffffff' || color === '#fff') ? '#000000' : '#ffffff';
         ctx.lineJoin = 'round';
-        ctx.lineWidth = Math.round(fontSize * 0.12);
+        ctx.lineWidth = Math.round(fontSize * 0.20);
         ctx.strokeStyle = outCol;
         ctx.strokeText(text, VIDEO_W / 2, currentY + boxH / 2);
       }
@@ -3000,7 +3000,16 @@ if (window.electronAPI && window.electronAPI.onUpdateProgress) {
     if (bar) bar.textContent = '⬇ Downloading... ' + pct + '%';
   });
 }
-// Update installs automatically after download — no extra click needed
+if (window.electronAPI && window.electronAPI.onUpdateDownloaded) {
+  window.electronAPI.onUpdateDownloaded(() => {
+    const bar = document.getElementById('update-bar');
+    if (bar) {
+      bar._ready = true;
+      bar._downloading = false;
+      // update downloaded — installs automatically
+    }
+  });
+}
 
 // ===== INIT =====
 // Hide loader after 1.5s then show correct view
