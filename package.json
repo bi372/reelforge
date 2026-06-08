@@ -58,7 +58,8 @@
         "arch": "universal"
       },
       "icon": "app/icon.png",
-      "artifactName": "RoyalForge-${version}-universal.dmg"
+      "artifactName": "RoyalForge-${version}-universal.dmg",
+      "x64ArchFiles": "**/ffmpeg-x64"
     },
     "publish": {
       "provider": "github",
