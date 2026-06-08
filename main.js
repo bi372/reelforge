@@ -6,26 +6,18 @@ const fs = require('fs')
 const os = require('os')
 
 function getFFmpegPath() {
-  const isMac = process.platform === 'darwin'
-  const isWin = process.platform === 'win32'
+  // Try ffmpeg-static first (works on all platforms)
+  try {
+    const ffmpegStatic = require('ffmpeg-static')
+    if (ffmpegStatic && fs.existsSync(ffmpegStatic)) return ffmpegStatic
+  } catch(e) {}
 
-  if (isMac) {
-    const arch = process.arch // 'x64' or 'arm64'
-    const binaryName = arch === 'arm64' ? 'ffmpeg-arm64' : 'ffmpeg-x64'
-    const bundledPath = path.join(process.resourcesPath || __dirname, 'ffmpeg', binaryName)
-    if (fs.existsSync(bundledPath)) return bundledPath
-    // Fallback to plain ffmpeg
-    const fallback = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg')
-    if (fs.existsSync(fallback)) return fallback
-    return 'ffmpeg'
-  }
-
-  if (isWin) {
-    const bundledPath = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg.exe')
-    if (fs.existsSync(bundledPath)) return bundledPath
-    const systemPath = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
-    if (fs.existsSync(systemPath)) return systemPath
-    return 'ffmpeg'
+  // Windows fallback
+  if (process.platform === 'win32') {
+    const bundled = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg.exe')
+    if (fs.existsSync(bundled)) return bundled
+    const system = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
+    if (fs.existsSync(system)) return system
   }
 
   return 'ffmpeg'
@@ -53,7 +45,6 @@ function getFontPath(fontKey) {
   const resourceFont = path.join(process.resourcesPath || __dirname, rel)
   const localFont = path.join(__dirname, rel)
   const fontFile = fs.existsSync(resourceFont) ? resourceFont : localFont
-  // Mac uses forward slashes, Windows needs escaped colon
   if (process.platform === 'win32') {
     return fontFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
   }
@@ -146,7 +137,6 @@ ipcMain.handle('save-temp-png', async (event, base64Data, uid) => {
 ipcMain.handle('process-video', async (event, data) => {
   const { inputPath, outputPath, topText, botText, color, botColor, hookColor, fontKey, fontSize, topBgStyle, botBgStyle, hookBgStyle, ovStyle, textYPercent, preWrappedLines, overlayPngPath } = data
 
-  // Copy Arial on Windows only
   if (process.platform === 'win32') {
     const fontSrc = 'C:\\Windows\\Fonts\\arialbd.ttf'
     const fontDest = path.join(__dirname, 'font.ttf')
