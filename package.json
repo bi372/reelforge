@@ -1,6 +1,6 @@
 {
   "name": "royalforge",
-  "version": "1.0.45",
+  "version": "1.0.47",
   "description": "Batch edit TikTok Shop videos",
   "main": "main.js",
   "scripts": {
