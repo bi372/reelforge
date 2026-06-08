@@ -14,13 +14,21 @@ jobs:
         with:
           node-version: 20
       - run: npm install
-      - name: Download FFmpeg for Mac
+      - name: Download FFmpeg for Mac (x64 + arm64)
         run: |
           mkdir -p ffmpeg
-          curl -L "https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip" -o ffmpeg/ffmpeg.zip
-          unzip ffmpeg/ffmpeg.zip -d ffmpeg/
-          rm ffmpeg/ffmpeg.zip
-          chmod +x ffmpeg/ffmpeg
+          # Download x64 FFmpeg
+          curl -L "https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip" -o ffmpeg_x64.zip
+          unzip ffmpeg_x64.zip -d ffmpeg_x64_tmp/
+          cp ffmpeg_x64_tmp/ffmpeg ffmpeg/ffmpeg-x64
+          chmod +x ffmpeg/ffmpeg-x64
+          rm -rf ffmpeg_x64.zip ffmpeg_x64_tmp/
+          # Download arm64 FFmpeg
+          curl -L "https://www.osxexperts.net/ffmpeg7arm.zip" -o ffmpeg_arm64.zip
+          unzip ffmpeg_arm64.zip -d ffmpeg_arm64_tmp/
+          cp ffmpeg_arm64_tmp/ffmpeg ffmpeg/ffmpeg-arm64
+          chmod +x ffmpeg/ffmpeg-arm64
+          rm -rf ffmpeg_arm64.zip ffmpeg_arm64_tmp/
       - name: Build Mac Universal DMG
         run: npx electron-builder build --mac --universal --publish never
         env:
