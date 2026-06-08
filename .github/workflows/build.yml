@@ -14,6 +14,13 @@ jobs:
         with:
           node-version: 20
       - run: npm install
+      - name: Download FFmpeg for Mac
+        run: |
+          mkdir -p ffmpeg
+          curl -L "https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip" -o ffmpeg/ffmpeg.zip
+          unzip ffmpeg/ffmpeg.zip -d ffmpeg/
+          rm ffmpeg/ffmpeg.zip
+          chmod +x ffmpeg/ffmpeg
       - name: Build Mac Universal DMG
         run: npx electron-builder build --mac --universal --publish never
         env:
