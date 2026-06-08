@@ -5,13 +5,29 @@ const { execFile } = require('child_process')
 const fs = require('fs')
 const os = require('os')
 
-
-
 function getFFmpegPath() {
-  const bundledPath = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg.exe')
-  if (fs.existsSync(bundledPath)) return bundledPath
-  const systemPath = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
-  if (fs.existsSync(systemPath)) return systemPath
+  const isMac = process.platform === 'darwin'
+  const isWin = process.platform === 'win32'
+
+  if (isMac) {
+    const arch = process.arch // 'x64' or 'arm64'
+    const binaryName = arch === 'arm64' ? 'ffmpeg-arm64' : 'ffmpeg-x64'
+    const bundledPath = path.join(process.resourcesPath || __dirname, 'ffmpeg', binaryName)
+    if (fs.existsSync(bundledPath)) return bundledPath
+    // Fallback to plain ffmpeg
+    const fallback = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg')
+    if (fs.existsSync(fallback)) return fallback
+    return 'ffmpeg'
+  }
+
+  if (isWin) {
+    const bundledPath = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg.exe')
+    if (fs.existsSync(bundledPath)) return bundledPath
+    const systemPath = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
+    if (fs.existsSync(systemPath)) return systemPath
+    return 'ffmpeg'
+  }
+
   return 'ffmpeg'
 }
 
@@ -19,25 +35,29 @@ const FFMPEG = getFFmpegPath()
 
 const FONTS = {
   classic:    'font.ttf',
-  elegance:   'fonts\\playfair.ttf',
-  neon:       'fonts\\bebas.ttf',
-  retro:      'fonts\\pacifico.ttf',
-  comic:      'fonts\\comicneue.ttf',
-  tallhaus:   'fonts\\oswald.ttf',
-  vintage:    'fonts\\abril.ttf',
-  bomb:       'fonts\\blackhan.ttf',
-  signature:  'fonts\\dancing.ttf',
-  printer:    'fonts\\courier.ttf',
-  typewriter: 'fonts\\specialelite.ttf',
-  nunito:     'fonts\\nunito.ttf'
+  elegance:   'fonts/playfair.ttf',
+  neon:       'fonts/bebas.ttf',
+  retro:      'fonts/pacifico.ttf',
+  comic:      'fonts/comicneue.ttf',
+  tallhaus:   'fonts/oswald.ttf',
+  vintage:    'fonts/abril.ttf',
+  bomb:       'fonts/blackhan.ttf',
+  signature:  'fonts/dancing.ttf',
+  printer:    'fonts/courier.ttf',
+  typewriter: 'fonts/specialelite.ttf',
+  nunito:     'fonts/nunito.ttf'
 }
 
 function getFontPath(fontKey) {
-  const rel = FONTS[fontKey] || FONTS.classic
+  const rel = (FONTS[fontKey] || FONTS.classic).replace(/\\/g, '/')
   const resourceFont = path.join(process.resourcesPath || __dirname, rel)
   const localFont = path.join(__dirname, rel)
   const fontFile = fs.existsSync(resourceFont) ? resourceFont : localFont
-  return fontFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
+  // Mac uses forward slashes, Windows needs escaped colon
+  if (process.platform === 'win32') {
+    return fontFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
+  }
+  return fontFile.replace(/\\/g, '/')
 }
 
 function getDrawtextStyle(bgIdx, col) {
@@ -111,7 +131,6 @@ function createWindow() {
 
 let processCounter = 0
 
-// Save PNG from base64 — use safe filename (no dots)
 ipcMain.handle('save-temp-png', async (event, base64Data, uid) => {
   try {
     const safeUid = String(uid).replace(/\./g, '_')
@@ -127,10 +146,13 @@ ipcMain.handle('save-temp-png', async (event, base64Data, uid) => {
 ipcMain.handle('process-video', async (event, data) => {
   const { inputPath, outputPath, topText, botText, color, botColor, hookColor, fontKey, fontSize, topBgStyle, botBgStyle, hookBgStyle, ovStyle, textYPercent, preWrappedLines, overlayPngPath } = data
 
-  const fontSrc = 'C:\\Windows\\Fonts\\arialbd.ttf'
-  const fontDest = path.join(__dirname, 'font.ttf')
-  if (!fs.existsSync(fontDest)) {
-    try { fs.copyFileSync(fontSrc, fontDest) } catch(e) {}
+  // Copy Arial on Windows only
+  if (process.platform === 'win32') {
+    const fontSrc = 'C:\\Windows\\Fonts\\arialbd.ttf'
+    const fontDest = path.join(__dirname, 'font.ttf')
+    if (!fs.existsSync(fontDest)) {
+      try { fs.copyFileSync(fontSrc, fontDest) } catch(e) {}
+    }
   }
 
   const FONT = getFontPath(fontKey || 'classic')
@@ -139,27 +161,21 @@ ipcMain.handle('process-video', async (event, data) => {
   const BOX_BORDER = 22
   const bofSize = Math.round(fSize * scale)
   const bofBotSize = Math.round(fSize * scale * 0.78)
-  const videoFontSize = Math.round(fSize * scale * 0.75) // 0.75 keeps fulltext from overflowing video width
+  const videoFontSize = Math.round(fSize * scale * 0.75)
   const topCol = (color || '#e03d52').replace('#', '')
   const botCol = (botColor || '#ffffff').replace('#', '')
   const hookCol = (hookColor || '#ffffff').replace('#', '')
-
   const isFulltext = ovStyle === 'fulltext' || (ovStyle === 'mix' && topText && topText.length > 30 && !botText)
-
   const pct = parseFloat(textYPercent) || 12
   const videoH = 3840
   const topY = Math.round((pct / 100) * videoH)
   const botY = topY + Math.round(bofSize * 0.75) + (BOX_BORDER * 2)
-
   const uid = ++processCounter
 
   fs.mkdirSync(path.dirname(outputPath), { recursive: true })
 
-  // PNG overlay path — uses 2-input filter_complex with transpose for rotation
   if (overlayPngPath && fs.existsSync(overlayPngPath)) {
     return new Promise((resolve, reject) => {
-      // Scale PNG to fit 2160 wide, then overlay centered at topY position
-      // transpose=2 handles -90 degree rotation metadata on iPhone videos
       const filterComplex = `[0:v]scale=2160:-2[rot];[rot][1:v]overlay=0:0:enable='gte(t,0.1)'`
       const args = [
         '-i', inputPath,
@@ -167,14 +183,10 @@ ipcMain.handle('process-video', async (event, data) => {
         '-filter_complex', filterComplex,
         '-c:v', 'libx264', '-c:a', 'copy', '-preset', 'ultrafast', '-y', outputPath
       ]
-
-      try { fs.writeFileSync(path.join(__dirname, 'last_filter.txt'), 'PNG_OVERLAY: ' + filterComplex, 'utf8') } catch(e) {}
-
       execFile(FFMPEG, args, { maxBuffer: 1024 * 1024 * 200 }, (err, stdout, stderr) => {
         try { fs.unlinkSync(overlayPngPath) } catch(e) {}
         if (err) {
           console.error('PNG overlay failed:', err.message)
-          console.error('FFmpeg stderr:', stderr.substring(0, 500))
           processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofSize, bofBotSize, videoFontSize, topCol, botCol, hookCol, topBgStyle, botBgStyle, hookBgStyle, isFulltext, topY, botY, BOX_BORDER, preWrappedLines, uid, resolve, reject)
         } else {
           resolve(outputPath)
@@ -197,7 +209,6 @@ function processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofS
     const style = getDrawtextStyle(isFulltext ? (hookBgStyle||0) : topBgStyle, isFulltext ? hookCol : topCol)
     const useSize = isFulltext ? videoFontSize : bofSize
     const boxPart = style.box ? `:${style.box}` : ''
-
     if (isFulltext) {
       const lines = (preWrappedLines && preWrappedLines.length > 0) ? preWrappedLines : wrapText(topText.trim(), 10)
       const lineHeight = Math.round(useSize * 0.72) + BOX_BORDER * 2
@@ -209,24 +220,26 @@ function processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofS
     } else {
       const topFile = path.join(os.tmpdir(), `rf_top_${uid}.txt`)
       fs.writeFileSync(topFile, topText.trim(), 'utf8')
-      const topPath = topFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
+      const topPath = process.platform === 'win32'
+        ? topFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
+        : topFile
       filters.push(`drawtext=fontfile='${FONT}':textfile='${topPath}':expansion=none:fontsize=${bofSize}:fontcolor=${style.fontcolor}${boxPart}:x=(w-text_w)/2:y=${topY}:enable='gte(t,0.1)'`)
     }
   }
 
   if (botText && botText.trim()) {
     fs.writeFileSync(botFile, botText.trim(), 'utf8')
-    const botPath = botFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
+    const botPath = process.platform === 'win32'
+      ? botFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
+      : botFile
     const botStyle = getDrawtextStyle(botBgStyle, botCol)
     const boxPart = botStyle.box ? `:${botStyle.box}` : ''
     filters.push(`drawtext=fontfile='${FONT}':textfile='${botPath}':expansion=none:fontsize=${bofBotSize}:fontcolor=${botStyle.fontcolor}${boxPart}:x=(w-text_w)/2:y=${botY}:enable='gte(t,0.1)'`)
   }
 
   if (filters.length === 0) filters.push('null')
-
   const filterStr = filters.join(',')
   fs.writeFileSync(filterFile, filterStr, 'utf8')
-  try { fs.writeFileSync(path.join(__dirname, 'last_filter.txt'), filterStr, 'utf8') } catch(e) {}
 
   const env = Object.assign({}, process.env, {
     FONTCONFIG_FILE: path.join(__dirname, 'fonts', 'fonts.conf'),
@@ -234,7 +247,6 @@ function processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofS
   })
 
   const args = ['-i', inputPath, '-filter_script:v', filterFile, '-c:v', 'libx264', '-c:a', 'copy', '-preset', 'ultrafast', '-y', outputPath]
-
   execFile(FFMPEG, args, { maxBuffer: 1024 * 1024 * 200, env }, (err, stdout, stderr) => {
     try { fs.unlinkSync(filterFile) } catch(e) {}
     try { fs.unlinkSync(botFile) } catch(e) {}
