@@ -1448,7 +1448,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.46 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.16 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1710,7 +1710,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
   if (isFulltextMode) {
     // Fulltext: draw each hook line with its background
     const hbs = getBgForIdx(hookBgIdx, hookColor || '#ffffff');
-    const fontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.45); // matches main.js videoFontSize
+    const fontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.50); // matches main.js videoFontSize
     const lineHeight = Math.round(fontSize * 0.88 + 44);
     const maxWidth = Math.round(VIDEO_W * 0.62);
 
@@ -2496,7 +2496,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
         }
         if (cur) out.push(cur);
         return out;
-      })(topText, 12);
+      })(topText, 20);
     }
     try{
       if((api||ipcRenderer) && inputPath){
