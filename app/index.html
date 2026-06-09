@@ -1722,7 +1722,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
     const text = child.textContent || '';
 
     // Pixel-based wrapping — adjusts with font size, handles emojis correctly
-    const wrapWidth = Math.round(VIDEO_W * 0.40);
+    const wrapWidth = Math.round(VIDEO_W * 0.60);
     ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
     const lines = [];
     const words = text.split(' ');
@@ -3006,7 +3006,7 @@ if (window.electronAPI && window.electronAPI.onUpdateDownloaded) {
     if (bar) {
       bar._ready = true;
       bar._downloading = false;
-      // update downloaded — installs automatically
+      
     }
   });
 }
