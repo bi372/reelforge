@@ -1722,7 +1722,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
     const text = child.textContent || '';
 
     // Pixel-based wrapping — adjusts with font size, handles emojis correctly
-    const wrapWidth = Math.round(VIDEO_W * 0.72);
+    const wrapWidth = Math.round(VIDEO_W * 0.60);
     ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
     const lines = [];
     const words = text.split(' ');
