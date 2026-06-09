@@ -6,13 +6,11 @@ const fs = require('fs')
 const os = require('os')
 
 function getFFmpegPath() {
-  // Try ffmpeg-static first (works on all platforms)
   try {
     const ffmpegStatic = require('ffmpeg-static')
     if (ffmpegStatic && fs.existsSync(ffmpegStatic)) return ffmpegStatic
   } catch(e) {}
 
-  // Windows fallback
   if (process.platform === 'win32') {
     const bundled = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg.exe')
     if (fs.existsSync(bundled)) return bundled
@@ -151,7 +149,7 @@ ipcMain.handle('process-video', async (event, data) => {
   const BOX_BORDER = 22
   const bofSize = Math.round(fSize * scale)
   const bofBotSize = Math.round(fSize * scale * 0.78)
-  const videoFontSize = Math.round(fSize * scale * 0.75)
+  const videoFontSize = Math.round(fSize * scale * 0.58)
   const topCol = (color || '#e03d52').replace('#', '')
   const botCol = (botColor || '#ffffff').replace('#', '')
   const hookCol = (hookColor || '#ffffff').replace('#', '')
@@ -200,7 +198,7 @@ function processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofS
     const useSize = isFulltext ? videoFontSize : bofSize
     const boxPart = style.box ? `:${style.box}` : ''
     if (isFulltext) {
-      const lines = (preWrappedLines && preWrappedLines.length > 0) ? preWrappedLines : wrapText(topText.trim(), 10)
+      const lines = (preWrappedLines && preWrappedLines.length > 0) ? preWrappedLines : wrapText(topText.trim(), 8)
       const lineHeight = Math.round(useSize * 0.72) + BOX_BORDER * 2
       lines.forEach((line, i) => {
         const y = topY + (i * lineHeight)
