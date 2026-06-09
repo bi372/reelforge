@@ -1710,7 +1710,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
   if (isFulltextMode) {
     // Fulltext: draw each hook line with its background
     const hbs = getBgForIdx(hookBgIdx, hookColor || '#ffffff');
-    const fontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.75); // matches main.js videoFontSize
+    const fontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.45); // matches main.js videoFontSize
     const lineHeight = Math.round(fontSize * 0.88 + 44);
     const maxWidth = Math.round(VIDEO_W * 0.62);
 
