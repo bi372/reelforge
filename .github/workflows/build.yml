@@ -5,7 +5,7 @@ on:
       - 'v*'
 jobs:
   build-mac:
-    runs-on: macos-latest
+    runs-on: macos-13
     permissions:
       contents: write
     steps:
