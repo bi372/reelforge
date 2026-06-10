@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>RoyalForge</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&family=Anton&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -449,7 +449,7 @@ textarea::placeholder{color:var(--muted2)}
 .process-btn:hover{transform:translateY(-1px);box-shadow:0 0 50px rgba(201,168,76,.2)}
 
 /* LIVE PREVIEW */
-.editor-shell-2col{display:grid;grid-template-columns:1fr 280px;gap:24px;max-width:960px;margin:0 auto;padding:28px 20px 100px;align-items:start}
+.editor-shell-2col{display:grid;grid-template-columns:1fr 340px;gap:24px;max-width:960px;margin:0 auto;padding:28px 20px 100px;align-items:start}
 .editor-controls{min-width:0}
 .preview-panel{position:sticky;top:80px}
 .preview-panel-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;text-align:center}
@@ -461,7 +461,7 @@ textarea::placeholder{color:var(--muted2)}
 .phone-overlay.center-pos{top:50%;transform:translateY(-50%)}
 .phone-overlay.bottom-pos{bottom:14px}
 .phone-banner{border-radius:5px;padding:6px 8px;font-weight:800;text-align:center;letter-spacing:.5px;line-height:1.2;font-family:'Inter',sans-serif;word-break:break-word}
-.phone-fulltext{text-align:center;line-height:1.5;font-size:13px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.9);padding:0 6px;font-family:'Inter',sans-serif;word-break:break-word}
+.phone-fulltext{text-align:center;line-height:1.15;font-size:13px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.9);padding:0 6px;font-family:'Inter',sans-serif;word-break:break-word}
 .phone-strike{display:flex;flex-direction:column;gap:3px;align-items:flex-start;padding:0 2px}
 .phone-strike-orig{font-size:13px;font-weight:800;color:rgba(255,255,255,.7);text-decoration:line-through;letter-spacing:.3px}
 .phone-strike-disc{font-size:15px;font-weight:800;background:var(--red);color:#fff;padding:2px 10px;border-radius:4px;letter-spacing:.5px}
@@ -655,6 +655,7 @@ input[type=file]{display:none}
 @font-face{font-family:'RF-Comic';src:url('fonts/comicneue.ttf')}
 @font-face{font-family:'RF-BlackHan';src:url('fonts/blackhan.ttf')}
 @font-face{font-family:'RF-Nunito';src:url('fonts/nunito.ttf')}
+@font-face{font-family:'RF-Anton';src:local('Anton')}
 input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, 'NotoColorEmoji', sans-serif; }
 </style>
 </style>
@@ -1240,6 +1241,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
         <div class="font-opt" onclick="setFont('printer',this)"><div class="font-opt-preview" style="font-family:'RF-Courier',monospace;font-size:15px">ABC</div><div class="font-opt-name">Courier</div></div>
         <div class="font-opt" onclick="setFont('typewriter',this)"><div class="font-opt-preview" style="font-family:'RF-Special',monospace;font-size:14px">Abc</div><div class="font-opt-name">Special Elite</div></div>
         <div class="font-opt" onclick="setFont('nunito',this)"><div class="font-opt-preview" style="font-family:'RF-Nunito',sans-serif;font-size:16px;font-style:italic">Abc</div><div class="font-opt-name">Nunito</div></div>
+        <div class="font-opt" onclick="setFont('anton',this)"><div class="font-opt-preview" style="font-family:'Anton',sans-serif;font-size:18px">ABC</div><div class="font-opt-name">Anton</div></div>
       </div></div>
       <div class="size-row">
         <span style="font-size:11px;color:var(--muted)">A</span>
@@ -1651,6 +1653,29 @@ function syncBotInput(idx, val) {
   }
 }
 
+
+// Shared line-wrapping function — used by both preview and canvas so they always match
+function calcWrappedLines(text, fontSize, wrapWidth, fontFamily) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.font = '800 ' + fontSize + 'px ' + (fontFamily || 'Arial') + ', NotoColorEmoji';
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+  for (const word of words) {
+    const test = current ? current + ' ' + word : word;
+    if (ctx.measureText(test).width <= wrapWidth) {
+      current = test;
+    } else {
+      if (current) lines.push(current);
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+  canvas.width = 0; canvas.height = 0;
+  return lines;
+}
+
 async function captureOverlayPNG(uid, isFulltextParam) {
   const el = document.getElementById('phone-overlay-content');
   if (!el || !el.children.length) return null;
@@ -1688,12 +1713,13 @@ async function captureOverlayPNG(uid, isFulltextParam) {
     signature: 'fonts/dancing.ttf',
     printer: 'fonts/courier.ttf',
     typewriter: 'fonts/specialelite.ttf',
-    nunito: 'fonts/nunito.ttf'
+    nunito: 'fonts/nunito.ttf',
+    anton: null
   };
   const _fontFallback = {
     classic:'Arial',elegance:'RF-Playfair',neon:'RF-Bebas',retro:'RF-Pacifico',
     comic:'RF-Comic',tallhaus:'RF-Oswald',vintage:'RF-Abril',bomb:'RF-BlackHan',
-    signature:'RF-Dancing',printer:'RF-Courier',typewriter:'RF-Special'
+    signature:'RF-Dancing',printer:'RF-Courier',typewriter:'RF-Special',anton:'Anton'
   };
   let fontFamily = _fontFallback[selectedFont] || 'Arial';
   // Try to load font into canvas context
@@ -1710,33 +1736,23 @@ async function captureOverlayPNG(uid, isFulltextParam) {
   if (isFulltextMode) {
     // Fulltext: draw each hook line with its background
     const hbs = getBgForIdx(hookBgIdx, hookColor || '#ffffff');
-    const fontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.50); // matches main.js videoFontSize
+    const fontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.72); // matches main.js videoFontSize
     const lineHeight = Math.round(fontSize * 0.88 + 44);
     const maxWidth = Math.round(VIDEO_W * 0.62);
 
-    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+    ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
 
     // Get text from preview element
     const child = Array.from(el.children).find(c => c.classList.contains('phone-fulltext')) || el.children[0];
     if (!child) return null;
     const text = child.textContent || '';
 
-    // Pixel-based wrapping — adjusts with font size, handles emojis correctly
-    const wrapWidth = Math.round(VIDEO_W * 0.60);
+    // Use shared calcWrappedLines so canvas matches preview exactly
+    const wrapWidth = Math.round(VIDEO_W * 0.85);
+    // Make sure font is loaded before measuring — use same font as preview
+    await document.fonts.ready;
     ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
-    const lines = [];
-    const words = text.split(' ');
-    let current = '';
-    for (const word of words) {
-      const test = current ? current + ' ' + word : word;
-      if (ctx.measureText(test).width <= wrapWidth) {
-        current = test;
-      } else {
-        if (current) lines.push(current);
-        current = word;
-      }
-    }
-    if (current) lines.push(current);
+    const lines = calcWrappedLines(text, fontSize, wrapWidth, fontFamily);
 
     // Draw each line
     for (let i = 0; i < lines.length; i++) {
@@ -1752,14 +1768,14 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         ctx.fillStyle = hbs.box;
         ctx.fillRect(x, currentY, boxW, boxH);
         ctx.fillStyle = hbs.textColor || '#ffffff';
-        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+        ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
       } else if (hookBgIdx === 1) {
-        // Outline style — use strokeText
+        // Outline style — bold white text with black stroke
         const outlineColor = (hookColor === '#ffffff' || hookColor === '#fff') ? '#000000' : '#ffffff';
-        const outlineW = Math.round(fontSize * 0.06);
+        const outlineW = Math.round(fontSize * 0.10);
         ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -1772,7 +1788,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
       } else {
         // Plain text
         ctx.fillStyle = hookColor || '#ffffff';
-        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+        ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
@@ -2052,6 +2068,32 @@ async function loadNotoFont() {
 }
 loadNotoFont();
 
+// Preload all custom fonts into canvas so calcWrappedLines measures accurately on first render
+async function preloadCanvasFonts() {
+  const fontFiles = [
+    {name:'RF-Oswald', url:'fonts/oswald.ttf'},
+    {name:'RF-Bebas', url:'fonts/bebas.ttf'},
+    {name:'RF-Playfair', url:'fonts/playfair.ttf'},
+    {name:'RF-Pacifico', url:'fonts/pacifico.ttf'},
+    {name:'RF-Comic', url:'fonts/comicneue.ttf'},
+    {name:'RF-Abril', url:'fonts/abril.ttf'},
+    {name:'RF-BlackHan', url:'fonts/blackhan.ttf'},
+    {name:'RF-Dancing', url:'fonts/dancing.ttf'},
+    {name:'RF-Courier', url:'fonts/courier.ttf'},
+    {name:'RF-Special', url:'fonts/specialelite.ttf'},
+    {name:'RF-Nunito', url:'fonts/nunito.ttf'}
+  ];
+  await Promise.all(fontFiles.map(async f => {
+    try {
+      const ff = new FontFace(f.name, 'url(' + f.url + ')');
+      const loaded = await ff.load();
+      document.fonts.add(loaded);
+    } catch(e) {}
+  }));
+  updatePreview();
+}
+preloadCanvasFonts();
+
 let selectedFont = 'classic';
 let textYPercent = 12;
 
@@ -2210,7 +2252,11 @@ function showAppDash(){document.querySelectorAll('.app-view').forEach(v=>v.class
 function showAppEditor(){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
   document.getElementById('app-editor').classList.add('on');
-  setTimeout(()=>{loadSettings();updatePreview();},50);
+  setTimeout(()=>{
+    loadSettings();
+    // Wait for fonts to load before rendering preview so line breaks are accurate
+    document.fonts.ready.then(()=>{ updatePreview(); });
+  },50);
 }
 function showAppSettings(){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
@@ -2675,7 +2721,8 @@ const fontFamilyMap = {
   signature:"'RF-Dancing',cursive",
   printer:"'RF-Courier',monospace",
   typewriter:"'RF-Special',monospace",
-  nunito:"'RF-Nunito',sans-serif"
+  nunito:"'RF-Nunito',sans-serif",
+  anton:"'Anton',sans-serif"
 };
 const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
   const videoScale = 4;
@@ -2685,11 +2732,20 @@ const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
   let html = '';
 
   if(ovStyle === 'fulltext'){
-    // Show a random active hook
+    // Show a random active hook — use canvas line breaks to match video output exactly
     if(activeHooks.length){
       const h = activeHooks[previewVariantIdx % activeHooks.length];
       const hbs=getBgForIdx(hookBgIdx,hookColor||'#fff');
-      html = `<div class="phone-fulltext" style="font-family:${previewFont};font-size:${previewFontSize}px;color:${hbs.textColor};background:${hbs.box};text-shadow:${hbs.shadow};padding:8px 12px;border-radius:5px">${esc(h.text)}</div>`;
+      const VIDEO_W_PREV = 2160;
+      const videoFontSizePrev = Math.round(selectedFontSize * 5 * 0.72);
+      const videoWrapWidthPrev = Math.round(VIDEO_W_PREV * 0.85);
+      // Use exact same font key as canvas for accurate measurement
+      const _canvasFontMap = {classic:'Arial',elegance:'RF-Playfair',neon:'RF-Bebas',retro:'RF-Pacifico',comic:'RF-Comic',tallhaus:'RF-Oswald',vintage:'RF-Abril',bomb:'RF-BlackHan',signature:'RF-Dancing',printer:'RF-Courier',typewriter:'RF-Special',nunito:'RF-Nunito',anton:'Anton'};
+      const canvasFontFamily = _canvasFontMap[selectedFont] || 'Arial';
+      const wrappedLines = calcWrappedLines(h.text, videoFontSizePrev, videoWrapWidthPrev, canvasFontFamily);
+      html = wrappedLines.map(line =>
+        `<div class="phone-fulltext" style="font-family:${previewFont};font-size:${previewFontSize}px;color:${hbs.textColor};background:${hbs.box};text-shadow:${hbs.shadow};padding:2px 8px;margin-bottom:0px;border-radius:3px;white-space:nowrap;text-align:center;display:block">${esc(line)}</div>`
+      ).join('');
     }
   } else if(ovStyle === 'banner'){
     if(strikeOn){
