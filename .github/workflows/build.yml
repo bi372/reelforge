@@ -5,7 +5,7 @@ on:
       - 'v*'
 jobs:
   build-mac:
-    runs-on: macos-13
+    runs-on: macos-latest
     permissions:
       contents: write
     steps:
@@ -14,6 +14,9 @@ jobs:
         with:
           node-version: 20
       - run: npm install
+      - name: Fix ffmpeg permissions
+        run: |
+          find node_modules/ffmpeg-static -name "ffmpeg" -exec chmod +x {} \;
       - name: Build Mac Universal DMG
         run: npx electron-builder build --mac --universal --publish never
         env:
