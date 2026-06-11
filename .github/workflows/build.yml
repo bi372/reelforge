@@ -17,12 +17,15 @@ jobs:
       - name: Bundle universal ffmpeg (Intel + Apple Silicon)
         run: |
           curl -L "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-darwin-x64" -o /tmp/ffmpeg-x64
-          chmod +x /tmp/ffmpeg-x64
           curl -L "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-darwin-arm64" -o /tmp/ffmpeg-arm64
-          chmod +x /tmp/ffmpeg-arm64
-          lipo -create /tmp/ffmpeg-x64 /tmp/ffmpeg-arm64 -output node_modules/ffmpeg-static/ffmpeg
-          chmod +x node_modules/ffmpeg-static/ffmpeg
+          chmod +x /tmp/ffmpeg-x64 /tmp/ffmpeg-arm64
+          lipo -create /tmp/ffmpeg-x64 /tmp/ffmpeg-arm64 -output /tmp/ffmpeg-universal
+          chmod +x /tmp/ffmpeg-universal
+          cp /tmp/ffmpeg-universal node_modules/ffmpeg-static/ffmpeg
           file node_modules/ffmpeg-static/ffmpeg
+      - name: Verify universal ffmpeg
+        run: |
+          file node_modules/ffmpeg-static/ffmpeg | grep "universal binary" || (echo "FAILED: not universal" && exit 1)
       - name: Build Mac Universal DMG
         run: npx electron-builder build --mac --universal --publish never
         env:
