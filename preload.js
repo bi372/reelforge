@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI', {
+  platform: process.platform,
   processVideo: (data) => ipcRenderer.invoke('process-video', data),
   pickFiles: () => ipcRenderer.invoke('pick-files'),
   openFolder: (p) => ipcRenderer.invoke('open-folder', p),
