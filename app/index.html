@@ -1617,7 +1617,7 @@ function checkPlanLimit(count) {
 function getWrappedLines(text, fontSizePx, containerWidthPx, fontFamily) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.font = 'bold ' + fontSizePx + 'px ' + (fontFamily || 'Arial') + ', NotoColorEmoji';
+  ctx.font = 'bold ' + fontSizePx + 'px ' + (fontFamily || 'Arial') + ', ' + EMOJI_FONT;
   const words = text.split(' ');
   const lines = [];
   let current = '';
@@ -1658,7 +1658,7 @@ function syncBotInput(idx, val) {
 function calcWrappedLines(text, fontSize, wrapWidth, fontFamily) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.font = '800 ' + fontSize + 'px ' + (fontFamily || 'Arial') + ', NotoColorEmoji';
+  ctx.font = '800 ' + fontSize + 'px ' + (fontFamily || 'Arial') + ', ' + EMOJI_FONT;
   const words = text.split(' ');
   const lines = [];
   let current = '';
@@ -1740,7 +1740,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
     const lineHeight = Math.round(fontSize * 0.88 + 44);
     const maxWidth = Math.round(VIDEO_W * 0.62);
 
-    ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+    ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
 
     // Get text from preview element
     const child = Array.from(el.children).find(c => c.classList.contains('phone-fulltext')) || el.children[0];
@@ -1751,7 +1751,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
     const wrapWidth = Math.round(VIDEO_W * 0.85);
     // Make sure font is loaded before measuring — use same font as preview
     await document.fonts.ready;
-    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
     const lines = calcWrappedLines(text, fontSize, wrapWidth, fontFamily);
 
     // Draw each line
@@ -1768,7 +1768,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         ctx.fillStyle = hbs.box;
         ctx.fillRect(x, currentY, boxW, boxH);
         ctx.fillStyle = hbs.textColor || '#ffffff';
-        ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+        ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
@@ -1776,7 +1776,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         // Outline style — bold white text with black stroke
         const outlineColor = (hookColor === '#ffffff' || hookColor === '#fff') ? '#000000' : '#ffffff';
         const outlineW = Math.round(fontSize * 0.10);
-        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.strokeStyle = outlineColor;
@@ -1788,7 +1788,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
       } else {
         // Plain text
         ctx.fillStyle = hookColor || '#ffffff';
-        ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+        ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
@@ -1813,7 +1813,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
           const origText = origEl.textContent.trim();
           // Get disc color first so slash matches the 50% OFF box exactly
           const slashColor = discEl ? window.getComputedStyle(discEl).backgroundColor : '#ff0000';
-          ctx.font = '800 ' + origFontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+          ctx.font = '800 ' + origFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
           const tW = ctx.measureText(origText).width;
           // No BOX_BORDER padding — just font size so it sits flush against 50% OFF box
           const textY = currentY + origFontSize / 2;
@@ -1841,7 +1841,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
           const discText = discEl.textContent.trim();
           const discStyle = window.getComputedStyle(discEl);
           const discBg = discStyle.backgroundColor;
-          ctx.font = '800 ' + discFontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+          ctx.font = '800 ' + discFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
           const tW = ctx.measureText(discText).width;
           const boxW = tW + BOX_BORDER * 2;
           const boxH = discFontSize + BOX_BORDER * 2;
@@ -1869,10 +1869,10 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         : Math.round(selectedFontSize * VIDEO_SCALE);
 
       let fontSize2 = fontSize;
-      ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', NotoColorEmoji';
+      ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', ' + EMOJI_FONT;
       while (ctx.measureText(text).width > VIDEO_W * 0.82 && fontSize2 > 80) {
         fontSize2 -= 4;
-        ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', NotoColorEmoji';
+        ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', ' + EMOJI_FONT;
       }
       const textW = ctx.measureText(text).width;
       const boxW = textW + BOX_BORDER * 2;
@@ -2066,7 +2066,8 @@ async function loadNotoFont() {
     console.log('Noto Color Emoji ready');
   } catch(e) { console.log('Noto Color Emoji not available:', e.message); }
 }
-loadNotoFont();
+const EMOJI_FONT = ((window.electronAPI && window.electronAPI.platform) === 'darwin') ? 'Apple Color Emoji' : 'NotoColorEmoji';
+if ((window.electronAPI && window.electronAPI.platform) !== 'darwin') loadNotoFont();
 
 // Preload all custom fonts into canvas so calcWrappedLines measures accurately on first render
 async function preloadCanvasFonts() {
@@ -2418,9 +2419,8 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
   // Output folder
   const customFolder = localStorage.getItem('rf_custom_folder');
   const homeDir = localStorage.getItem('rf_homedir') || 'C:\\Users\\User';
-  const _sep = homeDir.startsWith('/') ? '/' : '\\';
-  const readyFolder = customFolder || (homeDir+_sep+'Downloads'+_sep+'RoyalForge'+_sep+'ready');
-  folderPath = homeDir+_sep+'Downloads'+_sep+'RoyalForge';
+  const readyFolder = customFolder || (homeDir+'\\Downloads\\RoyalForge\\ready');
+  folderPath = homeDir+'\\Downloads\\RoyalForge';
   localStorage.setItem('rf_fp', folderPath);
 
   document.getElementById('proc-bg').classList.add('on');
@@ -2464,7 +2464,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
   async function processOne(fileItem) {
     const inputPath = fileItem.file.path;
     const prefix = document.getElementById('batch-prefix') ? (document.getElementById('batch-prefix').value.trim() || 'rf') : 'rf';
-    const outputPath = readyFolder+_sep+prefix+'_'+fileItem.file.name.replace(/\.[^.]+$/, '.mp4');
+    const outputPath = readyFolder+'\\'+prefix+'_'+fileItem.file.name.replace(/\.[^.]+$/, '.mp4');
         // Build overlay text
     let topText='', botText='';
     let isStrikeVideo = false;
@@ -2581,8 +2581,7 @@ async function openReady(){
   document.getElementById('done-bg').classList.remove('on');
   const customFolder2 = localStorage.getItem('rf_custom_folder');
   const homeDir2 = localStorage.getItem('rf_homedir') || 'C:\\Users\\User';
-  const _sep2 = homeDir2.startsWith('/') ? '/' : '\\';
-  const readyPath = customFolder2 || (homeDir2+_sep2+'Downloads'+_sep2+'RoyalForge'+_sep2+'ready');
+  const readyPath = customFolder2 || (homeDir2+'\\Downloads\\RoyalForge\\ready');
   if(window.electronAPI && window.electronAPI.openFolder){
     window.electronAPI.openFolder(readyPath);
   } else {
