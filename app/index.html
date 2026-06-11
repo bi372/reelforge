@@ -2418,8 +2418,9 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
   // Output folder
   const customFolder = localStorage.getItem('rf_custom_folder');
   const homeDir = localStorage.getItem('rf_homedir') || 'C:\\Users\\User';
-  const readyFolder = customFolder || (homeDir+'\\Downloads\\RoyalForge\\ready');
-  folderPath = homeDir+'\\Downloads\\RoyalForge';
+  const _sep = homeDir.startsWith('/') ? '/' : '\\';
+  const readyFolder = customFolder || (homeDir+_sep+'Downloads'+_sep+'RoyalForge'+_sep+'ready');
+  folderPath = homeDir+_sep+'Downloads'+_sep+'RoyalForge';
   localStorage.setItem('rf_fp', folderPath);
 
   document.getElementById('proc-bg').classList.add('on');
@@ -2463,7 +2464,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
   async function processOne(fileItem) {
     const inputPath = fileItem.file.path;
     const prefix = document.getElementById('batch-prefix') ? (document.getElementById('batch-prefix').value.trim() || 'rf') : 'rf';
-    const outputPath = readyFolder+'\\'+prefix+'_'+fileItem.file.name.replace(/\.[^.]+$/, '.mp4');
+    const outputPath = readyFolder+_sep+prefix+'_'+fileItem.file.name.replace(/\.[^.]+$/, '.mp4');
         // Build overlay text
     let topText='', botText='';
     let isStrikeVideo = false;
