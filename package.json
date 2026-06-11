@@ -1,6 +1,6 @@
 {
   "name": "royalforge",
-  "version": "1.0.61",
+  "version": "1.0.62",
   "description": "Batch edit TikTok Shop videos",
   "main": "main.js",
   "scripts": {
@@ -57,8 +57,7 @@
         "arch": "universal"
       },
       "icon": "app/icon.png",
-      "artifactName": "RoyalForge-${version}-universal.dmg",
-      "x64ArchFiles": "**/ffmpeg-static/ffmpeg"
+      "artifactName": "RoyalForge-${version}-universal.dmg"
     },
     "publish": {
       "provider": "github",
