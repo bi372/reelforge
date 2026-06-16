@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>RoyalForge</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&family=Anton&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -427,8 +427,8 @@ textarea::placeholder{color:var(--muted2)}
 .drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:rgba(201,168,76,0.03)}
 .dz-text{font-size:13px;color:var(--muted)}
 .file-list{display:flex;flex-direction:column;gap:5px;margin-top:10px}
-.file-item{display:flex;align-items:center;justify-content:space-between;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 12px}
-.file-item.is-bof{border-color:rgba(224,61,82,0.25)}
+.file-item{display:flex;flex-direction:column;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 12px}
+.file-item-top{display:flex;align-items:center;justify-content:space-between;}.file-item.is-bof{border-color:rgba(224,61,82,0.25)}
 .file-item.is-mof{border-color:rgba(167,139,250,0.25)}
 .fi-left{display:flex;align-items:center;gap:8px;min-width:0}
 .fi-thumb{width:36px;height:36px;border-radius:5px;background:var(--card);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:13px;pointer-events:none}
@@ -449,7 +449,7 @@ textarea::placeholder{color:var(--muted2)}
 .process-btn:hover{transform:translateY(-1px);box-shadow:0 0 50px rgba(201,168,76,.2)}
 
 /* LIVE PREVIEW */
-.editor-shell-2col{display:grid;grid-template-columns:1fr 340px;gap:24px;max-width:960px;margin:0 auto;padding:28px 20px 100px;align-items:start}
+.editor-shell-2col{display:grid;grid-template-columns:1fr 280px;gap:24px;max-width:960px;margin:0 auto;padding:28px 20px 100px;align-items:start}
 .editor-controls{min-width:0}
 .preview-panel{position:sticky;top:80px}
 .preview-panel-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;text-align:center}
@@ -461,7 +461,7 @@ textarea::placeholder{color:var(--muted2)}
 .phone-overlay.center-pos{top:50%;transform:translateY(-50%)}
 .phone-overlay.bottom-pos{bottom:14px}
 .phone-banner{border-radius:5px;padding:6px 8px;font-weight:800;text-align:center;letter-spacing:.5px;line-height:1.2;font-family:'Inter',sans-serif;word-break:break-word}
-.phone-fulltext{text-align:center;line-height:1.15;font-size:13px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.9);padding:0 6px;font-family:'Inter',sans-serif;word-break:break-word}
+.phone-fulltext{text-align:center;line-height:1.5;font-size:13px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.9);padding:0 6px;font-family:'Inter',sans-serif;word-break:break-word}
 .phone-strike{display:flex;flex-direction:column;gap:3px;align-items:flex-start;padding:0 2px}
 .phone-strike-orig{font-size:13px;font-weight:800;color:rgba(255,255,255,.7);text-decoration:line-through;letter-spacing:.3px}
 .phone-strike-disc{font-size:15px;font-weight:800;background:var(--red);color:#fff;padding:2px 10px;border-radius:4px;letter-spacing:.5px}
@@ -643,6 +643,10 @@ input[type=file]{display:none}
 .size-row{display:flex;align-items:center;gap:8px;margin-top:12px}
 .size-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 14px;cursor:pointer;color:var(--muted);transition:all .2s;font-family:'Inter',sans-serif;font-weight:700}
 .size-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
+.fi-product-inp{width:100%;background:none;border:none;border-top:1px solid var(--border);outline:none;color:var(--muted);font-size:10px;font-family:'Inter',sans-serif;padding:3px 0;margin-top:3px;}
+.fi-product-inp::placeholder{color:var(--muted2)}
+.fi-product-inp:focus{color:var(--txt)}
+
 <style>
 @font-face{font-family:'RF-Bebas';src:url('fonts/bebas.ttf')}
 @font-face{font-family:'RF-Playfair';src:url('fonts/playfair.ttf')}
@@ -655,7 +659,6 @@ input[type=file]{display:none}
 @font-face{font-family:'RF-Comic';src:url('fonts/comicneue.ttf')}
 @font-face{font-family:'RF-BlackHan';src:url('fonts/blackhan.ttf')}
 @font-face{font-family:'RF-Nunito';src:url('fonts/nunito.ttf')}
-@font-face{font-family:'RF-Anton';src:local('Anton')}
 input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, 'NotoColorEmoji', sans-serif; }
 </style>
 </style>
@@ -1241,7 +1244,6 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
         <div class="font-opt" onclick="setFont('printer',this)"><div class="font-opt-preview" style="font-family:'RF-Courier',monospace;font-size:15px">ABC</div><div class="font-opt-name">Courier</div></div>
         <div class="font-opt" onclick="setFont('typewriter',this)"><div class="font-opt-preview" style="font-family:'RF-Special',monospace;font-size:14px">Abc</div><div class="font-opt-name">Special Elite</div></div>
         <div class="font-opt" onclick="setFont('nunito',this)"><div class="font-opt-preview" style="font-family:'RF-Nunito',sans-serif;font-size:16px;font-style:italic">Abc</div><div class="font-opt-name">Nunito</div></div>
-        <div class="font-opt" onclick="setFont('anton',this)"><div class="font-opt-preview" style="font-family:'Anton',sans-serif;font-size:18px">ABC</div><div class="font-opt-name">Anton</div></div>
       </div></div>
       <div class="size-row">
         <span style="font-size:11px;color:var(--muted)">A</span>
@@ -1450,7 +1452,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.65 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.16 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1523,7 +1525,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.65';
+const CURRENT_VERSION = '1.0.8';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -1617,7 +1619,7 @@ function checkPlanLimit(count) {
 function getWrappedLines(text, fontSizePx, containerWidthPx, fontFamily) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.font = 'bold ' + fontSizePx + 'px ' + (fontFamily || 'Arial') + ', ' + EMOJI_FONT;
+  ctx.font = 'bold ' + fontSizePx + 'px ' + (fontFamily || 'Arial') + ', NotoColorEmoji';
   const words = text.split(' ');
   const lines = [];
   let current = '';
@@ -1651,29 +1653,6 @@ function syncBotInput(idx, val) {
     botChips[idx].label = val;
     updatePreview();
   }
-}
-
-
-// Shared line-wrapping function — used by both preview and canvas so they always match
-function calcWrappedLines(text, fontSize, wrapWidth, fontFamily) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  ctx.font = '800 ' + fontSize + 'px ' + (fontFamily || 'Arial') + ', ' + EMOJI_FONT;
-  const words = text.split(' ');
-  const lines = [];
-  let current = '';
-  for (const word of words) {
-    const test = current ? current + ' ' + word : word;
-    if (ctx.measureText(test).width <= wrapWidth) {
-      current = test;
-    } else {
-      if (current) lines.push(current);
-      current = word;
-    }
-  }
-  if (current) lines.push(current);
-  canvas.width = 0; canvas.height = 0;
-  return lines;
 }
 
 async function captureOverlayPNG(uid, isFulltextParam) {
@@ -1713,13 +1692,12 @@ async function captureOverlayPNG(uid, isFulltextParam) {
     signature: 'fonts/dancing.ttf',
     printer: 'fonts/courier.ttf',
     typewriter: 'fonts/specialelite.ttf',
-    nunito: 'fonts/nunito.ttf',
-    anton: null
+    nunito: 'fonts/nunito.ttf'
   };
   const _fontFallback = {
     classic:'Arial',elegance:'RF-Playfair',neon:'RF-Bebas',retro:'RF-Pacifico',
     comic:'RF-Comic',tallhaus:'RF-Oswald',vintage:'RF-Abril',bomb:'RF-BlackHan',
-    signature:'RF-Dancing',printer:'RF-Courier',typewriter:'RF-Special',anton:'Anton'
+    signature:'RF-Dancing',printer:'RF-Courier',typewriter:'RF-Special'
   };
   let fontFamily = _fontFallback[selectedFont] || 'Arial';
   // Try to load font into canvas context
@@ -1736,23 +1714,33 @@ async function captureOverlayPNG(uid, isFulltextParam) {
   if (isFulltextMode) {
     // Fulltext: draw each hook line with its background
     const hbs = getBgForIdx(hookBgIdx, hookColor || '#ffffff');
-    const fontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.72); // matches main.js videoFontSize
+    const fontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.75); // matches main.js videoFontSize
     const lineHeight = Math.round(fontSize * 0.88 + 44);
     const maxWidth = Math.round(VIDEO_W * 0.62);
 
-    ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
 
     // Get text from preview element
     const child = Array.from(el.children).find(c => c.classList.contains('phone-fulltext')) || el.children[0];
     if (!child) return null;
     const text = child.textContent || '';
 
-    // Use shared calcWrappedLines so canvas matches preview exactly
-    const wrapWidth = Math.round(VIDEO_W * 0.85);
-    // Make sure font is loaded before measuring — use same font as preview
-    await document.fonts.ready;
-    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
-    const lines = calcWrappedLines(text, fontSize, wrapWidth, fontFamily);
+    // Pixel-based wrapping — adjusts with font size, handles emojis correctly
+    const wrapWidth = Math.round(VIDEO_W * 0.96);
+    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
+    const lines = [];
+    const words = text.split(' ');
+    let current = '';
+    for (const word of words) {
+      const test = current ? current + ' ' + word : word;
+      if (ctx.measureText(test).width <= wrapWidth) {
+        current = test;
+      } else {
+        if (current) lines.push(current);
+        current = word;
+      }
+    }
+    if (current) lines.push(current);
 
     // Draw each line
     for (let i = 0; i < lines.length; i++) {
@@ -1768,15 +1756,15 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         ctx.fillStyle = hbs.box;
         ctx.fillRect(x, currentY, boxW, boxH);
         ctx.fillStyle = hbs.textColor || '#ffffff';
-        ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
       } else if (hookBgIdx === 1) {
-        // Outline style — bold white text with black stroke
+        // Outline style — use strokeText
         const outlineColor = (hookColor === '#ffffff' || hookColor === '#fff') ? '#000000' : '#ffffff';
-        const outlineW = Math.round(fontSize * 0.10);
-        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+        const outlineW = Math.round(fontSize * 0.06);
+        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.strokeStyle = outlineColor;
@@ -1788,7 +1776,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
       } else {
         // Plain text
         ctx.fillStyle = hookColor || '#ffffff';
-        ctx.font = '700 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+        ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', NotoColorEmoji';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
@@ -1813,7 +1801,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
           const origText = origEl.textContent.trim();
           // Get disc color first so slash matches the 50% OFF box exactly
           const slashColor = discEl ? window.getComputedStyle(discEl).backgroundColor : '#ff0000';
-          ctx.font = '800 ' + origFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+          ctx.font = '800 ' + origFontSize + 'px ' + fontFamily + ', NotoColorEmoji';
           const tW = ctx.measureText(origText).width;
           // No BOX_BORDER padding — just font size so it sits flush against 50% OFF box
           const textY = currentY + origFontSize / 2;
@@ -1841,7 +1829,7 @@ async function captureOverlayPNG(uid, isFulltextParam) {
           const discText = discEl.textContent.trim();
           const discStyle = window.getComputedStyle(discEl);
           const discBg = discStyle.backgroundColor;
-          ctx.font = '800 ' + discFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+          ctx.font = '800 ' + discFontSize + 'px ' + fontFamily + ', NotoColorEmoji';
           const tW = ctx.measureText(discText).width;
           const boxW = tW + BOX_BORDER * 2;
           const boxH = discFontSize + BOX_BORDER * 2;
@@ -1869,10 +1857,10 @@ async function captureOverlayPNG(uid, isFulltextParam) {
         : Math.round(selectedFontSize * VIDEO_SCALE);
 
       let fontSize2 = fontSize;
-      ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+      ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', NotoColorEmoji';
       while (ctx.measureText(text).width > VIDEO_W * 0.82 && fontSize2 > 80) {
         fontSize2 -= 4;
-        ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+        ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', NotoColorEmoji';
       }
       const textW = ctx.measureText(text).width;
       const boxW = textW + BOX_BORDER * 2;
@@ -1990,7 +1978,7 @@ function _doRenderFiles(){ updatePreviewBg();
   if(!el) return;
   el.innerHTML=files.map((f,i)=>`
     <div class="file-item ${f.funnel==='bof'?'is-bof':'is-mof'}" draggable="true" ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})" ondrop="dragDrop(event,${i})" ondragend="dragEnd(event)" style="cursor:grab">
-      <div class="fi-left">
+      <div class="file-item-top"><div class="fi-left">
         <div class="fi-thumb" id="fth-${i}">&#127909;</div>
         <div class="fi-info">
           <div class="fi-name">${esc(f.file.name)}</div>
@@ -2001,8 +1989,8 @@ function _doRenderFiles(){ updatePreviewBg();
           </div>
         </div>
       </div>
-      <button class="fi-rm" onclick="removeFile(${i})">&#215;</button>
-    </div>`).join('');
+      <button class="fi-rm" onclick="removeFile(${i})">&#215;</button></div></div>
+    <input class="fi-product-inp" type="text" value="${esc(f.productName||'')}" placeholder="Product name (optional, e.g. Crocs)" id="fi-pn-${i}" oninput="if(files[${i}])files[${i}].productName=this.value"/>`).join('');
   // Thumbnails disabled — video elements cause OOM crash on large batches
 }
 
@@ -2066,34 +2054,7 @@ async function loadNotoFont() {
     console.log('Noto Color Emoji ready');
   } catch(e) { console.log('Noto Color Emoji not available:', e.message); }
 }
-const EMOJI_FONT = ((window.electronAPI && window.electronAPI.platform) === 'darwin') ? 'Apple Color Emoji' : 'NotoColorEmoji';
-if ((window.electronAPI && window.electronAPI.platform) !== 'darwin') loadNotoFont();
-
-// Preload all custom fonts into canvas so calcWrappedLines measures accurately on first render
-async function preloadCanvasFonts() {
-  const fontFiles = [
-    {name:'RF-Oswald', url:'fonts/oswald.ttf'},
-    {name:'RF-Bebas', url:'fonts/bebas.ttf'},
-    {name:'RF-Playfair', url:'fonts/playfair.ttf'},
-    {name:'RF-Pacifico', url:'fonts/pacifico.ttf'},
-    {name:'RF-Comic', url:'fonts/comicneue.ttf'},
-    {name:'RF-Abril', url:'fonts/abril.ttf'},
-    {name:'RF-BlackHan', url:'fonts/blackhan.ttf'},
-    {name:'RF-Dancing', url:'fonts/dancing.ttf'},
-    {name:'RF-Courier', url:'fonts/courier.ttf'},
-    {name:'RF-Special', url:'fonts/specialelite.ttf'},
-    {name:'RF-Nunito', url:'fonts/nunito.ttf'}
-  ];
-  await Promise.all(fontFiles.map(async f => {
-    try {
-      const ff = new FontFace(f.name, 'url(' + f.url + ')');
-      const loaded = await ff.load();
-      document.fonts.add(loaded);
-    } catch(e) {}
-  }));
-  updatePreview();
-}
-preloadCanvasFonts();
+loadNotoFont();
 
 let selectedFont = 'classic';
 let textYPercent = 12;
@@ -2253,11 +2214,7 @@ function showAppDash(){document.querySelectorAll('.app-view').forEach(v=>v.class
 function showAppEditor(){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
   document.getElementById('app-editor').classList.add('on');
-  setTimeout(()=>{
-    loadSettings();
-    // Wait for fonts to load before rendering preview so line breaks are accurate
-    document.fonts.ready.then(()=>{ updatePreview(); });
-  },50);
+  setTimeout(()=>{loadSettings();updatePreview();},50);
 }
 function showAppSettings(){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
@@ -2388,6 +2345,20 @@ function setHookColor(c,el){hookColor=c;document.querySelectorAll('#hook-color-d
 function setHookColorCustom(c){hookColor=c;document.querySelectorAll('#hook-color-dots .cdot').forEach(d=>d.classList.remove('sel'));updatePreview();}
 
 // ===== NATIVE FILE PICKER =====
+
+function injectProductName(text, product) {
+  if (!product || !product.trim()) return text;
+  const p = product.trim();
+  return text
+    .replace('today you absolutely won because this is dirt cheap', 'today to get these ' + p + ' you absolutely won because this is dirt cheap')
+    .replace("won't decline on this", "won't decline on these " + p)
+    .replace('the price down and now this is on', 'the price down on these ' + p + " and now it's on")
+    .replace('cus this just went on', 'cus these ' + p + ' just went on')
+    .replace('of this today since', 'of these ' + p + ' today since')
+    .replace("you'll want to see this before", "you'll want to see these " + p + " before")
+    .replace('decide anything ⏳', 'decide anything about these ' + p + ' ⏳')
+    .replace('decide anything', 'decide anything about these ' + p);
+}
 async function processBatch(){
   if(!files.length){toast('Add at least one video first.');return;}
   if(!checkPlanLimit(files.length)){showUpgrade();return;}
@@ -2419,9 +2390,8 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
   // Output folder
   const customFolder = localStorage.getItem('rf_custom_folder');
   const homeDir = localStorage.getItem('rf_homedir') || 'C:\\Users\\User';
-  const _sep = homeDir.startsWith('/') ? '/' : '\\';
-  const readyFolder = customFolder || (homeDir+_sep+'Downloads'+_sep+'RoyalForge'+_sep+'ready');
-  folderPath = homeDir+_sep+'Downloads'+_sep+'RoyalForge';
+  const readyFolder = customFolder || (homeDir+'\\Downloads\\RoyalForge\\ready');
+  folderPath = homeDir+'\\Downloads\\RoyalForge';
   localStorage.setItem('rf_fp', folderPath);
 
   document.getElementById('proc-bg').classList.add('on');
@@ -2464,14 +2434,20 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
 
   async function processOne(fileItem) {
     const inputPath = fileItem.file.path;
+    // Read product name from DOM input in case oninput didn't fire
+    if (!fileItem.productName) {
+      const idx = files.indexOf(fileItem);
+      const pnEl = document.getElementById('fi-pn-' + idx);
+      if (pnEl) fileItem.productName = pnEl.value.trim();
+    }
     const prefix = document.getElementById('batch-prefix') ? (document.getElementById('batch-prefix').value.trim() || 'rf') : 'rf';
-    const outputPath = readyFolder+_sep+prefix+'_'+fileItem.file.name.replace(/\.[^.]+$/, '.mp4');
+    const outputPath = readyFolder+'\\'+prefix+'_'+fileItem.file.name.replace(/\.[^.]+$/, '.mp4');
         // Build overlay text
     let topText='', botText='';
     let isStrikeVideo = false;
 
     if(ovStyle==='fulltext'){
-      if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=activeHooks[_hi].text; console.log('fulltext hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
+      if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName); console.log('fulltext hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
     } else if(ovStyle==='banner'){
       // Banner BOF: 50/50 between strike and banner chips when both active
       const hasBannerChips = activeTop.length > 0 || activeBot.length > 0;
@@ -2487,7 +2463,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     } else {
       // mix - BOF gets banner, MOF gets fulltext hook
       if(fileItem.funnel === 'mof') {
-        if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=activeHooks[_hi].text; console.log('mix MOF hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
+        if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName); console.log('mix MOF hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
 
       } else {
         // BOF: 50/50 between strike and banner when both active
@@ -2582,8 +2558,7 @@ async function openReady(){
   document.getElementById('done-bg').classList.remove('on');
   const customFolder2 = localStorage.getItem('rf_custom_folder');
   const homeDir2 = localStorage.getItem('rf_homedir') || 'C:\\Users\\User';
-  const _sep2 = homeDir2.startsWith('/') ? '/' : '\\';
-  const readyPath = customFolder2 || (homeDir2+_sep2+'Downloads'+_sep2+'RoyalForge'+_sep2+'ready');
+  const readyPath = customFolder2 || (homeDir2+'\\Downloads\\RoyalForge\\ready');
   if(window.electronAPI && window.electronAPI.openFolder){
     window.electronAPI.openFolder(readyPath);
   } else {
@@ -2724,8 +2699,7 @@ const fontFamilyMap = {
   signature:"'RF-Dancing',cursive",
   printer:"'RF-Courier',monospace",
   typewriter:"'RF-Special',monospace",
-  nunito:"'RF-Nunito',sans-serif",
-  anton:"'Anton',sans-serif"
+  nunito:"'RF-Nunito',sans-serif"
 };
 const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
   const videoScale = 4;
@@ -2735,20 +2709,11 @@ const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
   let html = '';
 
   if(ovStyle === 'fulltext'){
-    // Show a random active hook — use canvas line breaks to match video output exactly
+    // Show a random active hook
     if(activeHooks.length){
       const h = activeHooks[previewVariantIdx % activeHooks.length];
       const hbs=getBgForIdx(hookBgIdx,hookColor||'#fff');
-      const VIDEO_W_PREV = 2160;
-      const videoFontSizePrev = Math.round(selectedFontSize * 5 * 0.72);
-      const videoWrapWidthPrev = Math.round(VIDEO_W_PREV * 0.85);
-      // Use exact same font key as canvas for accurate measurement
-      const _canvasFontMap = {classic:'Arial',elegance:'RF-Playfair',neon:'RF-Bebas',retro:'RF-Pacifico',comic:'RF-Comic',tallhaus:'RF-Oswald',vintage:'RF-Abril',bomb:'RF-BlackHan',signature:'RF-Dancing',printer:'RF-Courier',typewriter:'RF-Special',nunito:'RF-Nunito',anton:'Anton'};
-      const canvasFontFamily = _canvasFontMap[selectedFont] || 'Arial';
-      const wrappedLines = calcWrappedLines(h.text, videoFontSizePrev, videoWrapWidthPrev, canvasFontFamily);
-      html = wrappedLines.map(line =>
-        `<div class="phone-fulltext" style="font-family:${previewFont};font-size:${previewFontSize}px;color:${hbs.textColor};background:${hbs.box};text-shadow:${hbs.shadow};padding:2px 8px;margin-bottom:0px;border-radius:3px;white-space:nowrap;text-align:center;display:block">${esc(line)}</div>`
-      ).join('');
+      html = `<div class="phone-fulltext" style="font-family:${previewFont};font-size:${previewFontSize}px;color:${hbs.textColor};background:${hbs.box};text-shadow:${hbs.shadow};padding:8px 12px;border-radius:5px">${esc(h.text)}</div>`;
     }
   } else if(ovStyle === 'banner'){
     if(strikeOn){
@@ -3065,7 +3030,7 @@ if (window.electronAPI && window.electronAPI.onUpdateDownloaded) {
     if (bar) {
       bar._ready = true;
       bar._downloading = false;
-      
+      bar.textContent = '✅ Update ready — click to install & restart';
     }
   });
 }
