@@ -604,6 +604,28 @@ input[type=file]{display:none}
 .pos-slider{-webkit-appearance:slider-vertical;appearance:slider-vertical;writing-mode:vertical-lr;direction:rtl;width:4px;height:220px;cursor:pointer;accent-color:var(--gold);background:var(--border);border-radius:4px}
 .pos-slider::-webkit-slider-thumb{width:16px;height:16px}
 .upgrade-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:500;align-items:center;justify-content:center}
+/* INTERACTIVE ONBOARDING */
+.tour-overlay{display:none;position:fixed;inset:0;z-index:800;pointer-events:none}
+.tour-overlay.active{display:block}
+.tour-backdrop{position:fixed;inset:0;background:transparent}
+.tour-highlight{position:absolute;border-radius:10px;box-shadow:0 0 0 4px var(--gold),0 0 0 9999px rgba(0,0,0,.75);z-index:1;pointer-events:none;transition:all .4s ease}
+.tour-tooltip{position:absolute;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:20px;width:280px;z-index:2;box-shadow:0 12px 40px rgba(0,0,0,.8)}
+.tour-tooltip::before{content:'';position:absolute;width:10px;height:10px;background:var(--card);border:1px solid var(--border2);transform:rotate(45deg)}
+.tour-tooltip.arrow-left::before{left:-6px;top:20px;border-right:none;border-top:none}
+.tour-tooltip.arrow-right::before{right:-6px;top:20px;border-left:none;border-bottom:none}
+.tour-tooltip.arrow-top::before{top:-6px;left:50%;transform:translateX(-50%) rotate(45deg);border-right:none;border-bottom:none}
+.tour-tooltip.arrow-bottom::before{bottom:-6px;left:50%;transform:translateX(-50%) rotate(45deg);border-left:none;border-top:none}
+.tour-step-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:600;margin-bottom:10px}
+.tour-title{font-size:15px;font-weight:700;margin-bottom:6px;letter-spacing:-.2px}
+.tour-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.tour-actions{display:flex;align-items:center;justify-content:space-between}
+.tour-next-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;pointer-events:all}
+.tour-next-btn:hover{opacity:.9}
+.tour-skip{font-size:11px;color:var(--muted2);cursor:pointer;pointer-events:all;transition:color .15s}
+.tour-skip:hover{color:var(--muted)}
+.tour-dots{display:flex;gap:4px}
+.tour-dot{width:5px;height:5px;border-radius:50%;background:var(--border2);transition:background .3s}
+.tour-dot.active{background:var(--gold)}
 .upgrade-bg.show{display:flex}
 .upgrade-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px;width:560px;max-width:90vw}
 .upgrade-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px;text-align:center}
@@ -731,41 +753,42 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
   <div class="loader-bar"><div class="loader-bar-fill"></div></div>
 </div>
 
-<!-- ONBOARDING MODAL -->
+<!-- INTERACTIVE TOUR -->
+<div class="tour-overlay" id="tour-overlay">
+  <div class="tour-highlight" id="tour-highlight"></div>
+  <div class="tour-tooltip" id="tour-tooltip">
+    <div class="tour-step-badge" id="tour-badge">Step 1 of 10</div>
+    <div class="tour-title" id="tour-title"></div>
+    <div class="tour-desc" id="tour-desc"></div>
+    <div class="tour-actions">
+      <div class="tour-dots" id="tour-dots"></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="tour-skip" onclick="endTour()">Skip tour</span>
+        <button class="tour-next-btn" id="tour-next-btn" onclick="tourNext()">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING MODAL (keep for first launch welcome) -->
 <div class="onboard-bg" id="onboard-bg">
   <div class="onboard-box">
     <div class="onboard-logo">
       <div class="onboard-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
       <span class="onboard-logo-name">Royal<span>Forge</span></span>
     </div>
-    <div class="onboard-steps">
-      <div class="onboard-step active-step" id="os-1">
-        <div class="os-num">1</div>
-        <div class="os-title">Start a batch</div>
-        <div class="os-desc">Drop your raw .MOV or .MP4 clips</div>
+    <div style="text-align:center;padding:10px 0 20px">
+      <div class="onboard-title">Welcome to <span>RoyalForge</span></div>
+      <div class="onboard-sub">The fastest way to batch edit TikTok Shop videos. Want a quick tour of the app?</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+        <button class="onboard-btn" onclick="startTour()">Take the tour →</button>
+        <button style="background:none;border:1px solid var(--border2);color:var(--muted);border-radius:11px;padding:13px 24px;font-size:14px;cursor:pointer;font-family:Inter,sans-serif" onclick="closeOnboard()">Skip</button>
       </div>
-      <div class="onboard-step" id="os-2">
-        <div class="os-num">2</div>
-        <div class="os-title">Pick your overlay</div>
-        <div class="os-desc">Banner, full text, or mix both</div>
-      </div>
-      <div class="onboard-step" id="os-3">
-        <div class="os-num">3</div>
-        <div class="os-title">Process &amp; post</div>
-        <div class="os-desc">Finished videos land in ready/</div>
-      </div>
-    </div>
-    <div class="onboard-title" id="onboard-title">Welcome to <span>RoyalForge</span></div>
-    <div class="onboard-sub" id="onboard-sub">The fastest way to batch edit TikTok Shop videos. Let us show you how it works in 3 quick steps.</div>
-    <button class="onboard-btn" id="onboard-btn" onclick="nextOnboard()">Get started &rarr;</button>
-    <span class="onboard-skip" onclick="closeOnboard()">Skip intro</span>
-    <div class="onboard-progress">
-      <div class="op-dot active" id="op-1"></div>
-      <div class="op-dot" id="op-2"></div>
-      <div class="op-dot" id="op-3"></div>
     </div>
   </div>
 </div>
+
+
 
 <div class="toast" id="toast"></div>
 <input type="file" id="file-in" multiple accept="video/*" onchange="handleFiles(this.files)"/>
@@ -1481,6 +1504,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
         <div id="phone-overlay-content" style="position:absolute;left:0;right:0;top:14px;display:flex;flex-direction:column;gap:0px;padding:0 4px;cursor:grab;user-select:none" 
     ></div>
   <div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:9px;color:rgba(255,255,255,.25);pointer-events:none">drag to reposition</div>
+  <button id="preview-play-btn" onclick="togglePreviewPlay()" style="display:none;position:absolute;bottom:28px;right:10px;background:rgba(0,0,0,.7);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer;z-index:20;backdrop-filter:blur(4px);font-family:Inter,sans-serif">&#9654;</button>
       </div>
       <div style="margin-top:10px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
@@ -1612,7 +1636,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.68 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.69 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1671,13 +1695,18 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <!-- DONE -->
 <div class="done-bg" id="done-bg">
-  <div class="done-box">
-    <div style="font-size:32px;margin-bottom:8px">✅</div>
-    <h2>Batch complete!</h2>
+  <div class="done-box" style="max-width:420px">
+    <div style="font-size:32px;margin-bottom:8px" id="done-icon">✅</div>
+    <h2 id="done-title">Batch complete!</h2>
     <p id="done-msg" style="margin-bottom:16px">Processed 0 video(s).</p>
     <div id="done-stats" style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"></div>
+    <div id="done-failed-list" style="display:none;margin-bottom:16px;text-align:left;background:rgba(224,61,82,.06);border:1px solid rgba(224,61,82,.2);border-radius:8px;padding:10px 14px;max-height:150px;overflow-y:auto">
+      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Failed videos</div>
+      <div id="done-failed-items"></div>
+    </div>
     <div class="done-btns">
       <button class="done-open" onclick="openReady()">Open ready/ folder</button>
+      <button id="done-retry-btn" class="done-back" style="display:none;background:rgba(224,61,82,.1);border:1px solid rgba(224,61,82,.3);color:var(--red)" onclick="retryFailed()">Retry failed</button>
       <button class="done-back" onclick="closeDone()">New batch</button>
     </div>
   </div>
@@ -1685,7 +1714,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.68';
+const CURRENT_VERSION = '1.0.69';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2235,7 +2264,7 @@ function _grabThumb(thumb, src) {
       cleanup();
     };
     vid.onerror = cleanup;
-    setTimeout(cleanup, 2000);
+    setTimeout(cleanup, 6000); // 6s timeout for large 4K files
     vid.src = src;
   });
 }
@@ -2248,7 +2277,7 @@ async function _processThumbQueue() {
     if (!thumb.classList.contains('loaded')) {
       await _grabThumb(thumb, src);
     }
-    await new Promise(r => setTimeout(r, 10));
+    await new Promise(r => setTimeout(r, 150)); // bigger gap for Mac 4K files
   }
   _thumbRunning = false;
 }
@@ -2690,6 +2719,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
 
   let completed=0;
   let failed=0;
+  let failedFiles = [];
   const PARALLEL = 1;
 
   function finishBatch(){
@@ -2700,7 +2730,37 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     localStorage.setItem('rf_vc',String(vidCount));
     localStorage.setItem('rf_lastday',today);
     document.getElementById('vid-count').textContent=vidCount+' videos today';
+
+    // Update icon and title based on failures
+    var icon = document.getElementById('done-icon');
+    var title = document.getElementById('done-title');
+    if (failed > 0 && failed === total) {
+      if (icon) icon.textContent = '❌';
+      if (title) title.textContent = 'Batch failed';
+    } else if (failed > 0) {
+      if (icon) icon.textContent = '⚠️';
+      if (title) title.textContent = 'Batch complete with errors';
+    } else {
+      if (icon) icon.textContent = '✅';
+      if (title) title.textContent = 'Batch complete!';
+    }
+
     document.getElementById('done-msg').textContent='Processed '+(total-failed)+' of '+total+' video'+(total!==1?'s':'')+'.'+(failed>0?' '+failed+' failed.':'');
+
+    // Show failed files list
+    var failedList = document.getElementById('done-failed-list');
+    var failedItems = document.getElementById('done-failed-items');
+    var retryBtn = document.getElementById('done-retry-btn');
+    if (failedFiles.length > 0) {
+      failedList.style.display = 'block';
+      failedItems.innerHTML = failedFiles.map(function(f) {
+        return '<div style="font-size:11px;padding:4px 0;border-bottom:1px solid rgba(224,61,82,.15);display:flex;justify-content:space-between;gap:8px"><span style="color:var(--txt);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + esc(f.name) + '</span><span style="color:var(--muted);flex-shrink:0">' + esc(f.error) + '</span></div>';
+      }).join('');
+      if (retryBtn) retryBtn.style.display = '';
+    } else {
+      failedList.style.display = 'none';
+      if (retryBtn) retryBtn.style.display = 'none';
+    }
     document.getElementById('done-stats').innerHTML=`<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--gold)">${total-failed}</div><div style="font-size:10px;color:var(--muted)">DONE</div></div><div style="background:var(--card2);border:1px solid rgba(224,61,82,.3);border-radius:8px;padding:8px 16px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--red)">${bof}</div><div style="font-size:10px;color:var(--muted)">BOF</div></div><div style="background:var(--card2);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:8px 16px;text-align:center"><div style="font-size:20px;font-weight:800;color:#a78bfa">${mof}</div><div style="font-size:10px;color:var(--muted)">MOF</div></div>`;
     document.getElementById('done-bg').classList.add('on');
     files=[];renderFiles();updateVidCounter();
@@ -2827,6 +2887,12 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     } catch(err){
       console.error('FFmpeg error on',fileItem.file.name,':',err);
       failed++;
+      var errMsg = String(err).substring(0, 120);
+      if (errMsg.includes('No such file')) errMsg = 'File not found';
+      else if (errMsg.includes('codec')) errMsg = 'Unsupported format';
+      else if (errMsg.includes('filter')) errMsg = 'Processing error';
+      else if (errMsg.length > 60) errMsg = errMsg.substring(0, 60) + '...';
+      failedFiles.push({ name: fileItem.file.name, error: errMsg, item: fileItem });
     }
 
 
@@ -2859,6 +2925,19 @@ async function openReady(){
   showAppDash();
 }
 function closeDone(){document.getElementById('done-bg').classList.remove('on');showAppDash();}
+
+async function retryFailed() {
+  if (!failedFiles.length) return;
+  document.getElementById('done-bg').classList.remove('on');
+  // Put failed files back into the files array
+  files = failedFiles.map(function(f) { return f.item; });
+  failedFiles = [];
+  renderFiles();
+  updateVidCounter();
+  showAppEditor();
+  toast('Retrying ' + files.length + ' failed video' + (files.length !== 1 ? 's' : '') + '...');
+  setTimeout(function() { processBatch(); }, 500);
+}
 
 // ===== BATCHES =====
 function renderBatches(){
@@ -2926,47 +3005,89 @@ function updatePreviewBg() {
   previewVideoIdx = 0;
   showPreviewVideo(bg, 0);
   
-  // Cycle through videos if more than one
-  if (files.length > 1) {
-    previewCycleTimer = setInterval(() => {
-      previewVideoIdx = (previewVideoIdx + 1) % files.length;
-      showPreviewVideo(bg, previewVideoIdx);
-    }, 6000);
-  }
+  // No auto-cycle — user navigates manually with Prev/Next
 }
 
+let _previewPlaying = false;
+
 function showPreviewVideo(bg, idx) {
-  bg.querySelectorAll('video').forEach(el => el.remove());
+  bg.querySelectorAll('video,img.preview-frame').forEach(el => el.remove());
+  _previewPlaying = false;
   const f = files[idx];
   if (!f) return;
-  const vid = document.createElement('video');
+
+  // Update play button state
+  var playBtn = document.getElementById('preview-play-btn');
+  if (playBtn) playBtn.textContent = '▶';
+
+  var src = null;
+  if (f.file.path) {
+    src = 'file:///' + f.file.path.split('\\').join('/');
+  } else if (f.file._blob) {
+    src = URL.createObjectURL(f.file._blob);
+  }
+  if (!src) return;
+
+  // Load video but don't autoplay — just seek to first frame and show as image
+  var vid = document.createElement('video');
   vid.muted = true;
   vid.playsInline = true;
   vid.preload = 'metadata';
-  vid.loop = true;
-  vid.autoplay = true;
-  vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.85;transition:opacity .5s';
-  if (f.file.path) {
-    vid.src = 'file:///' + f.file.path.split('\\').join('/');
-  } else if (f.file._blob) {
-    vid.src = URL.createObjectURL(f.file._blob);
-  }
-  vid.onloadedmetadata = () => { vid.currentTime = 0; vid.play(); };
+  vid.loop = false;
+  vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.85';
+  vid.src = src;
+  vid.id = 'preview-vid';
+
+  vid.onloadedmetadata = function() {
+    vid.currentTime = 0.1;
+  };
+  vid.onseeked = function() {
+    vid.pause();
+    if (playBtn) playBtn.style.display = '';
+  };
+  vid.onended = function() {
+    // Auto advance to next clip when video ends
+    if (_previewPlaying && files.length > 1) {
+      previewNav(1);
+    } else {
+      _previewPlaying = false;
+      if (playBtn) playBtn.textContent = '&#9654;';
+    }
+  };
+  vid.onerror = function() {
+    if (playBtn) playBtn.style.display = 'none';
+  };
+
   bg.insertBefore(vid, bg.firstChild);
-  
-  // Show video indicator if multiple
-  let indicator = document.getElementById('preview-vid-indicator');
+
+  // Show video indicator
+  var indicator = document.getElementById('preview-vid-indicator');
   if (files.length > 1) {
     if (!indicator) {
       indicator = document.createElement('div');
       indicator.id = 'preview-vid-indicator';
       indicator.style.cssText = 'position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;z-index:10;font-family:Inter,sans-serif';
-      const frame = document.querySelector('.phone-frame');
+      var frame = document.querySelector('.phone-frame');
       if (frame) frame.appendChild(indicator);
     }
     indicator.textContent = (idx+1) + ' / ' + files.length;
   } else if (indicator) {
     indicator.remove();
+  }
+}
+
+function togglePreviewPlay() {
+  var vid = document.getElementById('preview-vid');
+  var btn = document.getElementById('preview-play-btn');
+  if (!vid) return;
+  if (_previewPlaying) {
+    vid.pause();
+    _previewPlaying = false;
+    if (btn) btn.textContent = '▶';
+  } else {
+    vid.play();
+    _previewPlaying = true;
+    if (btn) btn.textContent = '⏸';
   }
 }
 function updatePreview(){
@@ -3058,19 +3179,327 @@ function cyclePreview(){
 
 function previewNav(dir) {
   if (!files.length) return;
+  var wasPlaying = _previewPlaying;
   previewVideoIdx = (previewVideoIdx + dir + files.length) % files.length;
   const bg = document.querySelector('.phone-bg');
-  if (bg) showPreviewVideo(bg, previewVideoIdx);
+  if (bg) {
+    showPreviewVideo(bg, previewVideoIdx);
+    // If video was playing, auto-play the next one too
+    if (wasPlaying) {
+      var checkReady = setInterval(function() {
+        var vid = document.getElementById('preview-vid');
+        if (vid && vid.readyState >= 2) {
+          clearInterval(checkReady);
+          vid.play().then(function() {
+            _previewPlaying = true;
+            var btn = document.getElementById('preview-play-btn');
+            if (btn) btn.textContent = '⏸';
+          }).catch(function(){});
+        }
+      }, 100);
+      // Safety timeout
+      setTimeout(function() { clearInterval(checkReady); }, 5000);
+    }
+  }
   const lbl = document.getElementById('preview-file-label');
   if (lbl) {
     var f = files[previewVideoIdx];
-    var name = f ? f.file.name : '';
     var funnel = f ? f.funnel.toUpperCase() : '';
     var product = f && f.productName ? ' · ' + f.productName : '';
     lbl.textContent = (previewVideoIdx + 1) + ' / ' + files.length + ' · ' + funnel + product;
     lbl.style.color = f && f.funnel === 'mof' ? '#a78bfa' : 'var(--red)';
   }
 }
+
+// ===== INTERACTIVE TOUR =====
+const TOUR_STEPS = [
+  {
+    target: '.start-btn',
+    title: 'Start a batch',
+    desc: 'This is your main button to open the editor and start processing videos.',
+    action: function() { showAppDash(); }
+  },
+  {
+    target: '#drop-zone',
+    title: 'Drop your videos',
+    desc: 'Drag and drop .MOV or .MP4 clips here, or click to browse. Add 50+ clips at once.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#vid-counter-bar',
+    title: 'BOF & MOF auto-tagging',
+    desc: 'The app auto-detects BOF (14s+) and MOF (shorter) clips by duration. Tap any badge to toggle it manually.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#ov-toggle',
+    title: 'Overlay style',
+    desc: 'Banner adds urgency text boxes. Full text drops a hook line. Mix gives BOF banners and MOF clips hook text.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#sec-banner',
+    title: 'Edit your hooks',
+    desc: 'Check the lines you want active. Edit any text to match your style. Each video gets a random variant.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '.size-row',
+    title: 'Font & size',
+    desc: 'Pick a font style above and drag the size slider to adjust how big the text appears on your video.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: 'button.tbtn',
+    targetIndex: 1,
+    title: 'Product Library tab',
+    desc: 'Click Products to open your product library. This is where you manage all your TikTok Shop products.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#prod-modal-inp',
+    title: 'Add a product',
+    desc: 'Paste any TikTok Shop product link here and hit Add. The app automatically fetches the product name and image for you.',
+    action: function() { showAppProducts(); renderProductPage(''); setTimeout(function() { showAddProductModal(); }, 300); }
+  },
+  {
+    target: '#prod-page-grid',
+    title: 'Your product library',
+    desc: 'Products appear here as cards with image, name and link. Click the name to rename it. Click the link to open the TikTok Shop page.',
+    action: function() { closeAddProductModal(); }
+  },
+  {
+    target: '.phone-frame',
+    title: 'Live preview',
+    desc: 'The phone preview updates as you edit. Use Prev/Next buttons to cycle through your actual video clips.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#pos-slider',
+    title: 'Text position',
+    desc: 'Drag this slider to move the overlay text up or down on the video. The preview updates instantly.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '.process-btn',
+    title: 'Process batch',
+    desc: 'When ready, hit Process batch. All clips get stamped and saved to your ready/ folder automatically.',
+    action: function() { showAppEditor(); },
+    isLast: true
+  }
+];
+
+let _tourStep = 0;
+let _tourActive = false;
+
+var _tourSampleProductAdded = false;
+
+var _tourSampleFilesAdded = false;
+
+function _addTourSampleProduct() {
+  if (_tourSampleProductAdded) return;
+  var sample = {
+    id: 'tour_sample',
+    name: 'Crocs Soho Platform Sandals',
+    fullName: 'Crocs Womens Soho Y-Strap Platform Sandals',
+    image: 'https://shop.simon.com/cdn/shop/files/f4b75f92fa9c4b7eb31b0bb879f5e416.png?v=1777181433',
+    url: 'https://shop.tiktok.com/us/pdp/crocs-womens-soho-y-strap-platform-sandals-lightweight-durable/1732221432846128062'
+  };
+  productLibrary.unshift(sample);
+  _tourSampleProductAdded = true;
+}
+
+function _addTourSampleFiles() {
+  if (_tourSampleFilesAdded) return;
+  var sampleFiles = [
+    { file: { name: 'crocs_mof_clip1.MOV', path: '', _tour: true }, funnel: 'mof', duration: 8.5, productName: 'Crocs Soho Platform Sandals', _manualFunnel: false },
+    { file: { name: 'crocs_mof_clip2.MOV', path: '', _tour: true }, funnel: 'mof', duration: 9.2, productName: '', _manualFunnel: false },
+    { file: { name: 'crocs_bof_clip1.MOV', path: '', _tour: true }, funnel: 'bof', duration: 16.1, productName: 'Crocs Soho Platform Sandals', _manualFunnel: false },
+    { file: { name: 'crocs_bof_clip2.MOV', path: '', _tour: true }, funnel: 'bof', duration: 15.4, productName: '', _manualFunnel: false }
+  ];
+  sampleFiles.forEach(function(f) { files.push(f); });
+  _tourSampleFilesAdded = true;
+  renderFiles();
+  updateVidCounter();
+}
+
+function _removeTourSampleFiles() {
+  if (!_tourSampleFilesAdded) return;
+  files = files.filter(function(f) { return !f.file._tour; });
+  _tourSampleFilesAdded = false;
+  renderFiles();
+  updateVidCounter();
+}
+
+function _removeTourSampleProduct() {
+  if (!_tourSampleProductAdded) return;
+  productLibrary = productLibrary.filter(function(p) { return p.id !== 'tour_sample'; });
+  saveProductLibrary();
+  _tourSampleProductAdded = false;
+}
+
+function startTour() {
+  closeOnboard();
+  showAppEditor();
+  _tourStep = 0;
+  _tourActive = true;
+  _addTourSampleProduct();
+  window.addEventListener('resize', _tourResizeHandler);
+  setTimeout(function() { showTourStep(_tourStep); }, 400);
+}
+
+function showTourStep(idx) {
+  var overlay = document.getElementById('tour-overlay');
+  if (!overlay) return;
+  var step = TOUR_STEPS[idx];
+  if (!step) { endTour(); return; }
+
+  overlay.classList.add('active');
+
+  // Add sample files when we reach the drop zone step
+  if (idx === 1 && !_tourSampleFilesAdded) {
+    setTimeout(function() { _addTourSampleFiles(); }, 600);
+  }
+
+  // Update text content
+  document.getElementById('tour-badge').textContent = 'Step ' + (idx+1) + ' of ' + TOUR_STEPS.length;
+  document.getElementById('tour-title').textContent = step.title;
+  document.getElementById('tour-desc').textContent = step.desc;
+  document.getElementById('tour-next-btn').textContent = step.isLast ? 'Finish ✓' : 'Next →';
+  document.getElementById('tour-dots').innerHTML = TOUR_STEPS.map(function(_, i) {
+    return '<div class="tour-dot' + (i === idx ? ' active' : '') + '"></div>';
+  }).join('');
+
+  // Navigate first if needed
+  if (step.action) step.action();
+
+  // Wait for navigation + layout to settle, then position
+  setTimeout(function() {
+    _positionTourStep(idx);
+  }, step.action ? 500 : 100);
+}
+
+function _positionTourStep(idx) {
+  var step = TOUR_STEPS[idx];
+  var highlight = document.getElementById('tour-highlight');
+  var tooltip = document.getElementById('tour-tooltip');
+  if (!step || !highlight || !tooltip) return;
+
+  var targets = document.querySelectorAll(step.target);
+  var target = null;
+  // Find first visible target
+  for (var ti = step.targetIndex || 0; ti < targets.length; ti++) {
+    var t = targets[ti];
+    if (t && t.offsetParent !== null && t.getBoundingClientRect().width > 0) {
+      target = t; break;
+    }
+  }
+  if (!target) target = targets[step.targetIndex || 0];
+
+  if (!target) {
+    highlight.style.display = 'none';
+    tooltip.style.cssText = 'position:fixed;z-index:802;width:290px;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.8);top:50%;left:50%;transform:translate(-50%,-50%)';
+    return;
+  }
+
+  // Scroll target into view
+  target.scrollIntoView({ block: 'center' });
+
+  // Use requestAnimationFrame to measure after paint
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      var rect = target.getBoundingClientRect();
+      var pad = 8;
+      var TW = 290;
+      var TH = 200;
+      var GAP = 14;
+      var vw = window.innerWidth;
+      var vh = window.innerHeight;
+
+      // Set highlight
+      highlight.style.cssText = 'position:fixed;border-radius:10px;z-index:801;pointer-events:none;display:block;' +
+        'box-shadow:0 0 0 4px #c9a84c,0 0 0 9999px rgba(0,0,0,.78);' +
+        'left:' + Math.round(rect.left - pad) + 'px;' +
+        'top:' + Math.round(rect.top - pad) + 'px;' +
+        'width:' + Math.round(rect.width + pad*2) + 'px;' +
+        'height:' + Math.round(rect.height + pad*2) + 'px';
+
+      // Pick best side based on available space
+      var spaceBelow = vh - rect.bottom - GAP;
+      var spaceAbove = rect.top - GAP;
+      var spaceRight = vw - rect.right - GAP;
+      var spaceLeft = rect.left - GAP;
+
+      var side;
+      var scores = [
+        { side: 'below', space: spaceBelow, needed: TH },
+        { side: 'above', space: spaceAbove, needed: TH },
+        { side: 'right', space: spaceRight, needed: TW },
+        { side: 'left', space: spaceLeft, needed: TW }
+      ];
+      // Pick first side that has enough space
+      for (var s = 0; s < scores.length; s++) {
+        if (scores[s].space >= scores[s].needed) { side = scores[s].side; break; }
+      }
+      if (!side) side = 'below';
+
+      var ttop, tleft;
+      if (side === 'below') {
+        ttop = rect.bottom + GAP;
+        tleft = rect.left + rect.width / 2 - TW / 2;
+      } else if (side === 'above') {
+        ttop = rect.top - TH - GAP;
+        tleft = rect.left + rect.width / 2 - TW / 2;
+      } else if (side === 'right') {
+        ttop = rect.top + rect.height / 2 - TH / 2;
+        tleft = rect.right + GAP;
+      } else {
+        ttop = rect.top + rect.height / 2 - TH / 2;
+        tleft = rect.left - TW - GAP;
+      }
+
+      // Clamp to viewport with padding
+      tleft = Math.max(12, Math.min(tleft, vw - TW - 12));
+      ttop = Math.max(12, Math.min(ttop, vh - TH - 12));
+
+      tooltip.style.cssText = 'position:fixed;z-index:802;width:' + TW + 'px;' +
+        'background:var(--card);border:1px solid var(--border2);border-radius:14px;' +
+        'padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.8);' +
+        'top:' + Math.round(ttop) + 'px;left:' + Math.round(tleft) + 'px;transform:none';
+    });
+  });
+}
+
+function tourNext() {
+  _tourStep++;
+  if (_tourStep >= TOUR_STEPS.length) {
+    endTour();
+  } else {
+    showTourStep(_tourStep);
+  }
+}
+
+function endTour() {
+  var overlay = document.getElementById('tour-overlay');
+  if (overlay) overlay.classList.remove('active');
+  _tourActive = false;
+  window.removeEventListener('resize', _tourResizeHandler);
+  _removeTourSampleProduct();
+  _removeTourSampleFiles();
+  if (currentUser) localStorage.setItem('rf_onboarded_' + currentUser.email, '1');
+  showAppDash();
+  toast('Tour complete! Start your first batch.');
+}
+
+function _tourResizeHandler() {
+  if (_tourActive) {
+    clearTimeout(_tourResizeTimer);
+    _tourResizeTimer = setTimeout(function() {
+      _positionTourStep(_tourStep);
+    }, 100);
+  }
+}
+var _tourResizeTimer = null;
 
 // ===== ONBOARDING =====
 let onboardStep = 0;
@@ -3104,8 +3533,6 @@ const onboardContent = [
 function showOnboarding(){
   const seen = localStorage.getItem('rf_onboarded_'+currentUser.email);
   if(seen) return;
-  onboardStep = 0;
-  renderOnboardStep();
   document.getElementById('onboard-bg').classList.add('show');
 }
 
@@ -3137,7 +3564,6 @@ function nextOnboard(){
 
 function closeOnboard(){
   document.getElementById('onboard-bg').classList.remove('show');
-  if(currentUser) localStorage.setItem('rf_onboarded_'+currentUser.email,'1');
 }
 
 // ===== FAQ =====
