@@ -334,8 +334,8 @@ html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Int
 .tbtn:hover{background:var(--card2);color:var(--txt)}
 
 /* APP VIEWS */
-.app-view{display:none}
-.app-view.on{display:block}
+.app-view{display:none;overflow:visible}
+.app-view.on{display:block;overflow:visible}
 
 /* DASHBOARD */
 .dash{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 54px);padding:40px 20px;text-align:center}
@@ -443,6 +443,11 @@ textarea::placeholder{color:var(--muted2)}
 .fi-auto{font-size:9px;color:var(--muted2)}
 .fi-rm{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;flex-shrink:0;transition:color .15s;padding:0 4px}
 .fi-rm:hover{color:var(--red)}
+.fi-thumb{cursor:pointer;position:relative;overflow:hidden}
+.fi-thumb video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
+.fi-thumb.loaded video{opacity:1}
+.fi-badge{cursor:pointer;user-select:none;transition:all .15s}
+.fi-badge:hover{opacity:.8;transform:scale(1.05)}
 .add-files-btn{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:10px;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:8px}
 .add-files-btn:hover{background:var(--card);color:var(--txt)}
 .process-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:50px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:20px;box-shadow:0 0 30px var(--gold-glow);transition:all .2s}
@@ -450,8 +455,8 @@ textarea::placeholder{color:var(--muted2)}
 
 /* LIVE PREVIEW */
 .editor-shell-2col{display:grid;grid-template-columns:1fr 280px;gap:24px;max-width:960px;margin:0 auto;padding:28px 20px 100px;align-items:start}
-.editor-controls{min-width:0}
-.preview-panel{position:sticky;top:80px}
+.editor-controls{min-width:0;padding-right:8px}
+.preview-panel{position:fixed;top:70px;right:calc((100vw - 960px)/2 + 20px);width:280px;z-index:40}
 .preview-panel-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;text-align:center}
 .phone-frame{width:100%;aspect-ratio:9/16;max-height:520px;border-radius:24px;overflow:hidden;position:relative;background:#111;border:2px solid var(--border2);box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .phone-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1c1c1c 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center;overflow:hidden}.phone-bg video,.phone-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.85}
@@ -643,6 +648,57 @@ input[type=file]{display:none}
 .size-row{display:flex;align-items:center;gap:8px;margin-top:12px}
 .size-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 14px;cursor:pointer;color:var(--muted);transition:all .2s;font-family:'Inter',sans-serif;font-weight:700}
 .size-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
+/* PRODUCT GRID CARDS */
+.prod-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s,transform .2s;cursor:default}
+.prod-card:hover{border-color:rgba(201,168,76,.25);transform:translateY(-2px)}
+.prod-card-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--card2);display:block}
+.prod-card-img-placeholder{width:100%;aspect-ratio:1;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:48px}
+.prod-card-body{padding:12px}
+.prod-card-name{font-size:14px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-card-link{font-size:11px;color:var(--gold);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-bottom:10px}
+.prod-card-link:hover{opacity:.8}
+.prod-card-actions{display:flex;gap:6px}
+.prod-card-use-btn{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:7px;padding:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.prod-card-use-btn:hover{opacity:.9}
+.prod-card-del-btn{background:rgba(224,61,82,.08);border:1px solid rgba(224,61,82,.2);color:var(--red);border-radius:7px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.prod-card-del-btn:hover{background:rgba(224,61,82,.15)}
+.prod-empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)}
+.prod-empty-icon{font-size:48px;margin-bottom:12px}
+.prod-empty-title{font-size:16px;font-weight:600;margin-bottom:6px}
+.prod-empty-sub{font-size:13px;color:var(--muted2)}
+
+/* PRODUCT LIBRARY */
+.prod-lib-wrap{position:relative;width:100%}
+.prod-lib-input-row{display:flex;align-items:center;gap:6px}
+.prod-lib-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border .15s}
+.prod-lib-input:focus{border-color:rgba(201,168,76,.4)}
+.prod-lib-input::placeholder{color:var(--muted2)}
+.prod-lib-add-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:7px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all .2s}
+.prod-lib-add-btn:hover{opacity:.9}
+.prod-lib-add-btn:disabled{opacity:.5;cursor:not-allowed}
+.prod-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border2);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:200;margin-top:4px;max-height:280px;overflow:hidden;display:none}
+.prod-dropdown.show{display:block}
+.prod-search{padding:10px;border-bottom:1px solid var(--border)}
+.prod-search-inp{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--txt);font-size:12px;font-family:'Inter',sans-serif;outline:none}
+.prod-search-inp::placeholder{color:var(--muted2)}
+.prod-list{max-height:210px;overflow-y:auto}
+.prod-list::-webkit-scrollbar{width:3px}
+.prod-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.prod-item{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
+.prod-item:last-child{border-bottom:none}
+.prod-item:hover{background:var(--card2)}
+.prod-item-img{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--card2);border:1px solid var(--border)}
+.prod-item-img-placeholder{width:40px;height:40px;border-radius:6px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.prod-item-info{flex:1;min-width:0}
+.prod-item-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-item-link{font-size:10px;color:var(--gold);cursor:pointer;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.prod-item-link:hover{opacity:.8}
+.prod-item-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0}
+.prod-item-del:hover{color:var(--red)}
+.prod-empty{padding:20px;text-align:center;font-size:12px;color:var(--muted2)}
+.prod-fetching{padding:14px;text-align:center;font-size:12px;color:var(--muted);display:none}
+.prod-fetching.show{display:block}
+.fi-product-inp{cursor:pointer}
 .fi-product-inp{width:100%;background:none;border:none;border-top:1px solid var(--border);outline:none;color:var(--muted);font-size:10px;font-family:'Inter',sans-serif;padding:3px 0;margin-top:3px;}
 .fi-product-inp::placeholder{color:var(--muted2)}
 .fi-product-inp:focus{color:var(--txt)}
@@ -1097,7 +1153,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
           <label>Password</label>
           <input class="auth-input" type="password" id="login-pw" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/>
         </div>
-        <div class="auth-forgot"><a onclick="toast('Password reset coming soon.')">Forgot password?</a></div>
+        <div class="auth-forgot"><a onclick="showForgot()">Forgot password?</a></div>
         <button class="auth-btn" onclick="doLogin()">Sign in</button>
         <div class="terms-note">By signing in you agree to our <a>Terms of Service</a> and <a>Privacy Policy</a>.</div>
       </div>
@@ -1141,6 +1197,59 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
   </div>
 </div>
 
+<!-- ======= FORGOT PASSWORD ======= -->
+<div class="view" id="view-forgot">
+  <div class="auth-page">
+    <div class="auth-back" onclick="showLogin()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
+      Back to login
+    </div>
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="auth-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+        <span class="auth-logo-name">Royal<span>Forge</span></span>
+      </div>
+
+      <!-- STEP 1: Enter email -->
+      <div class="auth-card" id="forgot-step-1">
+        <div class="auth-title">Reset <em>password</em></div>
+        <div class="auth-sub">Enter your email and we'll send you a 6-digit code.</div>
+        <div class="auth-error" id="forgot-error-1"></div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" type="email" id="forgot-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')sendResetCode()"/>
+        </div>
+        <button class="auth-btn" onclick="sendResetCode()">Send reset code</button>
+      </div>
+
+      <!-- STEP 2: Enter code + new password -->
+      <div class="auth-card" id="forgot-step-2" style="display:none">
+        <div class="auth-title">Enter <em>code</em></div>
+        <div class="auth-sub" id="forgot-step-2-sub">We sent a 6-digit code to your email.</div>
+        <div class="auth-error" id="forgot-error-2"></div>
+        <div class="auth-success" id="forgot-success-2"></div>
+        <div class="auth-field">
+          <label>6-digit code</label>
+          <input class="auth-input" type="text" id="forgot-code" placeholder="000000" maxlength="6" style="letter-spacing:8px;font-size:20px;font-weight:700;text-align:center"/>
+        </div>
+        <div class="auth-field">
+          <label>New password</label>
+          <input class="auth-input" type="password" id="forgot-newpw" placeholder="New password (min 6 chars)"/>
+        </div>
+        <div class="auth-field">
+          <label>Confirm password</label>
+          <input class="auth-input" type="password" id="forgot-confirmpw" placeholder="Confirm new password" onkeydown="if(event.key==='Enter')verifyResetCode()"/>
+        </div>
+        <button class="auth-btn" onclick="verifyResetCode()">Reset password</button>
+        <div class="auth-forgot" style="text-align:center;margin-top:12px">
+          <a onclick="sendResetCode(true)">Resend code</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ======= APP ======= -->
 <div class="view" id="view-app">
 
@@ -1154,6 +1263,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       <span class="pro-pill" onclick="showUpgrade()" style="cursor:pointer">Upgrade</span>
       <span class="tcount" id="vid-count">0 videos today</span>
       <button class="tbtn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
+      <button class="tbtn" onclick="showAppProducts()">Products</button>
       <button class="tbtn" onclick="showAppSettings()">Settings</button>
       <button class="tbtn" onclick="doLogout()">Log out</button>
     </div>
@@ -1382,10 +1492,60 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
         oninput="onPosSlider(this.value)"/>
     </div>
     <div class="preview-hint">Updates as you edit. Tap cycle to see different variants.</div>
-      <button class="preview-cycle-btn" onclick="cyclePreview()">Cycle variants</button>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="preview-cycle-btn" style="flex:1" onclick="previewNav(-1)">&#8592; Prev</button>
+        <button class="preview-cycle-btn" style="flex:1;background:var(--card2)" onclick="cyclePreview()">Cycle</button>
+        <button class="preview-cycle-btn" style="flex:1" onclick="previewNav(1)">Next &#8594;</button>
+      </div>
+      <div id="preview-file-label" style="font-size:10px;color:var(--muted2);text-align:center;margin-top:6px"></div>
     </div>
 
   </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="app-view" id="app-products">
+  <div class="settings-view" style="max-width:960px;margin:0 auto;padding:28px 24px 100px">
+    <div class="set-back" onclick="showAppDash()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>Back
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div class="set-title" style="margin-bottom:0">Product Library</div>
+      <button class="start-btn" style="padding:10px 24px;font-size:13px;border-radius:10px;box-shadow:none" onclick="showAddProductModal()">+ Add Product</button>
+    </div>
+
+    <!-- Search bar -->
+    <div style="position:relative;margin-bottom:20px">
+      <input class="set-inp" id="prod-page-search" placeholder="Search products..." oninput="renderProductPage(this.value)" style="padding-left:36px"/>
+      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px">&#128269;</span>
+    </div>
+
+    <!-- Product grid -->
+    <div id="prod-page-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
+  </div>
+  </div>
+
+  <!-- ADD PRODUCT MODAL -->
+  <div class="upgrade-bg" id="add-prod-modal">
+    <div class="upgrade-box" style="max-width:480px">
+      <div class="upgrade-title">Add Product</div>
+      <div class="upgrade-sub">Paste a TikTok Shop product link</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input class="set-inp" id="prod-modal-inp" placeholder="https://www.tiktok.com/shop/pdp/..." oninput="prodModalInput(this.value)" style="font-size:13px"/>
+        <div class="prod-fetching" id="prod-modal-fetching" style="text-align:center;font-size:12px;color:var(--muted);display:none">Fetching product info...</div>
+        <div id="prod-modal-preview" style="display:none;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px">
+          <img id="prod-modal-img" style="width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid var(--border)" src=""/>
+          <div style="flex:1;min-width:0">
+            <div id="prod-modal-name" style="font-size:14px;font-weight:700;margin-bottom:4px"></div>
+            <input class="set-inp" id="prod-modal-edit-name" style="font-size:12px;padding:5px 8px" placeholder="Edit name..."/>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="pc-btn" id="prod-modal-save-btn" onclick="saveProductFromModal()" disabled style="flex:1">Save Product</button>
+          <button class="pc-btn-ghost" onclick="closeAddProductModal()" style="flex:1">Cancel</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- SETTINGS -->
@@ -1452,7 +1612,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.67 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.68 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1525,7 +1685,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.67';
+const CURRENT_VERSION = '1.0.68';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -1976,25 +2136,147 @@ function renderFiles(){ clearTimeout(_renderTimer); _renderTimer = setTimeout(_d
 function _doRenderFiles(){ updatePreviewBg();
   const el=document.getElementById('file-list');
   if(!el) return;
-  el.innerHTML=files.map((f,i)=>`
-    <div class="file-item ${f.funnel==='bof'?'is-bof':'is-mof'}" draggable="true" ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})" ondrop="dragDrop(event,${i})" ondragend="dragEnd(event)" style="cursor:grab">
-      <div class="file-item-top"><div class="fi-left">
-        <div class="fi-thumb" id="fth-${i}">&#127909;</div>
-        <div class="fi-info">
-          <div class="fi-name">${esc(f.file.name)}</div>
-          <div class="fi-meta">
-            <span class="fi-badge ${f.funnel==='bof'?'fi-bof':'fi-mof'}">${f.funnel==='bof'?'BOF':'MOF'}</span>
-            <span class="fi-dur">${fmtD(f.duration)}</span>
-            <span class="fi-auto">${f.duration!==null?'auto':'reading...'}</span>
-          </div>
-        </div>
-      </div>
-      <button class="fi-rm" onclick="removeFile(${i})">&#215;</button></div></div>
-    <input class="fi-product-inp" type="text" value="${esc(f.productName||'')}" placeholder="Product name (optional, e.g. Crocs)" id="fi-pn-${i}" oninput="if(files[${i}])files[${i}].productName=this.value"/>`).join('');
-  // Thumbnails disabled — video elements cause OOM crash on large batches
+  el.innerHTML = files.map(function(f,i) {
+    var isBof = f.funnel === 'bof';
+    var itemClass = 'file-item ' + (isBof ? 'is-bof' : 'is-mof');
+    var badgeClass = 'fi-badge ' + (isBof ? 'fi-bof' : 'fi-mof');
+    var badgeText = isBof ? 'BOF' : 'MOF';
+    var autoText = getFunnelLabel(f);
+    var pname = esc(f.productName || '');
+    return '<div class="' + itemClass + '" draggable="true" ondragstart="dragStart(event,' + i + ')" ondragover="dragOver(event,' + i + ')" ondrop="dragDrop(event,' + i + ')" ondragend="dragEnd(event)" style="cursor:grab">' +
+      '<div class="file-item-top"><div class="fi-left">' +
+      '<div class="fi-thumb" id="fth-' + i + '" data-idx="' + i + '">&#127909;</div>' +
+      '<div class="fi-info">' +
+      '<div class="fi-name">' + esc(f.file.name) + '</div>' +
+      '<div class="fi-meta">' +
+      '<span class="' + badgeClass + '" onclick="toggleFunnel(' + i + ')" title="Tap to toggle BOF/MOF">' + badgeText + '</span>' +
+      '<span class="fi-dur">' + fmtD(f.duration) + '</span>' +
+      '<span class="fi-auto">' + autoText + '</span>' +
+      '</div></div></div>' +
+      '<button class="fi-rm" onclick="removeFile(' + i + ')">&#215;</button></div></div>' +
+      '<div class="prod-lib-wrap" style="margin-top:4px">' +
+      '<input class="fi-product-inp prod-lib-input" type="text" readonly value="' + pname + '" placeholder="Tap to pick product..." id="fi-pn-' + i + '" onclick="openProdDropdown(' + i + ', this)" style="cursor:pointer;font-size:11px;padding:6px 10px"/>' +
+      '<div class="prod-dropdown" id="prod-dd-' + i + '">' +
+      '<div class="prod-search"><input class="prod-search-inp" placeholder="Search products..." oninput="filterProdDropdown(' + i + ', this.value)"/></div>' +
+      '<div class="prod-list" id="prod-dd-list-' + i + '"></div>' +
+      '</div>' +
+      '</div>';
+  }).join('');
+  // Lazy thumbnails — only load what's visible
+  setTimeout(_attachThumbObservers, 50);
 }
 
-// Read durations sequentially — one at a time to avoid memory overload
+// Toggle BOF/MOF manually
+function getFunnelLabel(f) {
+  if (f.duration === null) return 'reading...';
+  if (f._manualFunnel) return 'manual';
+  return 'auto';
+}
+
+function toggleFunnel(i) {
+  if (!files[i]) return;
+  files[i].funnel = files[i].funnel === 'bof' ? 'mof' : 'bof';
+  files[i]._manualFunnel = true;
+  // Update just the badge and file-item class — no full re-render
+  const isBof = files[i].funnel === 'bof';
+  const item = document.querySelector('.file-item:nth-child(' + (i+1) + ')');
+  const badge = document.getElementById('fth-' + i) && document.getElementById('fth-' + i).closest('.file-item');
+  // Find by file-item index
+  const allItems = document.querySelectorAll('.file-item');
+  if (allItems[i]) {
+    allItems[i].className = 'file-item ' + (isBof ? 'is-bof' : 'is-mof');
+    const b = allItems[i].querySelector('.fi-badge');
+    if (b) {
+      b.className = 'fi-badge ' + (isBof ? 'fi-bof' : 'fi-mof');
+      b.textContent = isBof ? 'BOF' : 'MOF';
+    }
+    const auto = allItems[i].querySelector('.fi-auto');
+    if (auto) auto.textContent = 'manual';
+  }
+  updateVidCounter();
+}
+
+// Static frame thumbnail loader - sequential, frame 0, one at a time
+let _thumbQueue = [];
+let _thumbRunning = false;
+
+function _grabThumb(thumb, src) {
+  return new Promise((resolve) => {
+    const vid = document.createElement('video');
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.preload = 'metadata';
+    let done = false;
+    const cleanup = () => {
+      if (done) return; done = true;
+      try { vid.src = ''; vid.load(); } catch(e) {}
+      resolve();
+    };
+    vid.onloadedmetadata = () => { vid.currentTime = 0; };
+    vid.onseeked = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const W = 120, H = 120;
+        canvas.width = W; canvas.height = H;
+        const ctx = canvas.getContext('2d');
+        // crop center square
+        const vw = vid.videoWidth, vh = vid.videoHeight;
+        const side = Math.min(vw, vh);
+        const sx = (vw - side) / 2, sy = (vh - side) / 2;
+        ctx.drawImage(vid, sx, sy, side, side, 0, 0, W, H);
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL('image/jpeg', 0.85);
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:5px';
+        thumb.innerHTML = '';
+        thumb.appendChild(img);
+        thumb.classList.add('loaded');
+        canvas.width = 0; canvas.height = 0;
+      } catch(e) {}
+      cleanup();
+    };
+    vid.onerror = cleanup;
+    setTimeout(cleanup, 2000);
+    vid.src = src;
+  });
+}
+
+async function _processThumbQueue() {
+  if (_thumbRunning) return;
+  _thumbRunning = true;
+  while (_thumbQueue.length > 0) {
+    const { thumb, src } = _thumbQueue.shift();
+    if (!thumb.classList.contains('loaded')) {
+      await _grabThumb(thumb, src);
+    }
+    await new Promise(r => setTimeout(r, 10));
+  }
+  _thumbRunning = false;
+}
+
+const _thumbObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const thumb = entry.target;
+    if (thumb.classList.contains('loaded') || thumb.dataset.queued) return;
+    const idx = parseInt(thumb.dataset.idx);
+    if (isNaN(idx) || !files[idx]) return;
+    const f = files[idx];
+    const src = f.file.path ? ('file:///' + f.file.path.split('\\').join('/')) : (f.file._blob ? URL.createObjectURL(f.file._blob) : null);
+    if (!src) return;
+    thumb.dataset.queued = '1';
+    _thumbQueue.push({ thumb, src });
+    _processThumbQueue();
+  });
+}, { threshold: 0.1 });
+
+function _attachThumbObservers() {
+  _thumbQueue = [];
+  _thumbRunning = false;
+  document.querySelectorAll('.fi-thumb[data-idx]').forEach(thumb => {
+    delete thumb.dataset.queued;
+    _thumbObserver.observe(thumb);
+  });
+}
 let _durationQueue = [];
 let _durationRunning = false;
 function _processDurationQueue(){
@@ -2013,6 +2295,12 @@ function _processDurationQueue(){
     if(idx!==-1){ files[idx].duration=v.duration||null; files[idx].funnel=autoFunnel(v.duration||null); }
     try{ v.src=''; v.load(); }catch(e){}
     _durationRunning = false;
+    // Sort: MOFs first, then BOFs
+    files.sort(function(a, b) {
+      if (a.funnel === 'mof' && b.funnel !== 'mof') return -1;
+      if (a.funnel !== 'mof' && b.funnel === 'mof') return 1;
+      return 0;
+    });
     renderFiles(); updateVidCounter();
     setTimeout(_processDurationQueue, 50); // small gap between reads
   };
@@ -2208,6 +2496,7 @@ function showApp(){
   renderBannerList('top');
   renderBannerList('bot');
   renderHooks();
+  renderProductLibrary();
   showAppDash();
   setTimeout(showOnboarding, 600);
 }
@@ -2658,7 +2947,7 @@ function showPreviewVideo(bg, idx) {
   vid.autoplay = true;
   vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.85;transition:opacity .5s';
   if (f.file.path) {
-    vid.src = 'file:///' + f.file.path.replace(/\\/g, '/');
+    vid.src = 'file:///' + f.file.path.split('\\').join('/');
   } else if (f.file._blob) {
     vid.src = URL.createObjectURL(f.file._blob);
   }
@@ -2765,6 +3054,22 @@ function cyclePreview(){
   const emojiEl = document.getElementById('prev-emoji');
   if(emojiEl) emojiEl.innerHTML = PREVIEW_EMOJIS[previewEmojiIdx];
   updatePreview();
+}
+
+function previewNav(dir) {
+  if (!files.length) return;
+  previewVideoIdx = (previewVideoIdx + dir + files.length) % files.length;
+  const bg = document.querySelector('.phone-bg');
+  if (bg) showPreviewVideo(bg, previewVideoIdx);
+  const lbl = document.getElementById('preview-file-label');
+  if (lbl) {
+    var f = files[previewVideoIdx];
+    var name = f ? f.file.name : '';
+    var funnel = f ? f.funnel.toUpperCase() : '';
+    var product = f && f.productName ? ' · ' + f.productName : '';
+    lbl.textContent = (previewVideoIdx + 1) + ' / ' + files.length + ' · ' + funnel + product;
+    lbl.style.color = f && f.funnel === 'mof' ? '#a78bfa' : 'var(--red)';
+  }
 }
 
 // ===== ONBOARDING =====
@@ -3036,6 +3341,365 @@ if (window.electronAPI && window.electronAPI.onUpdateDownloaded) {
       bar.textContent = '✅ Update ready — click to install & restart';
     }
   });
+}
+
+// ===== PRODUCT LIBRARY =====
+let productLibrary = JSON.parse(localStorage.getItem('rf_products') || '[]');
+
+function saveProductLibrary() {
+  localStorage.setItem('rf_products', JSON.stringify(productLibrary));
+}
+
+function showAppProducts() {
+  document.querySelectorAll('.app-view').forEach(v => v.classList.remove('on'));
+  document.getElementById('app-products').classList.add('on');
+  renderProductPage('');
+}
+
+function renderProductPage(filter) {
+  const grid = document.getElementById('prod-page-grid');
+  if (!grid) return;
+  const filtered = filter ? productLibrary.filter(p => p.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1) : productLibrary;
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="prod-empty-state"><div class="prod-empty-icon">&#128717;</div><div class="prod-empty-title">' + (filter ? 'No products match' : 'No products yet') + '</div><div class="prod-empty-sub">' + (filter ? 'Try a different search' : 'Click + Add Product to get started') + '</div></div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < filtered.length; i++) {
+    var p = filtered[i];
+    var realIdx = productLibrary.indexOf(p);
+    var imgHtml = p.image ? '<img class="prod-card-img" src="' + p.image + '">' : '<div class="prod-card-img-placeholder">&#128717;</div>';
+    html += '<div class="prod-card">' +
+      imgHtml +
+      '<div class="prod-card-body">' +
+      '<div class="prod-card-name" data-ridx="' + realIdx + '" onclick="startRenameProduct(this,parseInt(this.dataset.ridx))" title="Click to rename" style="cursor:text">' + esc(p.name) + '</div>' +
+      '<span class="prod-card-link" data-ridx="' + realIdx + '" onclick="openProductLink(productLibrary[parseInt(this.dataset.ridx)].url)">' + p.url.substring(0, 32) + '...</span>' +
+      '<div class="prod-card-actions">' +
+      '<button class="prod-card-use-btn" data-ridx="' + realIdx + '" onclick="copyProductName(this)">Copy name</button>' +
+      '<button class="prod-card-del-btn" data-ridx="' + realIdx + '" onclick="deleteProdAndRefresh(parseInt(this.dataset.ridx))">Delete</button>' +
+      '</div></div></div>';
+  }
+  grid.innerHTML = html;
+}
+
+function copyProductName(btn) {
+  var idx = parseInt(btn.dataset.ridx);
+  var p = productLibrary[idx];
+  if (!p) return;
+  try { navigator.clipboard.writeText(p.name); } catch(e) {}
+  btn.textContent = 'Copied!';
+  setTimeout(function() { btn.textContent = 'Copy name'; }, 1500);
+}
+
+function startRenameProduct(el, idx) {
+  var p = productLibrary[idx];
+  if (!p) return;
+  var inp = document.createElement('input');
+  inp.value = p.name;
+  inp.style.cssText = 'width:100%;background:var(--card2);border:1px solid rgba(201,168,76,.4);border-radius:5px;padding:3px 7px;color:var(--txt);font-size:14px;font-weight:700;font-family:Inter,sans-serif;outline:none';
+  el.replaceWith(inp);
+  inp.focus();
+  inp.select();
+  function save() {
+    var newName = inp.value.trim();
+    if (newName && newName !== p.name) {
+      productLibrary[idx].name = newName;
+      saveProductLibrary();
+      toast('Renamed to ' + newName);
+    }
+    var search = document.getElementById('prod-page-search');
+    renderProductPage(search ? search.value : '');
+  }
+  inp.onblur = save;
+  inp.onkeydown = function(e) {
+    if (e.key === 'Enter') { inp.blur(); }
+    if (e.key === 'Escape') { inp.onblur = null; var search = document.getElementById('prod-page-search'); renderProductPage(search ? search.value : ''); }
+  };
+}
+
+// Add product modal
+function showAddProductModal() {
+  document.getElementById('add-prod-modal').classList.add('show');
+  document.getElementById('prod-modal-inp').value = '';
+  document.getElementById('prod-modal-preview').style.display = 'none';
+  document.getElementById('prod-modal-fetching').style.display = 'none';
+  document.getElementById('prod-modal-save-btn').disabled = true;
+  setTimeout(() => document.getElementById('prod-modal-inp').focus(), 50);
+}
+
+function closeAddProductModal() {
+  document.getElementById('add-prod-modal').classList.remove('show');
+}
+
+let _modalProduct = null;
+
+function prodModalInput(val) {
+  const btn = document.getElementById('prod-modal-save-btn');
+  if (val && (val.includes('tiktok.com') || val.includes('tiktokshop'))) {
+    if (btn) btn.disabled = false;
+  } else {
+    if (btn) btn.disabled = true;
+    document.getElementById('prod-modal-preview').style.display = 'none';
+    _modalProduct = null;
+  }
+}
+
+async function fetchProductPreview() {
+  const inp = document.getElementById('prod-modal-inp');
+  const url = inp ? inp.value.trim() : '';
+  if (!url) return;
+  const fetching = document.getElementById('prod-modal-fetching');
+  const preview = document.getElementById('prod-modal-preview');
+  if (fetching) fetching.style.display = 'block';
+  if (preview) preview.style.display = 'none';
+
+  let name = '', image = '';
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' } });
+    const html = await res.text();
+    const ogTitle = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i);
+    const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    if (ogTitle) name = ogTitle[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
+    else if (titleTag) name = titleTag[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
+    const ogImg = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i);
+    if (ogImg) image = ogImg[1];
+  } catch(e) { console.log('Fetch error:', e.message); }
+
+  if (!name) {
+    const parts = url.split('/').filter(Boolean);
+    name = parts[parts.length-1].replace(/[-_]/g, ' ') || 'Product';
+  }
+  const shortName = shortenProductName(name);
+  _modalProduct = { id: Date.now(), name: shortName, fullName: name, image, url };
+
+  if (fetching) fetching.style.display = 'none';
+  if (preview) {
+    preview.style.display = 'flex';
+    const img = document.getElementById('prod-modal-img');
+    const nameEl = document.getElementById('prod-modal-name');
+    const editName = document.getElementById('prod-modal-edit-name');
+    if (img) { img.src = image || ''; img.style.display = image ? '' : 'none'; }
+    if (nameEl) nameEl.textContent = shortName;
+    if (editName) editName.value = shortName;
+  }
+  const btn = document.getElementById('prod-modal-save-btn');
+  if (btn) btn.disabled = false;
+}
+
+function saveProductFromModal() {
+  const editName = document.getElementById('prod-modal-edit-name');
+  if (!_modalProduct) return;
+  if (editName && editName.value.trim()) _modalProduct.name = editName.value.trim();
+  productLibrary.unshift(_modalProduct);
+  saveProductLibrary();
+  closeAddProductModal();
+  renderProductPage('');
+  toast('Product saved: ' + _modalProduct.name);
+  _modalProduct = null;
+}
+
+function shortenProductName(name) {
+  var stopWords = ['for','with','and','the','in','of','to','a','an','set','pack','pcs','piece','pieces','pair','pairs','new','2024','2025','2026'];
+  var words = name.replace(/[^a-zA-Z0-9\s]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 1; });
+  var filtered = words.filter(function(w) { return stopWords.indexOf(w.toLowerCase()) === -1; });
+  return (filtered.slice(0, 4).join(' ') || name.split(' ').slice(0, 3).join(' ')).trim();
+}
+
+function prodLinkInput(val) {}
+
+function renderProductLibrary() {}
+
+function openProductLink(url) {
+  if (window.electronAPI && window.electronAPI.openExternal) window.electronAPI.openExternal(url);
+  else window.open(url, '_blank');
+}
+
+function deleteProduct(i) {
+  productLibrary.splice(i, 1);
+  saveProductLibrary();
+}
+
+function deleteProdAndRefresh(i) {
+  deleteProduct(i);
+  var search = document.getElementById('prod-page-search');
+  renderProductPage(search ? search.value : '');
+}
+
+// Auto-fetch when user pastes a valid URL
+document.addEventListener('paste', function(e) {
+  const active = document.activeElement;
+  if (active && active.id === 'prod-modal-inp') {
+    setTimeout(function() {
+      const val = active.value.trim();
+      if (val && (val.includes('tiktok.com') || val.includes('tiktokshop'))) {
+        fetchProductPreview();
+      }
+    }, 50);
+  }
+});
+function openProdDropdown(fileIdx, inputEl) {
+  document.querySelectorAll('.prod-dropdown.show').forEach(function(d) { d.classList.remove('show'); });
+  var dd = document.getElementById('prod-dd-' + fileIdx);
+  if (!dd) return;
+  renderProdDropdownList(fileIdx, '');
+  dd.classList.add('show');
+  var search = dd.querySelector('.prod-search-inp');
+  if (search) setTimeout(function() { search.focus(); }, 50);
+  setTimeout(function() {
+    document.addEventListener('click', function closeDd(e) {
+      if (!dd.contains(e.target) && e.target !== inputEl) {
+        dd.classList.remove('show');
+        document.removeEventListener('click', closeDd);
+      }
+    });
+  }, 10);
+}
+
+function renderProdDropdownList(fileIdx, filter) {
+  var listEl = document.getElementById('prod-dd-list-' + fileIdx);
+  if (!listEl) return;
+  var filtered = productLibrary.filter(function(p) { return !filter || p.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1; });
+  if (!filtered.length) {
+    listEl.innerHTML = '<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted2)">No products yet. Go to Products tab to add some.</div>';
+    return;
+  }
+  window._ddFiltered = filtered;
+  var html = '';
+  for (var di = 0; di < filtered.length; di++) {
+    var p = filtered[di];
+    var img = p.image ? '<img src="' + p.image + '" style="width:32px;height:32px;border-radius:5px;object-fit:cover;flex-shrink:0">' : '<div style="width:32px;height:32px;border-radius:5px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">&#128717;</div>';
+    html += '<div class="prod-item" data-fidx="' + fileIdx + '" data-didx="' + di + '" onclick="selectProductFromDd(parseInt(this.dataset.fidx),parseInt(this.dataset.didx))" style="cursor:pointer">' +
+      img +
+      '<div style="flex:1;min-width:0;margin-left:8px">' +
+      '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(p.name) + '</div>' +
+      '</div></div>';
+  }
+  listEl.innerHTML = html;
+}
+
+function filterProdDropdown(fileIdx, val) {
+  renderProdDropdownList(fileIdx, val);
+}
+
+function selectProductFromDd(fileIdx, di) {
+  var p = window._ddFiltered && window._ddFiltered[di];
+  if (!p) return;
+  selectProduct(fileIdx, p.name);
+}
+
+function selectProduct(fileIdx, name) {
+  if (files[fileIdx]) files[fileIdx].productName = name;
+  var inp = document.getElementById('fi-pn-' + fileIdx);
+  if (inp) inp.value = name;
+  var dd = document.getElementById('prod-dd-' + fileIdx);
+  if (dd) dd.classList.remove('show');
+}
+
+const FORGOT_API = 'https://royalforge-api.netlify.app/.netlify/functions/forgot-password';
+
+function showForgot() {
+  showView('view-forgot');
+  document.getElementById('forgot-step-1').style.display = '';
+  document.getElementById('forgot-step-2').style.display = 'none';
+  var err1 = document.getElementById('forgot-error-1');
+  if (err1) { err1.textContent = ''; err1.classList.remove('show'); }
+  var inp = document.getElementById('forgot-email');
+  if (inp) inp.value = '';
+}
+
+async function sendResetCode(resend) {
+  var email = document.getElementById('forgot-email').value.trim().toLowerCase();
+  var err = document.getElementById('forgot-error-1');
+  if (err) { err.textContent = ''; err.classList.remove('show'); }
+
+  if (!email) {
+    if (err) { err.textContent = 'Enter your email first.'; err.classList.add('show'); }
+    return;
+  }
+
+  // Check if account exists locally
+  var acc = accounts.find(function(a) { return a.email === email; });
+  if (!acc) {
+    if (err) { err.textContent = 'No account found with this email.'; err.classList.add('show'); }
+    return;
+  }
+
+  var btn = document.querySelector('#forgot-step-1 .auth-btn');
+  if (btn) { btn.textContent = 'Sending...'; btn.disabled = true; }
+
+  try {
+    var res = await fetch(FORGOT_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'request', email })
+    });
+    var data = await res.json();
+    if (data.success) {
+      document.getElementById('forgot-step-1').style.display = 'none';
+      document.getElementById('forgot-step-2').style.display = '';
+      var sub = document.getElementById('forgot-step-2-sub');
+      if (sub) sub.textContent = 'We sent a 6-digit code to ' + email + '. Check your inbox.';
+      if (resend) toast('New code sent!');
+    } else {
+      if (err) { err.textContent = 'Failed to send email. Try again.'; err.classList.add('show'); }
+    }
+  } catch(e) {
+    if (err) { err.textContent = 'Connection error. Try again.'; err.classList.add('show'); }
+  }
+
+  if (btn) { btn.textContent = 'Send reset code'; btn.disabled = false; }
+}
+
+async function verifyResetCode() {
+  var email = document.getElementById('forgot-email').value.trim().toLowerCase();
+  var code = document.getElementById('forgot-code').value.trim();
+  var newpw = document.getElementById('forgot-newpw').value;
+  var confirmpw = document.getElementById('forgot-confirmpw').value;
+  var err = document.getElementById('forgot-error-2');
+  var suc = document.getElementById('forgot-success-2');
+  if (err) { err.textContent = ''; err.classList.remove('show'); }
+  if (suc) { suc.textContent = ''; suc.classList.remove('show'); }
+
+  if (!code || code.length !== 6) {
+    if (err) { err.textContent = 'Enter the 6-digit code from your email.'; err.classList.add('show'); }
+    return;
+  }
+  if (!newpw || newpw.length < 6) {
+    if (err) { err.textContent = 'Password must be at least 6 characters.'; err.classList.add('show'); }
+    return;
+  }
+  if (newpw !== confirmpw) {
+    if (err) { err.textContent = "Passwords don't match."; err.classList.add('show'); }
+    return;
+  }
+
+  var btn = document.querySelector('#forgot-step-2 .auth-btn');
+  if (btn) { btn.textContent = 'Verifying...'; btn.disabled = true; }
+
+  try {
+    var res = await fetch(FORGOT_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'verify', email, token: code })
+    });
+    var data = await res.json();
+    if (data.success) {
+      // Update password locally
+      var acc = accounts.find(function(a) { return a.email === email; });
+      if (acc) {
+        acc.pw = newpw;
+        localStorage.setItem('rf_accounts', JSON.stringify(accounts));
+      }
+      if (suc) { suc.textContent = 'Password reset! Taking you to login...'; suc.classList.add('show'); }
+      setTimeout(function() { showLogin(); }, 2000);
+    } else {
+      if (err) { err.textContent = 'Invalid or expired code. Try again.'; err.classList.add('show'); }
+    }
+  } catch(e) {
+    if (err) { err.textContent = 'Connection error. Try again.'; err.classList.add('show'); }
+  }
+
+  if (btn) { btn.textContent = 'Reset password'; btn.disabled = false; }
 }
 
 // ===== INIT =====
