@@ -8,14 +8,27 @@ const os = require('os')
 
 
 function getFFmpegPath() {
+  // Try ffmpeg-static first (works on Mac and Windows)
+  try {
+    const staticPath = require('ffmpeg-static')
+    if (staticPath && fs.existsSync(staticPath)) return staticPath
+  } catch(e) {}
+  // Try bundled Windows binary
   const bundledPath = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg.exe')
   if (fs.existsSync(bundledPath)) return bundledPath
+  // Try bundled Mac/Linux binary
+  const bundledMac = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg')
+  if (fs.existsSync(bundledMac)) return bundledMac
+  // System FFmpeg fallback
   const systemPath = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
   if (fs.existsSync(systemPath)) return systemPath
   return 'ffmpeg'
 }
 
 const FFMPEG = getFFmpegPath()
+
+// Ensure FFmpeg is executable on Mac
+try { fs.chmodSync(FFMPEG, 0o755) } catch(e) {}
 
 const FONTS = {
   classic:    'font.ttf',
