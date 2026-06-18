@@ -271,14 +271,11 @@ ipcMain.handle('open-folder', async (event, p) => { shell.openPath(p) })
 ipcMain.handle('open-external', async (event, url) => { shell.openExternal(url) })
 ipcMain.handle('get-home-dir', async () => os.homedir())
 
-// Fix GPU crash on Mac (black screen when adding videos)
+// Fix GPU crash on Mac M1 (black screen when adding videos)
 if (process.platform === 'darwin') {
-  app.commandLine.appendSwitch('disable-gpu')
   app.commandLine.appendSwitch('disable-gpu-memory-buffer-video-frames')
-  app.commandLine.appendSwitch('disable-accelerated-video-decode')
   app.commandLine.appendSwitch('disable-gpu-shader-disk-cache')
-  app.commandLine.appendSwitch('disable-software-rasterizer')
-  app.disableHardwareAcceleration()
+  app.commandLine.appendSwitch('ignore-gpu-blocklist')
 }
 
 app.whenReady().then(() => {
