@@ -181,7 +181,7 @@ ipcMain.handle('process-video', async (event, data) => {
         '-i', inputPath,
         '-i', overlayPngPath,
         '-filter_complex', filterComplex,
-        '-c:v', 'libx264', '-c:a', 'copy', '-preset', 'ultrafast', '-y', outputPath
+        '-c:v', 'libx264', '-c:a', 'copy', '-preset', 'ultrafast', '-crf', '18', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-y', outputPath
       ]
 
       try { fs.writeFileSync(path.join(__dirname, 'last_filter.txt'), 'PNG_OVERLAY: ' + filterComplex, 'utf8') } catch(e) {}
@@ -249,7 +249,7 @@ function processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofS
     FC_CONFIG_DIR: path.join(__dirname, 'fonts')
   })
 
-  const args = ['-i', inputPath, '-filter_script:v', filterFile, '-c:v', 'libx264', '-c:a', 'copy', '-preset', 'ultrafast', '-y', outputPath]
+  const args = ['-i', inputPath, '-filter_script:v', filterFile, '-c:v', 'libx264', '-c:a', 'copy', '-preset', 'ultrafast', '-crf', '18', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-y', outputPath]
 
   execFile(FFMPEG, args, { maxBuffer: 1024 * 1024 * 200, env }, (err, stdout, stderr) => {
     try { fs.unlinkSync(filterFile) } catch(e) {}
