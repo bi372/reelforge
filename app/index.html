@@ -1700,7 +1700,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.73 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.74 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1798,7 +1798,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.73';
+const CURRENT_VERSION = '1.0.74';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2320,41 +2320,49 @@ let _thumbRunning = false;
 
 function _grabThumb(thumb, src) {
   return new Promise((resolve) => {
-    const vid = document.createElement('video');
+    var vid = document.createElement('video');
     vid.muted = true;
     vid.playsInline = true;
     vid.preload = 'metadata';
-    let done = false;
-    const cleanup = () => {
+    // Limit decode size on Mac to prevent memory spike
+    vid.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none';
+    document.body.appendChild(vid);
+    var done = false;
+    var cleanup = function() {
       if (done) return; done = true;
-      try { vid.src = ''; vid.load(); } catch(e) {}
+      try { vid.pause(); vid.src = ''; vid.load(); document.body.removeChild(vid); } catch(e) {}
+      vid = null;
       resolve();
     };
-    vid.onloadedmetadata = () => { vid.currentTime = 0; };
-    vid.onseeked = () => {
+    vid.onloadedmetadata = function() {
+      try { vid.currentTime = 0.1; } catch(e) { cleanup(); }
+    };
+    vid.onseeked = function() {
       try {
-        const canvas = document.createElement('canvas');
-        const W = 120, H = 120;
+        // Use small canvas — no need for high res thumbnail
+        var canvas = document.createElement('canvas');
+        var W = 80, H = 80;
         canvas.width = W; canvas.height = H;
-        const ctx = canvas.getContext('2d');
-        // crop center square
-        const vw = vid.videoWidth, vh = vid.videoHeight;
-        const side = Math.min(vw, vh);
-        const sx = (vw - side) / 2, sy = (vh - side) / 2;
+        var ctx = canvas.getContext('2d', { willReadFrequently: false });
+        var vw = vid.videoWidth || 1, vh = vid.videoHeight || 1;
+        var side = Math.min(vw, vh);
+        var sx = (vw - side) / 2, sy = (vh - side) / 2;
         ctx.drawImage(vid, sx, sy, side, side, 0, 0, W, H);
-        const img = document.createElement('img');
-        img.src = canvas.toDataURL('image/jpeg', 0.85);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        canvas.width = 0; canvas.height = 0;
+        canvas = null;
+        var img = document.createElement('img');
+        img.src = dataUrl;
         img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:5px';
         thumb.innerHTML = '';
         thumb.appendChild(img);
         thumb.classList.add('loaded');
-        canvas.width = 0; canvas.height = 0;
       } catch(e) {}
       cleanup();
     };
     vid.onerror = cleanup;
-    setTimeout(cleanup, 6000); // 6s timeout for large 4K files
-    vid.src = src;
+    setTimeout(cleanup, 8000);
+    try { vid.src = src; } catch(e) { cleanup(); }
   });
 }
 
@@ -2366,7 +2374,7 @@ async function _processThumbQueue() {
     if (!thumb.classList.contains('loaded')) {
       await _grabThumb(thumb, src);
     }
-    await new Promise(r => setTimeout(r, 150)); // bigger gap for Mac 4K files
+    await new Promise(r => setTimeout(r, 300)); // bigger gap for Mac 4K files
   }
   _thumbRunning = false;
 }
