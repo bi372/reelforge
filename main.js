@@ -36,7 +36,9 @@ function getFontPath(fontKey) {
   const rel = FONTS[fontKey] || FONTS.classic
   const resourceFont = path.join(process.resourcesPath || __dirname, rel)
   const localFont = path.join(__dirname, rel)
-  const fontFile = fs.existsSync(resourceFont) ? resourceFont : localFont
+  // Also check app/fonts/ subfolder for Mac compatibility
+  const appFont = path.join(__dirname, 'app', rel)
+  const fontFile = fs.existsSync(resourceFont) ? resourceFont : fs.existsSync(localFont) ? localFont : appFont
   return fontFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
 }
 
