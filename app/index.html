@@ -1700,7 +1700,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.81 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.82 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1798,7 +1798,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.81';
+const CURRENT_VERSION = '1.0.82';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -1989,7 +1989,8 @@ async function captureOverlayPNG(uid, isFulltextParam, funnel) {
   if (isFulltextMode) {
     // Fulltext: draw each hook line with its background
     const hbs = getBgForIdx(hookBgIdx, hookColor || '#ffffff');
-    const fontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.75); // matches main.js videoFontSize
+    const _capFontSize = (funnel === 'mof') ? mofFontSize : bofFontSize;
+    const fontSize = Math.round(_capFontSize * VIDEO_SCALE * 0.75); // matches main.js videoFontSize
     const lineHeight = Math.round(fontSize * 0.88 + 44);
     const maxWidth = Math.round(VIDEO_W * 0.62);
 
