@@ -1525,13 +1525,26 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
   <button id="preview-play-btn" onclick="togglePreviewPlay()" style="display:none;position:absolute;bottom:28px;right:10px;background:rgba(0,0,0,.7);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer;z-index:20;backdrop-filter:blur(4px);font-family:Inter,sans-serif">&#9654;</button>
       </div>
       <div style="margin-top:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <span style="font-size:10px;color:var(--muted2)">Text position</span>
-        <span style="font-size:10px;color:var(--gold)" id="pos-pct-label">12%</span>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--muted2)">BOF position</span>
+            <span style="font-size:10px;color:var(--gold)" id="pos-pct-label-bof">12%</span>
+          </div>
+          <input type="range" id="pos-slider-bof" min="3" max="90" value="12"
+            style="width:100%;accent-color:var(--gold);cursor:pointer"
+            oninput="onPosSliderBof(this.value)"/>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--muted2)">MOF position</span>
+            <span style="font-size:10px;color:var(--gold)" id="pos-pct-label-mof">12%</span>
+          </div>
+          <input type="range" id="pos-slider-mof" min="3" max="90" value="12"
+            style="width:100%;accent-color:var(--gold);cursor:pointer"
+            oninput="onPosSliderMof(this.value)"/>
+        </div>
       </div>
-      <input type="range" id="pos-slider" min="3" max="15" value="12" 
-        style="width:100%;accent-color:var(--gold);cursor:pointer"
-        oninput="onPosSlider(this.value)"/>
     </div>
     <div class="preview-hint">Updates as you edit. Tap cycle to see different variants.</div>
       <div style="display:flex;gap:6px;margin-top:6px">
@@ -1654,7 +1667,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.71 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.72 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1745,7 +1758,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.71';
+const CURRENT_VERSION = '1.0.72';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -1875,7 +1888,7 @@ function syncBotInput(idx, val) {
   }
 }
 
-async function captureOverlayPNG(uid, isFulltextParam) {
+async function captureOverlayPNG(uid, isFulltextParam, funnel) {
   const el = document.getElementById('phone-overlay-content');
   if (!el || !el.children.length) return null;
 
@@ -1891,7 +1904,8 @@ async function captureOverlayPNG(uid, isFulltextParam) {
   const frameH = phoneFrame ? phoneFrame.offsetHeight : 480;
   const elRect = el.getBoundingClientRect();
   const frameRect = phoneFrame ? phoneFrame.getBoundingClientRect() : {top:0};
-  let currentY = Math.round((textYPercent / 100) * VIDEO_H);
+  var _capYPct = (funnel === 'mof') ? mofTextYPercent : bofTextYPercent;
+  let currentY = Math.round((_capYPct / 100) * VIDEO_H);
 
   const canvas = document.createElement('canvas');
   canvas.width = VIDEO_W;
@@ -2410,11 +2424,36 @@ if ((window.electronAPI && window.electronAPI.platform) !== 'darwin') loadNotoFo
 
 let selectedFont = 'classic';
 let textYPercent = 12;
+let bofTextYPercent = 12;
+let mofTextYPercent = 12;
+
+function _getPreviewYPercent() {
+  var f = files[previewVideoIdx];
+  var funnel = f ? f.funnel : 'bof';
+  return funnel === 'mof' ? mofTextYPercent : bofTextYPercent;
+}
+
+function onPosSliderBof(v) {
+  bofTextYPercent = parseFloat(v);
+  var lbl = document.getElementById('pos-pct-label-bof');
+  if (lbl) lbl.textContent = Math.round(bofTextYPercent) + '%';
+  saveSettings();
+  updatePreview();
+}
+
+function onPosSliderMof(v) {
+  mofTextYPercent = parseFloat(v);
+  var lbl = document.getElementById('pos-pct-label-mof');
+  if (lbl) lbl.textContent = Math.round(mofTextYPercent) + '%';
+  saveSettings();
+  updatePreview();
+}
 
 function onPosSlider(val) {
   textYPercent = parseFloat(val);
   const el = document.getElementById('phone-overlay-content');
-  if (el) el.style.top = textYPercent + '%';
+  var _yPct = _getPreviewYPercent ? _getPreviewYPercent() : textYPercent;
+  if (el) el.style.top = _yPct + '%';
   const lbl = document.getElementById('pos-pct-label');
   if (lbl) lbl.textContent = Math.round(textYPercent) + '%';
   saveSettings();
@@ -2890,7 +2929,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
         const ftEl = overlayEl.querySelector('.phone-fulltext');
         if (ftEl) ftEl.textContent = topText;
       }
-      overlayPngPath = await captureOverlayPNG(uid || Date.now(), isFulltext);
+      overlayPngPath = await captureOverlayPNG(uid || Date.now(), isFulltext, fileItem.funnel);
     } catch(e) { console.log('PNG capture failed:', e); }
     // Restore overlay DOM
     if (overlayEl && savedOverlayHTML) overlayEl.innerHTML = savedOverlayHTML;
@@ -2913,9 +2952,9 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     try{
       if((api||ipcRenderer) && inputPath){
         if(api){
-          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath, fadeEndOverlay});
+          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent: fileItem.funnel === 'bof' ? bofTextYPercent : mofTextYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath, fadeEndOverlay});
         } else {
-          await ipcRenderer.invoke('process-video',{inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath});
+          await ipcRenderer.invoke('process-video',{inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent: fileItem.funnel === 'bof' ? bofTextYPercent : mofTextYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath});
         }
       } else {
         console.log('Skipped — no api or path. Path was:', inputPath, 'api:', !!api, 'ipc:', !!ipcRenderer);
@@ -3130,7 +3169,9 @@ function togglePreviewPlay() {
 function updatePreview(){
   const el = document.getElementById('phone-overlay-content');
   if(!el) return;
-  // Position is controlled by drag
+  // Set position based on current preview clip funnel
+  var _previewFunnel = (files.length && files[previewVideoIdx]) ? files[previewVideoIdx].funnel : 'bof';
+  el.style.top = (_previewFunnel === 'mof' ? mofTextYPercent : bofTextYPercent) + '%';
 
   const activeTop = topChips.filter(c=>c.on);
   const activeBot = botChips.filter(c=>c.on);
@@ -3626,7 +3667,7 @@ function saveSettings(){
   const batchPrefix = document.getElementById('batch-prefix') ? document.getElementById('batch-prefix').value : '';
   localStorage.setItem('rf_settings', JSON.stringify({
     selectedFont, selectedFontSize, topColor, botColor, hookColor,
-    topBgIdx, botBgIdx, ovStyle, textYPercent, batchPrefix,
+    topBgIdx, botBgIdx, ovStyle, textYPercent, bofTextYPercent, mofTextYPercent, batchPrefix,
     strikeOn,
     fadeEndOverlay,
     strikeOrig: (document.getElementById('si-orig')||{}).value||'FULL PRICE',
@@ -3647,7 +3688,9 @@ function loadSettings(){
     if(s.topBgIdx!==undefined){ topBgIdx=s.topBgIdx; }
     if(s.botBgIdx!==undefined){ botBgIdx=s.botBgIdx; }
     if(s.ovStyle){ ovStyle=s.ovStyle; }
-    if(s.textYPercent !== undefined){ textYPercent=s.textYPercent; const el=document.getElementById('phone-overlay-content'); if(el) el.style.top=textYPercent+'%'; const sl=document.getElementById('pos-slider'); if(sl) sl.value=textYPercent; }
+    if(s.bofTextYPercent !== undefined){ bofTextYPercent=s.bofTextYPercent; var sb=document.getElementById('pos-slider-bof'); if(sb) sb.value=bofTextYPercent; var lb=document.getElementById('pos-pct-label-bof'); if(lb) lb.textContent=Math.round(bofTextYPercent)+'%'; }
+    if(s.mofTextYPercent !== undefined){ mofTextYPercent=s.mofTextYPercent; var sm=document.getElementById('pos-slider-mof'); if(sm) sm.value=mofTextYPercent; var lm=document.getElementById('pos-pct-label-mof'); if(lm) lm.textContent=Math.round(mofTextYPercent)+'%'; }
+    if(s.textYPercent !== undefined){ textYPercent=s.textYPercent; const el=document.getElementById('phone-overlay-content'); if(el) el.style.top=_getPreviewYPercent()+'%'; }
     if(s.batchPrefix){ const bp=document.getElementById('batch-prefix'); if(bp) bp.value=s.batchPrefix; }
     if(s.fadeEndOverlay !== undefined){ fadeEndOverlay=s.fadeEndOverlay; var ftog=document.getElementById('fade-end-tog'); if(ftog) ftog.className='togbox'+(fadeEndOverlay?' on':''); }
     if(s.strikeOn){ strikeOn=s.strikeOn; document.getElementById('stog').className='togbox'+(strikeOn?' on':''); document.getElementById('strike-inputs').className='strike-inputs'+(strikeOn?' show':''); }
@@ -4268,7 +4311,7 @@ function loadPreset(id) {
   var sl = document.getElementById('pos-slider');
   if (sl) { sl.value = textYPercent; document.getElementById('pos-pct-label').textContent = Math.round(textYPercent) + '%'; }
   var overlayEl = document.getElementById('phone-overlay-content');
-  if (overlayEl) overlayEl.style.top = textYPercent + '%';
+  if (overlayEl) overlayEl.style.top = _getPreviewYPercent() + '%';
 
   updatePreview();
   saveSettings();
