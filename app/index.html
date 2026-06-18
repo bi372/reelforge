@@ -1403,7 +1403,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div></div>
       <div class="size-row">
         <span style="font-size:11px;color:var(--muted)">A</span>
-        <input type="range" id="font-size-slider" min="24" max="48" value="52"
+        <input type="range" id="font-size-slider" min="24" max="80" value="52"
           oninput="onFontSizeSlider(parseInt(this.value))"
           style="flex:1;accent-color:var(--gold);cursor:pointer"/>
         <span style="font-size:20px;color:var(--muted)">A</span>
@@ -1483,7 +1483,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       <div class="item-list" id="hook-list"></div>
       <button class="add-item-btn" onclick="addHookItem()" style="margin-top:5px">+ Add hook</button>
       <div class="row-lbl" style="margin-top:14px">Custom lines <span class="info-dot">i</span></div>
-      <textarea id="custom-lines" placeholder="Type your hook here...&#10;Use [product] where you want the product name. E.g. price of the [product] dropped so HARD"></textarea>
+      <textarea id="custom-lines" placeholder="Type your hook here...&#10;Use [product] for product name and [company] for brand name. E.g. price of the [product] dropped so HARD"></textarea>
       <button class="add-to-list-btn" onclick="addCustomToList()">Add to list</button>
     </div>
 
@@ -1700,7 +1700,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.82 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.84 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1798,7 +1798,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.82';
+const CURRENT_VERSION = '1.0.84';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -1938,6 +1938,7 @@ async function captureOverlayPNG(uid, isFulltextParam, funnel) {
   const VIDEO_W = 2160;
   const VIDEO_H = 3840;
   const VIDEO_SCALE = 5;
+  const _capFontSize = (funnel === 'mof') ? mofFontSize : bofFontSize;
   const BOX_BORDER = 22;
 
   // Read actual Y from preview element so position matches preview exactly
@@ -2070,8 +2071,8 @@ async function captureOverlayPNG(uid, isFulltextParam, funnel) {
       if (child.classList.contains('phone-strike')) {
         const origEl = child.querySelector('.phone-strike-orig');
         const discEl = child.querySelector('.phone-strike-disc');
-        const origFontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.85);
-        const discFontSize = Math.round(selectedFontSize * VIDEO_SCALE * 0.82);
+        const origFontSize = Math.round(_capFontSize * VIDEO_SCALE * 0.85);
+        const discFontSize = Math.round(_capFontSize * VIDEO_SCALE * 0.82);
 
         if (origEl) {
           const origText = origEl.textContent.trim();
@@ -2129,8 +2130,8 @@ async function captureOverlayPNG(uid, isFulltextParam, funnel) {
       const text = child.textContent || '';
       const isBot = ci === 1;
       const fontSize = isBot
-        ? Math.round(selectedFontSize * VIDEO_SCALE * 0.78)
-        : Math.round(selectedFontSize * VIDEO_SCALE);
+        ? Math.round(_capFontSize * VIDEO_SCALE * 0.78)
+        : Math.round(_capFontSize * VIDEO_SCALE);
 
       let fontSize2 = fontSize;
       ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', ' + EMOJI_FONT;
@@ -2813,11 +2814,14 @@ function setHookColorCustom(c){hookColor=c;document.querySelectorAll('#hook-colo
 
 // ===== NATIVE FILE PICKER =====
 
-function injectProductName(text, product) {
-  if (!product || !product.trim()) return text;
-  var p = product.trim();
-  // Replace [product] placeholder wherever user put it
-  var result = text.replace(/\[product\]/gi, p);
+function injectProductName(text, product, company) {
+  var result = text;
+  if (product && product.trim()) {
+    result = result.replace(/\[product\]/gi, product.trim());
+  }
+  if (company && company.trim()) {
+    result = result.replace(/\[company\]/gi, company.trim());
+  }
   return result;
 }
 
@@ -2942,7 +2946,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     let isStrikeVideo = false;
 
     if(ovStyle==='fulltext'){
-      if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName); console.log('fulltext hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
+      if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName, fileItem.companyName); console.log('fulltext hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
     } else if(ovStyle==='banner'){
       // Banner BOF: 50/50 between strike and banner chips when both active
       const hasBannerChips = activeTop.length > 0 || activeBot.length > 0;
@@ -2958,7 +2962,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     } else {
       // mix - BOF gets banner, MOF gets fulltext hook
       if(fileItem.funnel === 'mof') {
-        if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName); console.log('mix MOF hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
+        if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName, fileItem.companyName); console.log('mix MOF hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
 
       } else {
         // BOF: 50/50 between strike and banner when both active
@@ -3370,6 +3374,7 @@ function previewNav(dir) {
   if (sl) sl.value = _navSize;
   var slLbl = document.getElementById('font-size-val');
   if (slLbl) slLbl.textContent = _navSize;
+  updatePreview();
 }
 
 // ===== INTERACTIVE TOUR =====
@@ -3764,7 +3769,7 @@ function loadSettings(){
   try {
     const s = JSON.parse(localStorage.getItem('rf_settings')||'{}');
     if(s.selectedFont){ selectedFont=s.selectedFont; }
-    if(s.selectedFontSize){ selectedFontSize=s.selectedFontSize; const sl=document.getElementById('font-size-slider'); if(sl){sl.value=selectedFontSize; document.getElementById('font-size-val').textContent=selectedFontSize;} }
+    if(s.selectedFontSize){ selectedFontSize=s.selectedFontSize; }
     if(s.topColor){ topColor=s.topColor; document.getElementById('top-color-wheel').value=topColor; }
     if(s.botColor){ botColor=s.botColor; document.getElementById('bot-color-wheel').value=botColor; }
     if(s.hookColor){ hookColor=s.hookColor; document.getElementById('hook-color-wheel').value=hookColor; }
@@ -3772,6 +3777,14 @@ function loadSettings(){
     if(s.botBgIdx!==undefined){ botBgIdx=s.botBgIdx; }
     if(s.ovStyle){ ovStyle=s.ovStyle; }
     if(s.bofFontSize !== undefined){ bofFontSize=s.bofFontSize; mofFontSize=s.mofFontSize||s.bofFontSize; }
+    // Sync slider to correct funnel's font size now that bof/mof are loaded
+    var _loadF = files[previewVideoIdx];
+    var _loadFunnel = _loadF ? _loadF.funnel : 'bof';
+    selectedFontSize = _loadFunnel === 'mof' ? mofFontSize : bofFontSize;
+    var _loadSl = document.getElementById('font-size-slider');
+    if (_loadSl) _loadSl.value = selectedFontSize;
+    var _loadSlLbl = document.getElementById('font-size-val');
+    if (_loadSlLbl) _loadSlLbl.textContent = selectedFontSize;
     if(s.bofTextYPercent !== undefined){ bofTextYPercent=s.bofTextYPercent; var sb=document.getElementById('pos-slider-bof'); if(sb) sb.value=bofTextYPercent; var lb=document.getElementById('pos-pct-label-bof'); if(lb) lb.textContent=Math.round(bofTextYPercent)+'%'; }
     if(s.mofTextYPercent !== undefined){ mofTextYPercent=s.mofTextYPercent; var sm=document.getElementById('pos-slider-mof'); if(sm) sm.value=mofTextYPercent; var lm=document.getElementById('pos-pct-label-mof'); if(lm) lm.textContent=Math.round(mofTextYPercent)+'%'; }
     if(s.textYPercent !== undefined){ textYPercent=s.textYPercent; const el=document.getElementById('phone-overlay-content'); if(el) el.style.top=_getPreviewYPercent()+'%'; }
@@ -3965,6 +3978,7 @@ function renderProductPage(filter) {
       imgHtml +
       '<div class="prod-card-body">' +
       '<div class="prod-card-name" data-ridx="' + realIdx + '" onclick="startRenameProduct(this,parseInt(this.dataset.ridx))" title="Click to rename" style="cursor:text">' + esc(p.name) + '</div>' +
+      '<input class="prod-card-company-inp" data-ridx="' + realIdx + '" value="' + esc(p.company || '') + '" placeholder="Company / brand name" oninput="updateProductCompany(parseInt(this.dataset.ridx), this.value)" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--txt);margin-top:4px;font-family:Inter,sans-serif" />' +
       '<span class="prod-card-link" data-ridx="' + realIdx + '" onclick="openProductLink(productLibrary[parseInt(this.dataset.ridx)].url)">' + p.url.substring(0, 32) + '...</span>' +
       '<div class="prod-card-actions">' +
       '<button class="prod-card-use-btn" data-ridx="' + realIdx + '" onclick="copyProductName(this)">Copy name</button>' +
@@ -3972,6 +3986,13 @@ function renderProductPage(filter) {
       '</div></div></div>';
   }
   grid.innerHTML = html;
+}
+
+function updateProductCompany(idx, value) {
+  if (productLibrary[idx]) {
+    productLibrary[idx].company = value;
+    saveProductLibrary();
+  }
 }
 
 function copyProductName(btn) {
@@ -4184,7 +4205,12 @@ function selectProductFromDd(fileIdx, di) {
 }
 
 function selectProduct(fileIdx, name) {
-  if (files[fileIdx]) files[fileIdx].productName = name;
+  if (files[fileIdx]) {
+    files[fileIdx].productName = name;
+    // Find matching product in library to grab its company name
+    var match = productLibrary.find(function(p) { return p.name === name; });
+    files[fileIdx].companyName = match ? (match.company || '') : '';
+  }
   var inp = document.getElementById('fi-pn-' + fileIdx);
   if (inp) inp.value = name;
   var dd = document.getElementById('prod-dd-' + fileIdx);
