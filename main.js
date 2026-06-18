@@ -271,12 +271,30 @@ ipcMain.handle('open-folder', async (event, p) => { shell.openPath(p) })
 ipcMain.handle('open-external', async (event, url) => { shell.openExternal(url) })
 ipcMain.handle('get-home-dir', async () => os.homedir())
 
-// Fix GPU crash on Mac M1 (black screen when adding videos)
-if (process.platform === 'darwin') {
-  app.commandLine.appendSwitch('disable-gpu-memory-buffer-video-frames')
-  app.commandLine.appendSwitch('disable-gpu-shader-disk-cache')
-  app.commandLine.appendSwitch('ignore-gpu-blocklist')
-}
+// Native video thumbnail capture for Mac (avoids GPU crash)
+ipcMain.handle('capture-thumb', async (event, videoPath) => {
+  if (process.platform !== 'darwin') return null
+  try {
+    const { execFileSync } = require('child_process')
+    const outPath = path.join(os.tmpdir(), 'rf_thumb_' + Date.now() + '.jpg')
+    const ffmpegPath = FFMPEG
+    execFileSync(ffmpegPath, [
+      '-ss', '0.1',
+      '-i', videoPath,
+      '-vframes', '1',
+      '-vf', 'scale=80:80:force_original_aspect_ratio=increase,crop=80:80',
+      '-q:v', '5',
+      '-y', outPath
+    ], { timeout: 8000 })
+    const data = fs.readFileSync(outPath)
+    try { fs.unlinkSync(outPath) } catch(e) {}
+    return 'data:image/jpeg;base64,' + data.toString('base64')
+  } catch(e) {
+    return null
+  }
+})
+
+
 
 app.whenReady().then(() => {
   createWindow()
