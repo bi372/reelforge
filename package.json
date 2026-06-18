@@ -1,6 +1,6 @@
 {
   "name": "royalforge",
-  "version": "1.0.79",
+  "version": "1.0.80",
   "description": "Batch edit TikTok Shop videos",
   "main": "main.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "author": "RoyalForge",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^24.0.0",
+    "electron": "^28.0.0",
     "electron-builder": "^26.8.1"
   },
   "build": {
