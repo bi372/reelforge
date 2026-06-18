@@ -1404,7 +1404,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       <div class="size-row">
         <span style="font-size:11px;color:var(--muted)">A</span>
         <input type="range" id="font-size-slider" min="24" max="48" value="52"
-          oninput="selectedFontSize=parseInt(this.value);document.getElementById('font-size-val').textContent=this.value;saveSettings();updatePreview();"
+          oninput="onFontSizeSlider(parseInt(this.value))"
           style="flex:1;accent-color:var(--gold);cursor:pointer"/>
         <span style="font-size:20px;color:var(--muted)">A</span>
         <span id="font-size-val" style="font-size:11px;color:var(--gold);min-width:24px;text-align:right">52</span>
@@ -1700,7 +1700,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.79 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.80 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1798,7 +1798,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.79';
+const CURRENT_VERSION = '1.0.80';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2484,6 +2484,19 @@ function _getPreviewYPercent() {
   return funnel === 'mof' ? mofTextYPercent : bofTextYPercent;
 }
 
+function onFontSizeSlider(v) {
+  selectedFontSize = v;
+  // Save per funnel
+  var f = files[previewVideoIdx];
+  var funnel = f ? f.funnel : 'bof';
+  if (funnel === 'mof') mofFontSize = v;
+  else bofFontSize = v;
+  var lbl = document.getElementById('font-size-val');
+  if (lbl) lbl.textContent = v;
+  saveSettings();
+  updatePreview();
+}
+
 function onPosSliderBof(v) {
   bofTextYPercent = parseFloat(v);
   var lbl = document.getElementById('pos-pct-label-bof');
@@ -2553,6 +2566,8 @@ function getBgStyle(color){
   return {box:color,textColor:'#fff',textShadow:'none'};
 }
 let selectedFontSize = 52;
+let bofFontSize = 52;
+let mofFontSize = 52;
 function setFont(key,el){selectedFont=key;document.querySelectorAll('.font-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');saveSettings();updatePreview();}
 
 let strikeOn = false;
@@ -3004,9 +3019,9 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     try{
       if((api||ipcRenderer) && inputPath){
         if(api){
-          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent: fileItem.funnel === 'bof' ? bofTextYPercent : mofTextYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath, fadeEndOverlay});
+          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: fileItem.funnel === 'mof' ? mofFontSize : bofFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent: fileItem.funnel === 'bof' ? bofTextYPercent : mofTextYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath, fadeEndOverlay});
         } else {
-          await ipcRenderer.invoke('process-video',{inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent: fileItem.funnel === 'bof' ? bofTextYPercent : mofTextYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath});
+          await ipcRenderer.invoke('process-video',{inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: fileItem.funnel === 'mof' ? mofFontSize : bofFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent: fileItem.funnel === 'bof' ? bofTextYPercent : mofTextYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath});
         }
       } else {
         console.log('Skipped — no api or path. Path was:', inputPath, 'api:', !!api, 'ipc:', !!ipcRenderer);
@@ -3252,7 +3267,9 @@ const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
   const videoScale = 4;
   const _pf = document.querySelector('.phone-frame');
   const _pfw = _pf ? _pf.offsetWidth : 270;
-  const previewFontSize = Math.max(8, Math.round(selectedFontSize * videoScale * _pfw / 2160));
+  var _previewFunnel2 = (files.length && files[previewVideoIdx]) ? files[previewVideoIdx].funnel : 'bof';
+  var _activeFontSize = _previewFunnel2 === 'mof' ? mofFontSize : bofFontSize;
+  const previewFontSize = Math.max(8, Math.round(_activeFontSize * videoScale * _pfw / 2160));
   let html = '';
 
   if(ovStyle === 'fulltext'){
@@ -3343,6 +3360,15 @@ function previewNav(dir) {
     lbl.textContent = (previewVideoIdx + 1) + ' / ' + files.length + ' · ' + funnel + product;
     lbl.style.color = f && f.funnel === 'mof' ? '#a78bfa' : 'var(--red)';
   }
+  // Update size slider to show correct value for this clip's funnel
+  var _navF = files[previewVideoIdx];
+  var _navFunnel = _navF ? _navF.funnel : 'bof';
+  var _navSize = _navFunnel === 'mof' ? mofFontSize : bofFontSize;
+  selectedFontSize = _navSize;
+  var sl = document.getElementById('font-size-slider');
+  if (sl) sl.value = _navSize;
+  var slLbl = document.getElementById('font-size-val');
+  if (slLbl) slLbl.textContent = _navSize;
 }
 
 // ===== INTERACTIVE TOUR =====
@@ -3723,7 +3749,7 @@ function saveSettings(){
   const batchPrefix = document.getElementById('batch-prefix') ? document.getElementById('batch-prefix').value : '';
   localStorage.setItem('rf_settings', JSON.stringify({
     selectedFont, selectedFontSize, topColor, botColor, hookColor,
-    topBgIdx, botBgIdx, ovStyle, textYPercent, bofTextYPercent, mofTextYPercent, batchPrefix,
+    topBgIdx, botBgIdx, ovStyle, textYPercent, bofTextYPercent, mofTextYPercent, bofFontSize, mofFontSize, batchPrefix,
     strikeOn,
     fadeEndOverlay,
     strikeOrig: (document.getElementById('si-orig')||{}).value||'FULL PRICE',
@@ -3744,6 +3770,7 @@ function loadSettings(){
     if(s.topBgIdx!==undefined){ topBgIdx=s.topBgIdx; }
     if(s.botBgIdx!==undefined){ botBgIdx=s.botBgIdx; }
     if(s.ovStyle){ ovStyle=s.ovStyle; }
+    if(s.bofFontSize !== undefined){ bofFontSize=s.bofFontSize; mofFontSize=s.mofFontSize||s.bofFontSize; }
     if(s.bofTextYPercent !== undefined){ bofTextYPercent=s.bofTextYPercent; var sb=document.getElementById('pos-slider-bof'); if(sb) sb.value=bofTextYPercent; var lb=document.getElementById('pos-pct-label-bof'); if(lb) lb.textContent=Math.round(bofTextYPercent)+'%'; }
     if(s.mofTextYPercent !== undefined){ mofTextYPercent=s.mofTextYPercent; var sm=document.getElementById('pos-slider-mof'); if(sm) sm.value=mofTextYPercent; var lm=document.getElementById('pos-pct-label-mof'); if(lm) lm.textContent=Math.round(mofTextYPercent)+'%'; }
     if(s.textYPercent !== undefined){ textYPercent=s.textYPercent; const el=document.getElementById('phone-overlay-content'); if(el) el.style.top=_getPreviewYPercent()+'%'; }
