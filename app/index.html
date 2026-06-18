@@ -670,6 +670,14 @@ input[type=file]{display:none}
 .size-row{display:flex;align-items:center;gap:8px;margin-top:12px}
 .size-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 14px;cursor:pointer;color:var(--muted);transition:all .2s;font-family:'Inter',sans-serif;font-weight:700}
 .size-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
+/* PRESETS */
+.preset-bar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.preset-chip{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;transition:all .2s;font-family:Inter,sans-serif;color:var(--muted)}
+.preset-chip:hover{border-color:var(--gold);color:var(--gold)}
+.preset-chip-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:13px;line-height:1;padding:0;margin-left:2px}
+.preset-chip-del:hover{color:var(--red)}
+.preset-save-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:1px dashed var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s;font-family:Inter,sans-serif}
+.preset-save-btn:hover{border-color:var(--gold);color:var(--gold)}
 /* PRODUCT GRID CARDS */
 .prod-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s,transform .2s;cursor:default}
 .prod-card:hover{border-color:rgba(201,168,76,.25);transform:translateY(-2px)}
@@ -1362,6 +1370,15 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
     
 
+    <!-- PRESETS BAR -->
+    <div class="sec" style="padding:14px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="sec-label" style="margin-bottom:0">Presets <span class="info-dot">i</span></div>
+        <button class="preset-save-btn" onclick="showSavePresetModal()" style="border-style:solid;border-color:rgba(201,168,76,.4);color:var(--gold)">+ Save preset</button>
+      </div>
+      <div class="preset-bar" id="preset-bar"></div>
+    </div>
+
     <div class="sec">
       <div class="sec-label">Font &amp; Size <span class="info-dot">i</span></div>
       <div class="font-picker-wrap"><div class="font-picker-row" id="font-picker-row">
@@ -1460,7 +1477,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       <div class="item-list" id="hook-list"></div>
       <button class="add-item-btn" onclick="addHookItem()" style="margin-top:5px">+ Add hook</button>
       <div class="row-lbl" style="margin-top:14px">Custom lines <span class="info-dot">i</span></div>
-      <textarea id="custom-lines" placeholder="Type your hook here...&#10;Another line..."></textarea>
+      <textarea id="custom-lines" placeholder="Type your hook here...&#10;Use [product] where you want the product name. E.g. price of the [product] dropped so HARD"></textarea>
       <button class="add-to-list-btn" onclick="addCustomToList()">Add to list</button>
     </div>
 
@@ -1492,6 +1509,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       <input id="batch-prefix" class="set-inp" placeholder='Output prefix (e.g. "sale_")' style="flex:1;padding:10px 14px;font-size:13px" oninput="saveSettings()"/>
     </div>
     <button class="process-btn" onclick="processBatch()" style="margin-top:8px">Process batch</button>
+    <div class="strike-tog" onclick="toggleFadeEnd()" style="margin-top:10px"><div class="togbox" id="fade-end-tog"></div><span class="strike-label">Fade overlay out 1s before end &mdash; end cover mode</span></div>
     </div>
 
     <!-- RIGHT: LIVE PREVIEW -->
@@ -1636,13 +1654,26 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.69 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.70 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
   </div>
 
 </div><!-- /app -->
+
+<!-- PRESET NAME MODAL -->
+<div class="upgrade-bg" id="preset-modal">
+  <div class="upgrade-box" style="max-width:380px;padding:28px">
+    <div class="upgrade-title" style="font-size:20px;margin-bottom:6px">Save preset</div>
+    <div class="upgrade-sub" style="margin-bottom:16px">Give this setup a name so you can load it later.</div>
+    <input class="set-inp" id="preset-modal-inp" placeholder="e.g. BOF Red Setup, MOF Gold..." style="font-size:14px;margin-bottom:16px" onkeydown="if(event.key==='Enter')confirmSavePreset()"/>
+    <div style="display:flex;gap:8px">
+      <button class="pc-btn" onclick="confirmSavePreset()" style="flex:1">Save</button>
+      <button class="pc-btn-ghost" onclick="closeSavePresetModal()" style="flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- UPGRADE MODAL -->
 <div class="upgrade-bg" id="upgrade-bg">
@@ -1714,7 +1745,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.69';
+const CURRENT_VERSION = '1.0.70';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2184,7 +2215,10 @@ function _doRenderFiles(){ updatePreviewBg();
       '</div></div></div>' +
       '<button class="fi-rm" onclick="removeFile(' + i + ')">&#215;</button></div></div>' +
       '<div class="prod-lib-wrap" style="margin-top:4px">' +
-      '<input class="fi-product-inp prod-lib-input" type="text" readonly value="' + pname + '" placeholder="Tap to pick product..." id="fi-pn-' + i + '" onclick="openProdDropdown(' + i + ', this)" style="cursor:pointer;font-size:11px;padding:6px 10px"/>' +
+      '<div style="display:flex;align-items:center;gap:4px">' +
+      '<input class="fi-product-inp prod-lib-input" type="text" readonly value="' + pname + '" placeholder="Tap to pick product..." id="fi-pn-' + i + '" onclick="openProdDropdown(' + i + ', this)" style="cursor:pointer;font-size:11px;padding:6px 10px;flex:1"/>' +
+      (pname ? '<button onclick="clearProductName(' + i + ')" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;padding:0 4px;flex-shrink:0;line-height:1" title="Clear product">&#215;</button>' : '') +
+      '</div>' +
       '<div class="prod-dropdown" id="prod-dd-' + i + '">' +
       '<div class="prod-search"><input class="prod-search-inp" placeholder="Search products..." oninput="filterProdDropdown(' + i + ', this.value)"/></div>' +
       '<div class="prod-list" id="prod-dd-list-' + i + '"></div>' +
@@ -2432,6 +2466,7 @@ let selectedFontSize = 52;
 function setFont(key,el){selectedFont=key;document.querySelectorAll('.font-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');saveSettings();updatePreview();}
 
 let strikeOn = false;
+let fadeEndOverlay = false;
 let topColor = '#e03d52';
 let botColor = '#ffffff';
 let hookColor = '#ffffff';
@@ -2455,13 +2490,13 @@ let botChips = [
   {label:'LIMITED 🛒 LEFT',on:true}
 ];
 let hooks = [
-  {text:'If you waited until today you absolutely won because this is dirt cheap rn with free shipping',on:true},
-  {text:'Ur card won\'t decline on this... it\'s violently discounted rn \uD83D\uDE3F\uD83D\uDE00',on:false},
-  {text:'TikTok bullied the price down and now this is on a massive sale \uD83D\uDE2D',on:false},
-  {text:'Someone f*cked up at TikTok cus this just went on a massive discount \uD83D\uDEA8',on:false},
-  {text:'Anyone else grabbing a boatload of this today since it\'s a fraction of the price? \uD83D\uDC40',on:false},
-  {text:'Wait for it... you\'ll want to see this before you scroll \uD83D\uDE33',on:false},
-  {text:'Give me 7 seconds before you decide anything \u23F3',on:false}
+  {text:'If you waited until today to get these [product] you absolutely won because this is dirt cheap rn with free shipping',on:true},
+  {text:'Ur card won\'t decline on these [product]... it\'s violently discounted rn \uD83D\uDE3F\uD83D\uDE00',on:false},
+  {text:'TikTok bullied the price down on these [product] and now it\'s on a massive sale \uD83D\uDE2D',on:false},
+  {text:'Someone f*cked up at TikTok cus these [product] just went on a massive discount \uD83D\uDEA8',on:false},
+  {text:'Anyone else grabbing a boatload of these [product] today since it\'s a fraction of the price? \uD83D\uDC40',on:false},
+  {text:'Wait for it... you\'ll want to see these [product] before you scroll \uD83D\uDE33',on:false},
+  {text:'Give me 7 seconds before you decide anything about these [product] \u23F3',on:false}
 ];
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
@@ -2533,7 +2568,7 @@ function showAppDash(){document.querySelectorAll('.app-view').forEach(v=>v.class
 function showAppEditor(){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
   document.getElementById('app-editor').classList.add('on');
-  setTimeout(()=>{loadSettings();updatePreview();},50);
+  setTimeout(()=>{loadSettings();renderPresets();document.fonts.ready.then(()=>{updatePreview();});},50);
 }
 function showAppSettings(){
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
@@ -2611,10 +2646,10 @@ function renderBannerList(type){
   const el=document.getElementById(type==='top'?'top-list':'bot-list');
   el.innerHTML=items.map((it,i)=>`
     <div class="item-row ${it.on?'on':''}">
-      <div class="item-chk ${it.on?'on':''}" onclick="${type==='top'?'top':'bot'}Chips[${i}].on=!${type==='top'?'top':'bot'}Chips[${i}].on;renderBannerList('${type}');updatePreview()"></div>
+      <div class="item-chk ${it.on?'on':''}" onclick="${type==='top'?'top':'bot'}Chips[${i}].on=!${type==='top'?'top':'bot'}Chips[${i}].on;renderBannerList('${type}');updatePreview();saveSettings()"></div>
       ${type==='top'?`<input type="color" class="item-col" value="${it.color||'#e03d52'}" id="bc-${i}" onchange="topChips[${i}].color=this.value;updatePreview()"/>`:'' }
       <input class="item-inp" type="text" value="${esc(it.label)}" placeholder="Enter text..." id="bi-${type}-${i}"/>
-      <button class="item-del" onclick="${type==='top'?'top':'bot'}Chips.splice(${i},1);renderBannerList('${type}');updatePreview()">&#215;</button>
+      <button class="item-del" onclick="${type==='top'?'top':'bot'}Chips.splice(${i},1);renderBannerList('${type}');updatePreview();saveSettings()">&#215;</button>
     </div>`).join('');
   items.forEach((_,i)=>{const inp=document.getElementById('bi-'+type+'-'+i);if(inp)inp.oninput=()=>{ (type==='top'?topChips:botChips)[i].label=inp.value; updatePreview(); saveSettings(); };});
 }
@@ -2627,9 +2662,9 @@ function renderHooks(){
   const el=document.getElementById('hook-list');
   el.innerHTML=hooks.map((h,i)=>`
     <div class="item-row ${h.on?'on':''}">
-      <div class="item-chk ${h.on?'on':''}" onclick="hooks[${i}].on=!hooks[${i}].on;renderHooks()"></div>
+      <div class="item-chk ${h.on?'on':''}" onclick="hooks[${i}].on=!hooks[${i}].on;renderHooks();saveSettings()"></div>
       <input class="item-inp" type="text" value="${esc(h.text)}" placeholder="Hook text..." id="hi-${i}"/>
-      <button class="item-del" onclick="hooks.splice(${i},1);renderHooks()">&#215;</button>
+      <button class="item-del" onclick="hooks.splice(${i},1);renderHooks();saveSettings()">&#215;</button>
     </div>`).join('');
   hooks.forEach((_,i)=>{const inp=document.getElementById('hi-'+i);if(inp)inp.oninput=()=>{hooks[i].text=inp.value; saveSettings(); updatePreview();};});
 }
@@ -2646,6 +2681,12 @@ function addCustomToList(){
   ta.value='';renderHooks();
   toast('Added '+lines.length+' line'+(lines.length!==1?'s':'')+' to your hooks.');
 }
+function toggleFadeEnd(){
+  fadeEndOverlay = !fadeEndOverlay;
+  document.getElementById('fade-end-tog').className = 'togbox' + (fadeEndOverlay ? ' on' : '');
+  saveSettings();
+}
+
 function toggleStrike(){
   strikeOn=!strikeOn;
   document.getElementById('stog').className='togbox'+(strikeOn?' on':'');
@@ -2667,17 +2708,13 @@ function setHookColorCustom(c){hookColor=c;document.querySelectorAll('#hook-colo
 
 function injectProductName(text, product) {
   if (!product || !product.trim()) return text;
-  const p = product.trim();
-  return text
-    .replace('today you absolutely won because this is dirt cheap', 'today to get these ' + p + ' you absolutely won because this is dirt cheap')
-    .replace("won't decline on this", "won't decline on these " + p)
-    .replace('the price down and now this is on', 'the price down on these ' + p + " and now it's on")
-    .replace('cus this just went on', 'cus these ' + p + ' just went on')
-    .replace('of this today since', 'of these ' + p + ' today since')
-    .replace("you'll want to see this before", "you'll want to see these " + p + " before")
-    .replace('decide anything ⏳', 'decide anything about these ' + p + ' ⏳')
-    .replace('decide anything', 'decide anything about these ' + p);
+  var p = product.trim();
+  // Replace [product] placeholder wherever user put it
+  var result = text.replace(/\[product\]/gi, p);
+  return result;
 }
+
+
 async function processBatch(){
   if(!files.length){toast('Add at least one video first.');return;}
   if(!checkPlanLimit(files.length)){showUpgrade();return;}
@@ -2876,7 +2913,7 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     try{
       if((api||ipcRenderer) && inputPath){
         if(api){
-          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath});
+          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath, fadeEndOverlay});
         } else {
           await ipcRenderer.invoke('process-video',{inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: selectedFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath});
         }
@@ -3591,6 +3628,7 @@ function saveSettings(){
     selectedFont, selectedFontSize, topColor, botColor, hookColor,
     topBgIdx, botBgIdx, ovStyle, textYPercent, batchPrefix,
     strikeOn,
+    fadeEndOverlay,
     strikeOrig: (document.getElementById('si-orig')||{}).value||'FULL PRICE',
     strikeDisc: (document.getElementById('si-disc')||{}).value||'50% OFF'
   }));
@@ -3611,6 +3649,7 @@ function loadSettings(){
     if(s.ovStyle){ ovStyle=s.ovStyle; }
     if(s.textYPercent !== undefined){ textYPercent=s.textYPercent; const el=document.getElementById('phone-overlay-content'); if(el) el.style.top=textYPercent+'%'; const sl=document.getElementById('pos-slider'); if(sl) sl.value=textYPercent; }
     if(s.batchPrefix){ const bp=document.getElementById('batch-prefix'); if(bp) bp.value=s.batchPrefix; }
+    if(s.fadeEndOverlay !== undefined){ fadeEndOverlay=s.fadeEndOverlay; var ftog=document.getElementById('fade-end-tog'); if(ftog) ftog.className='togbox'+(fadeEndOverlay?' on':''); }
     if(s.strikeOn){ strikeOn=s.strikeOn; document.getElementById('stog').className='togbox'+(strikeOn?' on':''); document.getElementById('strike-inputs').className='strike-inputs'+(strikeOn?' show':''); }
     if(s.strikeOrig){ const el=document.getElementById('si-orig'); if(el){el.value=s.strikeOrig; document.getElementById('sp-orig').textContent=s.strikeOrig;} }
     if(s.strikeDisc){ const el=document.getElementById('si-disc'); if(el){el.value=s.strikeDisc; document.getElementById('sp-disc').textContent=s.strikeDisc;} }
@@ -4019,6 +4058,12 @@ function selectProduct(fileIdx, name) {
   if (inp) inp.value = name;
   var dd = document.getElementById('prod-dd-' + fileIdx);
   if (dd) dd.classList.remove('show');
+  renderFiles();
+}
+
+function clearProductName(fileIdx) {
+  if (files[fileIdx]) files[fileIdx].productName = '';
+  renderFiles();
 }
 
 const FORGOT_API = 'https://royalforge-api.netlify.app/.netlify/functions/forgot-password';
@@ -4126,6 +4171,126 @@ async function verifyResetCode() {
   }
 
   if (btn) { btn.textContent = 'Reset password'; btn.disabled = false; }
+}
+
+// ===== PRESETS =====
+let presets = JSON.parse(localStorage.getItem('rf_presets') || '[]');
+
+function savePresets() {
+  localStorage.setItem('rf_presets', JSON.stringify(presets));
+}
+
+function getCurrentSetup() {
+  // Sync all inputs first
+  topChips.forEach(function(_, i) { var inp = document.getElementById('bi-top-' + i); if (inp) topChips[i].label = inp.value; });
+  botChips.forEach(function(_, i) { var inp = document.getElementById('bi-bot-' + i); if (inp) botChips[i].label = inp.value; });
+  hooks.forEach(function(_, i) { var inp = document.getElementById('hi-' + i); if (inp) hooks[i].text = inp.value; });
+  return {
+    selectedFont: selectedFont,
+    selectedFontSize: selectedFontSize,
+    topColor: topColor,
+    botColor: botColor,
+    hookColor: hookColor,
+    topBgIdx: topBgIdx,
+    botBgIdx: botBgIdx,
+    hookBgIdx: hookBgIdx,
+    ovStyle: ovStyle,
+    textYPercent: textYPercent,
+    strikeOn: strikeOn,
+    strikeOrig: (document.getElementById('si-orig') || {}).value || 'FULL PRICE',
+    strikeDisc: (document.getElementById('si-disc') || {}).value || '50% OFF',
+    topChips: JSON.parse(JSON.stringify(topChips)),
+    botChips: JSON.parse(JSON.stringify(botChips)),
+    hooks: JSON.parse(JSON.stringify(hooks))
+  };
+}
+
+function showSavePresetModal() {
+  document.getElementById('preset-modal').classList.add('show');
+  var inp = document.getElementById('preset-modal-inp');
+  if (inp) { inp.value = ''; setTimeout(function() { inp.focus(); }, 100); }
+}
+
+function closeSavePresetModal() {
+  document.getElementById('preset-modal').classList.remove('show');
+}
+
+function confirmSavePreset() {
+  var inp = document.getElementById('preset-modal-inp');
+  var name = inp ? inp.value.trim() : '';
+  if (!name) { toast('Enter a name first.'); return; }
+  var setup = getCurrentSetup();
+  setup.name = name;
+  setup.id = Date.now();
+  presets.push(setup);
+  savePresets();
+  closeSavePresetModal();
+  renderPresets();
+  toast('Preset saved: ' + name);
+}
+
+function savePresetPrompt() { showSavePresetModal(); }
+function savePresetFromInput() { showSavePresetModal(); }
+
+function loadPreset(id) {
+  var preset = presets.find(function(p) { return p.id === id; });
+  if (!preset) return;
+
+  // Apply all settings
+  selectedFont = preset.selectedFont || 'classic';
+  selectedFontSize = preset.selectedFontSize || 52;
+  topColor = preset.topColor || '#e03d52';
+  botColor = preset.botColor || '#ffffff';
+  hookColor = preset.hookColor || '#ffffff';
+  topBgIdx = preset.topBgIdx || 0;
+  botBgIdx = preset.botBgIdx || 0;
+  hookBgIdx = preset.hookBgIdx || 0;
+  ovStyle = preset.ovStyle || 'banner';
+  textYPercent = preset.textYPercent || 12;
+  strikeOn = preset.strikeOn || false;
+  if (preset.topChips) topChips = preset.topChips;
+  if (preset.botChips) botChips = preset.botChips;
+  if (preset.hooks) hooks = preset.hooks;
+
+  // Re-render everything
+  loadSettings();
+  renderBannerList('top');
+  renderBannerList('bot');
+  renderHooks();
+
+  // Apply strike
+  document.getElementById('stog').className = 'togbox' + (strikeOn ? ' on' : '');
+  document.getElementById('strike-inputs').className = 'strike-inputs' + (strikeOn ? ' show' : '');
+  if (preset.strikeOrig) { var el = document.getElementById('si-orig'); if (el) { el.value = preset.strikeOrig; document.getElementById('sp-orig').textContent = preset.strikeOrig; } }
+  if (preset.strikeDisc) { var el2 = document.getElementById('si-disc'); if (el2) { el2.value = preset.strikeDisc; document.getElementById('sp-disc').textContent = preset.strikeDisc; } }
+
+  // Apply position slider
+  var sl = document.getElementById('pos-slider');
+  if (sl) { sl.value = textYPercent; document.getElementById('pos-pct-label').textContent = Math.round(textYPercent) + '%'; }
+  var overlayEl = document.getElementById('phone-overlay-content');
+  if (overlayEl) overlayEl.style.top = textYPercent + '%';
+
+  updatePreview();
+  saveSettings();
+  toast('Loaded: ' + preset.name);
+}
+
+function deletePreset(id) {
+  presets = presets.filter(function(p) { return p.id !== id; });
+  savePresets();
+  renderPresets();
+}
+
+function renderPresets() {
+  var bar = document.getElementById('preset-bar');
+  if (!bar) return;
+  var html = presets.map(function(p) {
+    return '<span class="preset-chip" onclick="loadPreset(' + p.id + ')">' +
+      p.name +
+      '<button class="preset-chip-del" onclick="event.stopPropagation();deletePreset(' + p.id + ')">&#215;</button>' +
+      '</span>';
+  }).join('');
+    bar.innerHTML = html || '<div style="font-size:11px;color:var(--muted2)">No presets yet.</div>';
 }
 
 // ===== INIT =====
