@@ -1,6 +1,6 @@
 {
   "name": "royalforge",
-  "version": "1.0.76",
+  "version": "1.0.77",
   "description": "Batch edit TikTok Shop videos",
   "main": "main.js",
   "scripts": {
@@ -24,16 +24,15 @@
       "main.js",
       "preload.js",
       "app/**/*",
-      "font.ttf",
-      "!app/fonts"
+      "font.ttf"
     ],
     "extraResources": [
       {
-        "from": "fonts",
+        "from": "app/fonts",
         "to": "fonts"
       },
       {
-        "from": "fonts",
+        "from": "app/fonts",
         "to": "app/fonts"
       }
     ],
