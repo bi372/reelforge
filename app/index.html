@@ -670,6 +670,12 @@ input[type=file]{display:none}
 .size-row{display:flex;align-items:center;gap:8px;margin-top:12px}
 .size-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 14px;cursor:pointer;color:var(--muted);transition:all .2s;font-family:'Inter',sans-serif;font-weight:700}
 .size-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
+/* TEAM */
+.team-code-box{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.team-code-val{font-size:22px;font-weight:900;letter-spacing:4px;color:var(--gold);font-family:monospace}
+.team-copy-btn{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all .2s}
+.team-copy-btn:hover{background:rgba(201,168,76,.2)}
+.team-member-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3);color:#a78bfa;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;margin-bottom:12px}
 /* PRESETS */
 .preset-bar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .preset-chip{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;transition:all .2s;font-family:Inter,sans-serif;color:var(--muted)}
@@ -1582,21 +1588,20 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
   <!-- ADD PRODUCT MODAL -->
   <div class="upgrade-bg" id="add-prod-modal">
-    <div class="upgrade-box" style="max-width:480px">
-      <div class="upgrade-title">Add Product</div>
-      <div class="upgrade-sub">Paste a TikTok Shop product link</div>
+    <div class="upgrade-box" style="max-width:520px">
+      <div class="upgrade-title">Add Products</div>
+      <div class="upgrade-sub">Paste one or multiple TikTok Shop links — one per line</div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <input class="set-inp" id="prod-modal-inp" placeholder="https://www.tiktok.com/shop/pdp/..." oninput="prodModalInput(this.value)" style="font-size:13px"/>
-        <div class="prod-fetching" id="prod-modal-fetching" style="text-align:center;font-size:12px;color:var(--muted);display:none">Fetching product info...</div>
-        <div id="prod-modal-preview" style="display:none;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px">
-          <img id="prod-modal-img" style="width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid var(--border)" src=""/>
-          <div style="flex:1;min-width:0">
-            <div id="prod-modal-name" style="font-size:14px;font-weight:700;margin-bottom:4px"></div>
-            <input class="set-inp" id="prod-modal-edit-name" style="font-size:12px;padding:5px 8px" placeholder="Edit name..."/>
+        <textarea class="set-inp" id="prod-modal-inp" placeholder="https://shop.tiktok.com/...&#10;https://shop.tiktok.com/...&#10;https://shop.tiktok.com/..." style="font-size:13px;height:100px;resize:vertical;font-family:Inter,sans-serif" oninput="prodModalInput(this.value)"></textarea>
+        <div id="prod-modal-fetching" style="display:none;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px" id="prod-modal-fetch-status">Fetching products...</div>
+          <div style="background:var(--border);border-radius:4px;height:4px;overflow:hidden">
+            <div id="prod-modal-progress" style="background:var(--gold);height:100%;width:0%;transition:width .3s;border-radius:4px"></div>
           </div>
         </div>
+        <div id="prod-modal-results" style="display:none;max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
         <div style="display:flex;gap:8px;margin-top:4px">
-          <button class="pc-btn" id="prod-modal-save-btn" onclick="saveProductFromModal()" disabled style="flex:1">Save Product</button>
+          <button class="pc-btn" id="prod-modal-save-btn" onclick="fetchAndAddProducts()" style="flex:1">Fetch &amp; Add</button>
           <button class="pc-btn-ghost" onclick="closeAddProductModal()" style="flex:1">Cancel</button>
         </div>
       </div>
@@ -1659,6 +1664,34 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       <div class="set-note">Check whether a newer version is available.</div>
       <button class="set-btn" onclick="toast('You are on the latest version.')">Check for updates</button>
     </div>
+    <div class="set-card" id="team-section">
+      <div class="set-card-title">Team</div>
+      <div id="team-leader-view" style="display:none">
+        <div class="team-member-badge">&#128081; Team Leader</div>
+        <p class="set-desc" style="margin:8px 0 10px">Share this code with your team. They paste it to join and get access to your shared products and presets.</p>
+        <div class="team-code-box">
+          <span class="team-code-val" id="team-code-display">------</span>
+          <button class="team-copy-btn" onclick="copyTeamCode()">Copy code</button>
+        </div>
+        <button class="set-btn" onclick="pushTeamData()" style="width:100%;margin-bottom:8px">&#8593; Sync products &amp; presets to team</button>
+        <div id="team-sync-status" style="font-size:11px;color:var(--muted2);text-align:center;margin-top:4px"></div>
+      </div>
+      <div id="team-member-view" style="display:none">
+        <div class="team-member-badge">&#128101; Team Member</div>
+        <p class="set-desc" style="margin:8px 0 10px">You're connected to a team. Pull the latest shared products and presets from your team leader.</p>
+        <button class="set-btn" onclick="pullTeamData()" style="width:100%;margin-bottom:8px">&#8595; Pull team products &amp; presets</button>
+        <button class="set-btn" onclick="leaveTeam()" style="width:100%;margin-top:4px;background:rgba(224,61,82,.08);border-color:rgba(224,61,82,.2);color:var(--red);font-size:12px">Leave team</button>
+        <div id="team-sync-status-member" style="font-size:11px;color:var(--muted2);text-align:center;margin-top:4px"></div>
+      </div>
+      <div id="team-join-view">
+        <p class="set-desc" style="margin:0 0 10px">Enter a team code from your team leader to join and get shared products and presets.</p>
+        <div style="display:flex;gap:8px">
+          <input class="set-inp" id="team-code-inp" placeholder="Team code..." style="flex:1;letter-spacing:3px;font-size:15px;font-weight:700;text-transform:uppercase" maxlength="8"/>
+          <button class="set-btn" onclick="joinTeam()">Join</button>
+        </div>
+      </div>
+    </div>
+
     <div class="set-card">
       <div class="set-card-title">Danger Zone</div>
       <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(224,61,82,.06);border:1px solid rgba(224,61,82,.2);border-radius:7px">
@@ -1715,6 +1748,13 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
         <div class="upgrade-plan-per">per month</div>
         <div class="upgrade-plan-features">✓ Unlimited videos<br>✓ All overlay styles<br>✓ All fonts<br>✓ Priority support</div>
         <button class="upgrade-plan-btn" onclick="openStripe('royal')">Get Royal</button>
+      </div>
+      <div class="upgrade-plan" style="border-color:rgba(167,139,250,.3)">
+        <div class="upgrade-plan-name" style="color:#a78bfa">Team</div>
+        <div class="upgrade-plan-price">$79<span style="font-size:16px">.99</span></div>
+        <div class="upgrade-plan-per">per month &mdash; up to 5 users</div>
+        <div class="upgrade-plan-features">&#10003; Everything in Royal<br>&#10003; Up to 5 team members<br>&#10003; Shared product library<br>&#10003; Shared presets</div>
+        <button class="upgrade-plan-btn" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)" onclick="openStripe('team')">Get Team</button>
       </div>
     </div>
     <span class="upgrade-close" onclick="closeUpgrade()">Maybe later</span>
@@ -1773,6 +1813,7 @@ function openUpdateLink() {
 
 const STRIPE_FORGE = 'https://buy.stripe.com/bJebJ1f5AalO3lwfgi8AE00';
 const STRIPE_ROYAL = 'https://buy.stripe.com/6oU4gz7D80Le8FQ4BE8AE01';
+const STRIPE_TEAM = 'https://buy.stripe.com/4gM00jaPkctWbS25FI8AE02';
 
 function showUpgrade(){
   document.getElementById('upgrade-bg').classList.add('show');
@@ -1781,7 +1822,7 @@ function closeUpgrade(){
   document.getElementById('upgrade-bg').classList.remove('show');
 }
 function openStripe(plan){
-  const url = plan === 'forge' ? STRIPE_FORGE : STRIPE_ROYAL;
+  const url = plan === 'forge' ? STRIPE_FORGE : plan === 'team' ? STRIPE_TEAM : STRIPE_ROYAL;
   if(window.electronAPI && window.electronAPI.openExternal){
     window.electronAPI.openExternal(url);
   } else {
@@ -1792,7 +1833,7 @@ function openStripe(plan){
 
 const LICENSE_API = 'https://royalforge-api.netlify.app/.netlify/functions/verify-license';
 let currentPlan = localStorage.getItem('rf_plan') || 'royal';
-let planLimits = { free: 5, forge: 50, royal: Infinity };
+let planLimits = { free: 5, forge: 50, royal: Infinity, team: Infinity };
 
 function updatePlanDisplay() {
   const el = document.getElementById('plan-display');
@@ -1803,7 +1844,7 @@ function updatePlanDisplay() {
   // Update topbar pill
   const pill = document.querySelector('.pro-pill');
   if (pill) {
-    pill.textContent = currentPlan === 'royal' ? '👑 Royal' : currentPlan === 'forge' ? '🔥 Forge' : 'Upgrade';
+    pill.textContent = currentPlan === 'royal' ? '👑 Royal' : currentPlan === 'forge' ? '🔥 Forge' : currentPlan === 'team' ? '👥 Team' : 'Upgrade';
   }
 }
 
@@ -2610,6 +2651,7 @@ function showAppEditor(){
   setTimeout(()=>{loadSettings();renderPresets();document.fonts.ready.then(()=>{updatePreview();});},50);
 }
 function showAppSettings(){
+  initTeamUI();
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
   document.getElementById('app-settings').classList.add('on');
   document.getElementById('set-email-disp').textContent=currentUser.email;
@@ -3928,11 +3970,16 @@ function startRenameProduct(el, idx) {
 // Add product modal
 function showAddProductModal() {
   document.getElementById('add-prod-modal').classList.add('show');
-  document.getElementById('prod-modal-inp').value = '';
-  document.getElementById('prod-modal-preview').style.display = 'none';
-  document.getElementById('prod-modal-fetching').style.display = 'none';
-  document.getElementById('prod-modal-save-btn').disabled = true;
-  setTimeout(() => document.getElementById('prod-modal-inp').focus(), 50);
+  var inp = document.getElementById('prod-modal-inp');
+  if (inp) { inp.value = ''; setTimeout(function() { inp.focus(); }, 100); }
+  var fetching = document.getElementById('prod-modal-fetching');
+  if (fetching) fetching.style.display = 'none';
+  var results = document.getElementById('prod-modal-results');
+  if (results) { results.style.display = 'none'; results.innerHTML = ''; }
+  var btn = document.getElementById('prod-modal-save-btn');
+  if (btn) { btn.textContent = 'Fetch & Add'; btn.disabled = false; btn.onclick = fetchAndAddProducts; }
+  var progress = document.getElementById('prod-modal-progress');
+  if (progress) progress.style.width = '0%';
 }
 
 function closeAddProductModal() {
@@ -3941,26 +3988,9 @@ function closeAddProductModal() {
 
 let _modalProduct = null;
 
-function prodModalInput(val) {
-  const btn = document.getElementById('prod-modal-save-btn');
-  if (val && (val.includes('tiktok.com') || val.includes('tiktokshop'))) {
-    if (btn) btn.disabled = false;
-  } else {
-    if (btn) btn.disabled = true;
-    document.getElementById('prod-modal-preview').style.display = 'none';
-    _modalProduct = null;
-  }
-}
+function prodModalInput(val) {}
 
-async function fetchProductPreview() {
-  const inp = document.getElementById('prod-modal-inp');
-  const url = inp ? inp.value.trim() : '';
-  if (!url) return;
-  const fetching = document.getElementById('prod-modal-fetching');
-  const preview = document.getElementById('prod-modal-preview');
-  if (fetching) fetching.style.display = 'block';
-  if (preview) preview.style.display = 'none';
-
+async function fetchSingleProduct(url) {
   let name = '', image = '';
   try {
     const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' } });
@@ -3971,39 +4001,65 @@ async function fetchProductPreview() {
     else if (titleTag) name = titleTag[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
     const ogImg = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i);
     if (ogImg) image = ogImg[1];
-  } catch(e) { console.log('Fetch error:', e.message); }
-
+  } catch(e) {}
   if (!name) {
-    const parts = url.split('/').filter(Boolean);
+    var parts = url.split('/').filter(Boolean);
     name = parts[parts.length-1].replace(/[-_]/g, ' ') || 'Product';
   }
-  const shortName = shortenProductName(name);
-  _modalProduct = { id: Date.now(), name: shortName, fullName: name, image, url };
+  return { name: shortenProductName(name), image, url, id: Date.now() + Math.random() };
+}
 
-  if (fetching) fetching.style.display = 'none';
-  if (preview) {
-    preview.style.display = 'flex';
-    const img = document.getElementById('prod-modal-img');
-    const nameEl = document.getElementById('prod-modal-name');
-    const editName = document.getElementById('prod-modal-edit-name');
-    if (img) { img.src = image || ''; img.style.display = image ? '' : 'none'; }
-    if (nameEl) nameEl.textContent = shortName;
-    if (editName) editName.value = shortName;
+async function fetchAndAddProducts() {
+  var inp = document.getElementById('prod-modal-inp');
+  var raw = inp ? inp.value.trim() : '';
+  if (!raw) { toast('Paste at least one link first.'); return; }
+
+  var urls = raw.split('\n').map(function(u) { return u.trim(); }).filter(function(u) { return u && (u.includes('tiktok.com') || u.includes('tiktokshop')); });
+  if (!urls.length) { toast('No valid TikTok Shop links found.'); return; }
+
+  var fetching = document.getElementById('prod-modal-fetching');
+  var progress = document.getElementById('prod-modal-progress');
+  var status = document.getElementById('prod-modal-fetch-status');
+  var results = document.getElementById('prod-modal-results');
+  var btn = document.getElementById('prod-modal-save-btn');
+
+  if (fetching) fetching.style.display = 'block';
+  if (results) { results.style.display = 'none'; results.innerHTML = ''; }
+  if (btn) btn.disabled = true;
+
+  var added = 0;
+  var failed = 0;
+  var resultHtml = '';
+
+  for (var i = 0; i < urls.length; i++) {
+    var url = urls[i];
+    if (status) status.textContent = 'Fetching ' + (i+1) + ' of ' + urls.length + '...';
+    if (progress) progress.style.width = Math.round(((i) / urls.length) * 100) + '%';
+
+    try {
+      var product = await fetchSingleProduct(url);
+      productLibrary.unshift(product);
+      added++;
+      var img = product.image ? '<img src="' + product.image + '" style="width:36px;height:36px;border-radius:5px;object-fit:cover;flex-shrink:0">' : '<div style="width:36px;height:36px;border-radius:5px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0">&#128717;</div>';
+      resultHtml += '<div style="display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px"><span style="font-size:14px;color:var(--green)">✓</span>' + img + '<span style="font-size:12px;font-weight:600">' + esc(product.name) + '</span></div>';
+    } catch(e) {
+      failed++;
+      resultHtml += '<div style="display:flex;align-items:center;gap:8px;background:rgba(224,61,82,.06);border:1px solid rgba(224,61,82,.2);border-radius:8px;padding:8px 10px"><span style="font-size:14px;color:var(--red)">✗</span><span style="font-size:12px;color:var(--muted)">' + esc(url.substring(0,40)) + '...</span></div>';
+    }
   }
-  const btn = document.getElementById('prod-modal-save-btn');
-  if (btn) btn.disabled = false;
+
+  if (progress) progress.style.width = '100%';
+  if (status) status.textContent = added + ' product' + (added !== 1 ? 's' : '') + ' added' + (failed ? ', ' + failed + ' failed' : '') + '!';
+
+  if (results) { results.style.display = 'flex'; results.innerHTML = resultHtml; }
+  if (btn) { btn.textContent = 'Done'; btn.disabled = false; btn.onclick = function() { closeAddProductModal(); }; }
+
+  saveProductLibrary();
+  renderProductPage('');
 }
 
 function saveProductFromModal() {
-  const editName = document.getElementById('prod-modal-edit-name');
-  if (!_modalProduct) return;
-  if (editName && editName.value.trim()) _modalProduct.name = editName.value.trim();
-  productLibrary.unshift(_modalProduct);
-  saveProductLibrary();
   closeAddProductModal();
-  renderProductPage('');
-  toast('Product saved: ' + _modalProduct.name);
-  _modalProduct = null;
 }
 
 function shortenProductName(name) {
@@ -4034,17 +4090,7 @@ function deleteProdAndRefresh(i) {
 }
 
 // Auto-fetch when user pastes a valid URL
-document.addEventListener('paste', function(e) {
-  const active = document.activeElement;
-  if (active && active.id === 'prod-modal-inp') {
-    setTimeout(function() {
-      const val = active.value.trim();
-      if (val && (val.includes('tiktok.com') || val.includes('tiktokshop'))) {
-        fetchProductPreview();
-      }
-    }, 50);
-  }
-});
+// paste handled by textarea naturally
 function openProdDropdown(fileIdx, inputEl) {
   document.querySelectorAll('.prod-dropdown.show').forEach(function(d) { d.classList.remove('show'); });
   var dd = document.getElementById('prod-dd-' + fileIdx);
@@ -4334,6 +4380,178 @@ function renderPresets() {
       '</span>';
   }).join('');
     bar.innerHTML = html || '<div style="font-size:11px;color:var(--muted2)">No presets yet.</div>';
+}
+
+// ===== TEAMS =====
+const TEAM_API = 'https://royalforge-api.netlify.app/.netlify/functions/team-sync';
+
+function generateTeamCode(licenseKey) {
+  // Generate a stable 6-char code from the license key
+  var hash = 0;
+  var str = licenseKey + 'rf_team_salt_2024';
+  for (var i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var code = '';
+  var h = Math.abs(hash);
+  for (var j = 0; j < 6; j++) {
+    code += chars[h % chars.length];
+    h = Math.floor(h / chars.length);
+  }
+  return code;
+}
+
+function initTeamUI() {
+  if (!currentUser) return;
+  var teamCode = localStorage.getItem('rf_team_code');
+  var teamRole = localStorage.getItem('rf_team_role'); // 'leader' or 'member'
+  var isLeader = currentUser.plan === 'team';
+
+  // Generate team code from license key if leader
+  if (isLeader && !teamCode) {
+    teamCode = generateTeamCode(currentUser.licenseKey || currentUser.email);
+    localStorage.setItem('rf_team_code', teamCode);
+    localStorage.setItem('rf_team_role', 'leader');
+    teamRole = 'leader';
+  }
+
+  var leaderView = document.getElementById('team-leader-view');
+  var memberView = document.getElementById('team-member-view');
+  var joinView = document.getElementById('team-join-view');
+
+  if (teamRole === 'leader' && leaderView) {
+    leaderView.style.display = 'block';
+    if (memberView) memberView.style.display = 'none';
+    if (joinView) joinView.style.display = 'none';
+    var codeDisplay = document.getElementById('team-code-display');
+    if (codeDisplay) codeDisplay.textContent = teamCode;
+  } else if (teamRole === 'member' && memberView) {
+    memberView.style.display = 'block';
+    if (leaderView) leaderView.style.display = 'none';
+    if (joinView) joinView.style.display = 'none';
+  } else {
+    if (joinView) joinView.style.display = 'block';
+    if (leaderView) leaderView.style.display = 'none';
+    if (memberView) memberView.style.display = 'none';
+  }
+}
+
+function copyTeamCode() {
+  var code = document.getElementById('team-code-display');
+  if (!code) return;
+  try { navigator.clipboard.writeText(code.textContent); } catch(e) {}
+  toast('Team code copied!');
+}
+
+async function pushTeamData() {
+  var teamCode = localStorage.getItem('rf_team_code');
+  if (!teamCode || !currentUser) return;
+  var status = document.getElementById('team-sync-status');
+  if (status) status.textContent = 'Syncing...';
+  try {
+    var res = await fetch(TEAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'push',
+        teamCode: teamCode,
+        licenseKey: currentUser.licenseKey || currentUser.email,
+        products: productLibrary,
+        presets: presets
+      })
+    });
+    var data = await res.json();
+    if (data.success) {
+      if (status) status.textContent = 'Synced at ' + new Date().toLocaleTimeString();
+      toast('Team synced! ✓');
+    } else {
+      if (status) status.textContent = 'Sync failed: ' + (data.error || 'Unknown error');
+    }
+  } catch(e) {
+    if (status) status.textContent = 'Connection error';
+  }
+}
+
+async function pullTeamData() {
+  var teamCode = localStorage.getItem('rf_team_code');
+  if (!teamCode) return;
+  var status = document.getElementById('team-sync-status-member');
+  if (status) status.textContent = 'Pulling...';
+  try {
+    var res = await fetch(TEAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get', teamCode: teamCode })
+    });
+    var data = await res.json();
+    if (data.success) {
+      if (data.products && data.products.length) {
+        // Merge team products with local (avoid duplicates by URL)
+        var localUrls = productLibrary.map(function(p) { return p.url; });
+        var newProds = data.products.filter(function(p) { return !localUrls.includes(p.url); });
+        productLibrary = newProds.concat(productLibrary);
+        saveProductLibrary();
+        renderProductPage('');
+      }
+      if (data.presets && data.presets.length) {
+        // Merge presets
+        var localIds = presets.map(function(p) { return p.name; });
+        var newPresets = data.presets.filter(function(p) { return !localIds.includes(p.name); });
+        presets = newPresets.concat(presets);
+        savePresets();
+        renderPresets();
+      }
+      if (status) status.textContent = 'Updated at ' + new Date().toLocaleTimeString();
+      toast('Team data pulled! ✓');
+    } else {
+      if (status) status.textContent = data.error || 'Pull failed';
+    }
+  } catch(e) {
+    if (status) status.textContent = 'Connection error';
+  }
+}
+
+async function joinTeam() {
+  var inp = document.getElementById('team-code-inp');
+  var code = inp ? inp.value.trim().toUpperCase() : '';
+  if (!code || code.length < 4) { toast('Enter a valid team code.'); return; }
+
+  try {
+    var res = await fetch(TEAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'join', teamCode: code })
+    });
+    var data = await res.json();
+    if (data.success) {
+      localStorage.setItem('rf_team_code', code);
+      localStorage.setItem('rf_team_role', 'member');
+      // Load team data
+      if (data.products && data.products.length) {
+        productLibrary = data.products.concat(productLibrary);
+        saveProductLibrary();
+      }
+      if (data.presets && data.presets.length) {
+        presets = data.presets.concat(presets);
+        savePresets();
+      }
+      toast('Joined team! ✓ Products and presets loaded.');
+      initTeamUI();
+    } else {
+      toast(data.error || 'Invalid team code.');
+    }
+  } catch(e) {
+    toast('Connection error. Try again.');
+  }
+}
+
+function leaveTeam() {
+  localStorage.removeItem('rf_team_code');
+  localStorage.removeItem('rf_team_role');
+  toast('Left team.');
+  initTeamUI();
 }
 
 // ===== INIT =====
