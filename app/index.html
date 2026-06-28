@@ -1700,7 +1700,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.86 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.87 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1798,7 +1798,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.86';
+const CURRENT_VERSION = '1.0.87';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -1868,8 +1868,14 @@ async function verifyLicense() {
       currentPlan = data.plan;
       localStorage.setItem('rf_plan', data.plan);
       localStorage.setItem('rf_plan_email', email);
+      // Also update currentUser object so team UI can read it
+      if (currentUser) {
+        currentUser.plan = data.plan;
+        localStorage.setItem('rf_user', JSON.stringify(currentUser));
+      }
       toast('Plan verified! You are on ' + data.plan.charAt(0).toUpperCase() + data.plan.slice(1));
       updatePlanDisplay();
+      initTeamUI();
       if (statusEl) statusEl.innerHTML = 'Current plan: <strong style="color:var(--gold)">' + data.plan.charAt(0).toUpperCase() + data.plan.slice(1) + '</strong>';
     } else {
       toast('No active subscription found for this email.');
@@ -2019,16 +2025,7 @@ async function captureOverlayPNG(uid, isFulltextParam, funnel) {
       }
     }
     if (current) lines.push(current);
-    // Safety: shrink font if any single line (e.g. one long word) still exceeds frame width
-    let _fulltextFontSize = fontSize;
-    let _maxLineW = 0;
-    for (const ln of lines) { _maxLineW = Math.max(_maxLineW, ctx.measureText(ln).width); }
-    while (_maxLineW > wrapWidth && _fulltextFontSize > 60) {
-      _fulltextFontSize -= 4;
-      ctx.font = '800 ' + _fulltextFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
-      _maxLineW = 0;
-      for (const ln of lines) { _maxLineW = Math.max(_maxLineW, ctx.measureText(ln).width); }
-    }
+    const _fulltextFontSize = fontSize;
 
     // Draw each line
     for (let i = 0; i < lines.length; i++) {
@@ -2654,7 +2651,20 @@ async function silentVerifyPlan() {
 
 function showApp(){
   currentPlan = localStorage.getItem('rf_plan') || 'free';
+  // Restore plan into currentUser so team UI can read it
+  var savedPlanEmail = localStorage.getItem('rf_plan_email');
+  if (currentUser && savedPlanEmail && savedPlanEmail === currentUser.email) {
+    currentUser.plan = currentPlan;
+  }
   updatePlanDisplay();
+  // Auto-pull team data for members on app load + poll every 3 minutes
+  var _autoTeamCode = localStorage.getItem('rf_team_code');
+  var _autoTeamRole = localStorage.getItem('rf_team_role');
+  if (_autoTeamCode) {
+    setTimeout(function() { pullTeamData(); }, 2000);
+    setInterval(function() { pullTeamData(); }, 3 * 60 * 1000);
+  }
+
   // Silently re-verify plan with server to prevent localStorage tampering
   silentVerifyPlan();
   if(window.electronAPI && window.electronAPI.getHomeDir){
@@ -4133,6 +4143,13 @@ async function fetchAndAddProducts() {
 
   saveProductLibrary();
   renderProductPage('');
+
+  // If on a team, sync newly added products to shared team library
+  var _teamCode = localStorage.getItem('rf_team_code');
+  if (_teamCode) {
+    // push all new products to team
+    syncToTeam();
+  }
 }
 
 function saveProductFromModal() {
@@ -4576,6 +4593,31 @@ async function pushTeamData() {
   }
 }
 
+async function syncToTeam() {
+  var teamCode = localStorage.getItem('rf_team_code');
+  if (!teamCode) return;
+  var status = document.getElementById('team-sync-status');
+  if (status) status.textContent = 'Syncing...';
+  try {
+    var res = await fetch(TEAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'push', teamCode: teamCode, products: productLibrary, presets: presets })
+    });
+    var data = await res.json();
+    if (data.success) {
+      if (status) status.textContent = 'Synced at ' + new Date().toLocaleTimeString();
+      toast('Team synced! ✓');
+    } else {
+      if (status) status.textContent = data.error || 'Sync failed';
+      toast('Sync failed: ' + (data.error || 'Unknown error'));
+    }
+  } catch(e) {
+    if (status) status.textContent = 'Connection error';
+    toast('Could not reach team server.');
+  }
+}
+
 async function pullTeamData() {
   var teamCode = localStorage.getItem('rf_team_code');
   if (!teamCode) return;
@@ -4590,10 +4632,13 @@ async function pullTeamData() {
     var data = await res.json();
     if (data.success) {
       if (data.products && data.products.length) {
-        // Merge team products with local (avoid duplicates by URL)
-        var localUrls = productLibrary.map(function(p) { return p.url; });
-        var newProds = data.products.filter(function(p) { return !localUrls.includes(p.url); });
-        productLibrary = newProds.concat(productLibrary);
+        // Sync team products — replace local library with team version
+        // Keep any local-only products (not in team library) separate
+        var teamUrls = data.products.map(function(p) { return p.url; });
+        var localOnly = productLibrary.filter(function(p) { return !teamUrls.includes(p.url); });
+        // Update existing team products and add new ones
+        var merged = data.products.slice();
+        productLibrary = merged.concat(localOnly);
         saveProductLibrary();
         renderProductPage('');
       }
