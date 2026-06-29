@@ -1700,7 +1700,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.90 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.91 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1798,7 +1798,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.90';
+const CURRENT_VERSION = '1.0.91';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2657,14 +2657,19 @@ function showApp(){
     currentUser.plan = currentPlan;
   }
   updatePlanDisplay();
+  // Initialize team UI first so leader's team code gets saved to localStorage
+  initTeamUI();
+
   // Auto-sync/pull team data on app load + poll every 3 minutes
   var _autoTeamCode = localStorage.getItem('rf_team_code');
-  var _autoTeamRole = localStorage.getItem('rf_team_role');
   if (_autoTeamCode) {
     // Everyone syncs their products up then pulls the full team library
     setTimeout(function() { syncToTeam(); }, 2000);
     setTimeout(function() { pullTeamData(); }, 5000);
-    setInterval(function() { syncToTeam(); pullTeamData(); }, 3 * 60 * 1000);
+    setInterval(function() {
+      syncToTeam();
+      setTimeout(function() { pullTeamData(); }, 3000);
+    }, 3 * 60 * 1000);
   }
 
   // Silently re-verify plan with server to prevent localStorage tampering
