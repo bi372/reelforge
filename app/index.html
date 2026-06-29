@@ -1700,7 +1700,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.89 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.90 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1798,7 +1798,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.89';
+const CURRENT_VERSION = '1.0.90';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2661,15 +2661,10 @@ function showApp(){
   var _autoTeamCode = localStorage.getItem('rf_team_code');
   var _autoTeamRole = localStorage.getItem('rf_team_role');
   if (_autoTeamCode) {
-    if (_autoTeamRole === 'leader') {
-      // Leaders auto-sync their data on load
-      setTimeout(function() { syncToTeam(); }, 2000);
-      setInterval(function() { syncToTeam(); }, 3 * 60 * 1000);
-    } else {
-      // Members auto-pull on load
-      setTimeout(function() { pullTeamData(); }, 2000);
-      setInterval(function() { pullTeamData(); }, 3 * 60 * 1000);
-    }
+    // Everyone syncs their products up then pulls the full team library
+    setTimeout(function() { syncToTeam(); }, 2000);
+    setTimeout(function() { pullTeamData(); }, 5000);
+    setInterval(function() { syncToTeam(); pullTeamData(); }, 3 * 60 * 1000);
   }
 
   // Silently re-verify plan with server to prevent localStorage tampering
@@ -4023,6 +4018,8 @@ function updateProductCompany(idx, value) {
   if (productLibrary[idx]) {
     productLibrary[idx].company = value;
     saveProductLibrary();
+    var _teamCode = localStorage.getItem('rf_team_code');
+    if (_teamCode) setTimeout(function() { syncToTeam(); }, 500);
   }
 }
 
@@ -4050,6 +4047,8 @@ function startRenameProduct(el, idx) {
       productLibrary[idx].name = newName;
       saveProductLibrary();
       toast('Renamed to ' + newName);
+      var _teamCode = localStorage.getItem('rf_team_code');
+      if (_teamCode) setTimeout(function() { syncToTeam(); }, 500);
     }
     var search = document.getElementById('prod-page-search');
     renderProductPage(search ? search.value : '');
@@ -4151,11 +4150,10 @@ async function fetchAndAddProducts() {
   saveProductLibrary();
   renderProductPage('');
 
-  // If on a team, sync newly added products to shared team library
+  // Sync to team whenever products change (works for both leaders and members)
   var _teamCode = localStorage.getItem('rf_team_code');
   if (_teamCode) {
-    // push all new products to team
-    syncToTeam();
+    setTimeout(function() { syncToTeam(); }, 500);
   }
 }
 
@@ -4186,6 +4184,8 @@ function deleteProduct(i) {
 
 function deleteProdAndRefresh(i) {
   deleteProduct(i);
+  var _teamCode = localStorage.getItem('rf_team_code');
+  if (_teamCode) setTimeout(function() { syncToTeam(); }, 500);
   var search = document.getElementById('prod-page-search');
   renderProductPage(search ? search.value : '');
 }
