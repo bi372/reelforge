@@ -1700,7 +1700,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.91 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.92 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1798,7 +1798,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.91';
+const CURRENT_VERSION = '1.0.92';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -4009,7 +4009,7 @@ function renderProductPage(filter) {
       imgHtml +
       '<div class="prod-card-body">' +
       '<div class="prod-card-name" data-ridx="' + realIdx + '" onclick="startRenameProduct(this,parseInt(this.dataset.ridx))" title="Click to rename" style="cursor:text">' + esc(p.name) + '</div>' +
-      '<input class="prod-card-company-inp" data-ridx="' + realIdx + '" value="' + esc(p.company || '') + '" placeholder="Company / brand name" oninput="updateProductCompany(parseInt(this.dataset.ridx), this.value)" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--txt);margin-top:4px;font-family:Inter,sans-serif" />' +
+      '<input class="prod-card-company-inp" data-ridx="' + realIdx + '" value="' + esc(p.company || '') + '" placeholder="Company / brand name" onblur="updateProductCompany(parseInt(this.dataset.ridx), this.value)" onkeydown="if(event.key===\'Enter\')this.blur()" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--txt);margin-top:4px;font-family:Inter,sans-serif" />' +
       '<span class="prod-card-link" data-ridx="' + realIdx + '" onclick="openProductLink(productLibrary[parseInt(this.dataset.ridx)].url)">' + p.url.substring(0, 32) + '...</span>' +
       '<div class="prod-card-actions">' +
       '<button class="prod-card-use-btn" data-ridx="' + realIdx + '" onclick="copyProductName(this)">Copy name</button>' +
@@ -4646,12 +4646,16 @@ async function pullTeamData() {
       if (status) status.textContent = data.error;
       return;
     }
-    if (data.products) {
-      // Sync team products — replace local library with team version
-      // Keep any local-only products (not in team library) separate
-      var teamUrls = data.products.map(function(p) { return p.url; });
-      var localOnly = productLibrary.filter(function(p) { return !teamUrls.includes(p.url); });
+    if (data.products !== undefined) {
+      // Get previously known team URLs so we can detect deletions
+      var prevTeamUrls = JSON.parse(localStorage.getItem('rf_team_urls') || '[]');
+      var newTeamUrls = data.products.map(function(p) { return p.url; });
+      // Keep local-only products (never part of team) but remove deleted team products
+      var localOnly = productLibrary.filter(function(p) {
+        return !prevTeamUrls.includes(p.url) && !newTeamUrls.includes(p.url);
+      });
       productLibrary = data.products.concat(localOnly);
+      localStorage.setItem('rf_team_urls', JSON.stringify(newTeamUrls));
       saveProductLibrary();
       renderProductPage('');
     }
@@ -4690,6 +4694,9 @@ async function joinTeam() {
         var existingUrls = productLibrary.map(function(p) { return p.url; });
         var newProds = data.products.filter(function(p) { return !existingUrls.includes(p.url); });
         productLibrary = newProds.concat(productLibrary);
+        // Save team URLs so future pulls can detect deletions
+        var joinTeamUrls = data.products.map(function(p) { return p.url; });
+        localStorage.setItem('rf_team_urls', JSON.stringify(joinTeamUrls));
         saveProductLibrary();
       }
       if (data.presets && data.presets.length) {
