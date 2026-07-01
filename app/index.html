@@ -1703,7 +1703,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.94 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.95 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1801,7 +1801,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.94';
+const CURRENT_VERSION = '1.0.95';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -1871,6 +1871,7 @@ async function verifyLicense() {
       currentPlan = data.plan;
       localStorage.setItem('rf_plan', data.plan);
       localStorage.setItem('rf_plan_email', email);
+      if (data.teamLimit) localStorage.setItem('rf_team_limit', data.teamLimit);
       // Also update currentUser object so team UI can read it
       if (currentUser) {
         currentUser.plan = data.plan;
@@ -2469,6 +2470,7 @@ function removeFile(i){files.splice(i,1);renderFiles();updateVidCounter();update
 
 // ===== AUTH STATE =====
 let currentUser = JSON.parse(localStorage.getItem('rf_user')||'null');
+
 let accounts = JSON.parse(localStorage.getItem('rf_accounts')||'[]');
 let batches = JSON.parse(localStorage.getItem('rf_batches')||'[]');
 let folderPath = localStorage.getItem('rf_fp')||'';
@@ -4222,27 +4224,8 @@ function prodModalInput(val) {}
 async function fetchSingleProduct(url) {
   let name = '', image = '';
   try {
-    // Try via Netlify proxy first to avoid TikTok security blocks
-    const proxyRes = await fetch('https://royalforge-api.netlify.app/.netlify/functions/fetch-product', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    });
-    if (proxyRes.ok) {
-      const data = await proxyRes.json();
-      if (data.name) {
-        return { name: shortenProductName(data.name), image: data.image || '', url, id: Date.now() + Math.random() };
-      }
-    }
-  } catch(e) {}
-  // Fallback: direct fetch
-  try {
     const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' } });
     const html = await res.text();
-    // Detect security check page
-    if (html.includes('security check') || html.includes('cf-browser-verification') || html.includes('Just a moment')) {
-      throw new Error('Security check');
-    }
     const ogTitle = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i);
     const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
     if (ogTitle) name = ogTitle[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
@@ -4778,6 +4761,39 @@ async function syncToTeam() {
   var status = document.getElementById('team-sync-status');
   if (status) status.textContent = 'Syncing...';
   try {
+    // Step 1: Pull latest from Supabase first
+    var pullRes = await fetch(TEAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get', teamCode: teamCode })
+    });
+    if (pullRes.ok) {
+      var pullData = await pullRes.json();
+      if (pullData.products && pullData.products.length > 0) {
+        // Step 2: Merge remote products with local — deduplicate by URL and name
+        var remoteProducts = pullData.products;
+        if (pullData.deletedUrls && pullData.deletedUrls.length) {
+          remoteProducts = remoteProducts.filter(function(p) { return !pullData.deletedUrls.includes(p.url); });
+        }
+        var seenUrls = {}, seenNames = {}, merged = [];
+        // Local first (newer/more authoritative for this device)
+        productLibrary.forEach(function(p) {
+          var u = (p.url||'').toLowerCase(), n = (p.name||'').toLowerCase();
+          if (!seenUrls[u]) { seenUrls[u] = true; if(n) seenNames[n] = true; merged.push(p); }
+        });
+        // Then remote — add anything not already in local
+        remoteProducts.forEach(function(p) {
+          var u = (p.url||'').toLowerCase(), n = (p.name||'').toLowerCase();
+          if (!seenUrls[u] && !(seenNames[n] && n)) { seenUrls[u] = true; if(n) seenNames[n] = true; merged.push(p); }
+        });
+        if (merged.length > productLibrary.length) {
+          productLibrary = merged;
+          saveProductLibrary();
+          renderProductPage('');
+        }
+      }
+    }
+    // Step 3: Push merged library to Supabase
     var res = await fetch(TEAM_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -4786,14 +4802,11 @@ async function syncToTeam() {
     var data = await res.json();
     if (data.success) {
       if (status) status.textContent = 'Synced at ' + new Date().toLocaleTimeString();
-      toast('Team synced! ✓');
     } else {
       if (status) status.textContent = data.error || 'Sync failed';
-      toast('Sync failed: ' + (data.error || 'Unknown error'));
     }
   } catch(e) {
     if (status) status.textContent = 'Connection error';
-    toast('Could not reach team server.');
   }
 }
 
@@ -4814,7 +4827,6 @@ async function pullTeamData() {
       return;
     }
     if (data.products !== undefined) {
-      // Supabase is source of truth — replace local library
       var rawProducts = data.products;
       // Remove leader-deleted products
       if (data.deletedUrls && data.deletedUrls.length) {
@@ -4831,9 +4843,12 @@ async function pullTeamData() {
         if (_pName) seenNames[_pName] = true;
         deduped.push(_p);
       }
-      productLibrary = deduped;
-      saveProductLibrary();
-      renderProductPage('');
+      // Safety: only replace if Supabase has products — never wipe with empty
+      if (deduped.length > 0) {
+        productLibrary = deduped;
+        saveProductLibrary();
+        renderProductPage('');
+      }
     }
     if (data.presets && data.presets.length) {
       // Merge presets — no duplicates by name
@@ -4858,7 +4873,7 @@ async function joinTeam() {
     var res = await fetch(TEAM_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'join', teamCode: code })
+      body: JSON.stringify({ action: 'join', teamCode: code, teamLimit: localStorage.getItem('rf_team_limit') ? parseInt(localStorage.getItem('rf_team_limit')) : 5 })
     });
     var data = await res.json();
     if (data.success) {
