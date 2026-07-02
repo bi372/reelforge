@@ -1704,7 +1704,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.97 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.98 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1802,7 +1802,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.97';
+const CURRENT_VERSION = '1.0.98';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -4778,7 +4778,7 @@ async function syncToTeam() {
     var res = await fetch(TEAM_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'push', teamCode: teamCode, userEmail: currentUser ? currentUser.email : 'unknown', products: productLibrary, presets: presets })
+      body: JSON.stringify({ action: 'push', teamCode: teamCode, userEmail: currentUser ? currentUser.email : 'unknown', isLeader: localStorage.getItem('rf_team_role') === 'leader', products: productLibrary, presets: presets })
     });
     var data = await res.json();
     if (data.success) {
