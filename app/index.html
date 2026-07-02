@@ -1703,7 +1703,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.95 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.96 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1801,7 +1801,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.95';
+const CURRENT_VERSION = '1.0.96';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -4772,8 +4772,14 @@ async function syncToTeam() {
       if (pullData.products && pullData.products.length > 0) {
         // Step 2: Merge remote products with local — deduplicate by URL and name
         var remoteProducts = pullData.products;
-        if (pullData.deletedUrls && pullData.deletedUrls.length) {
-          remoteProducts = remoteProducts.filter(function(p) { return !pullData.deletedUrls.includes(p.url); });
+        var deletedUrls = pullData.deletedUrls || [];
+        // Remove leader-deleted products from remote
+        if (deletedUrls.length) {
+          remoteProducts = remoteProducts.filter(function(p) { return !deletedUrls.includes(p.url); });
+        }
+        // Also remove leader-deleted products from local library
+        if (deletedUrls.length) {
+          productLibrary = productLibrary.filter(function(p) { return !deletedUrls.includes(p.url); });
         }
         var seenUrls = {}, seenNames = {}, merged = [];
         // Local first (newer/more authoritative for this device)
@@ -4781,16 +4787,14 @@ async function syncToTeam() {
           var u = (p.url||'').toLowerCase(), n = (p.name||'').toLowerCase();
           if (!seenUrls[u]) { seenUrls[u] = true; if(n) seenNames[n] = true; merged.push(p); }
         });
-        // Then remote — add anything not already in local
+        // Then remote — add anything not already in local and not deleted
         remoteProducts.forEach(function(p) {
           var u = (p.url||'').toLowerCase(), n = (p.name||'').toLowerCase();
           if (!seenUrls[u] && !(seenNames[n] && n)) { seenUrls[u] = true; if(n) seenNames[n] = true; merged.push(p); }
         });
-        if (merged.length > productLibrary.length) {
-          productLibrary = merged;
-          saveProductLibrary();
-          renderProductPage('');
-        }
+        productLibrary = merged;
+        saveProductLibrary();
+        renderProductPage('');
       }
     }
     // Step 3: Push merged library to Supabase
