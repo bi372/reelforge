@@ -1708,7 +1708,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.100 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.101 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1806,7 +1806,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.100';
+const CURRENT_VERSION = '1.0.101';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2988,7 +2988,15 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     if (!fileItem.productName) {
       const idx = files.indexOf(fileItem);
       const pnEl = document.getElementById('fi-pn-' + idx);
-      if (pnEl) fileItem.productName = pnEl.value.trim();
+      if (pnEl && pnEl.value.trim()) {
+        fileItem.productName = pnEl.value.trim();
+        // Also look up company name from active library
+        if (!fileItem.companyName) {
+          var _activeLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+          var _match = _activeLib.find(function(p) { return p.name === fileItem.productName; });
+          if (_match) fileItem.companyName = _match.company || '';
+        }
+      }
     }
     const prefix = document.getElementById('batch-prefix') ? (document.getElementById('batch-prefix').value.trim() || 'rf') : 'rf';
     const outputPath = readyFolder+_sep+prefix+'_'+fileItem.file.name.replace(/\.[^.]+$/, '.mp4');
