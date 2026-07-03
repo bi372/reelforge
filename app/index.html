@@ -1708,7 +1708,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.99 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.100 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1806,7 +1806,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.99';
+const CURRENT_VERSION = '1.0.100';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -4447,7 +4447,8 @@ function openProdDropdown(fileIdx, inputEl) {
 function renderProdDropdownList(fileIdx, filter) {
   var listEl = document.getElementById('prod-dd-list-' + fileIdx);
   if (!listEl) return;
-  var filtered = productLibrary.filter(function(p) { return !filter || p.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1; });
+  var _ddActiveLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+  var filtered = _ddActiveLib.filter(function(p) { return !filter || p.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1; });
   if (!filtered.length) {
     listEl.innerHTML = '<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted2)">No products yet. Go to Products tab to add some.</div>';
     return;
@@ -4479,8 +4480,9 @@ function selectProductFromDd(fileIdx, di) {
 function selectProduct(fileIdx, name) {
   if (files[fileIdx]) {
     files[fileIdx].productName = name;
-    // Find matching product in library to grab its company name
-    var match = productLibrary.find(function(p) { return p.name === name; });
+    // Find matching product in active library to grab its company name
+    var _selectLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+    var match = _selectLib.find(function(p) { return p.name === name; });
     files[fileIdx].companyName = match ? (match.company || '') : '';
   }
   var inp = document.getElementById('fi-pn-' + fileIdx);
