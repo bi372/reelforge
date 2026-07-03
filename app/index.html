@@ -1708,7 +1708,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.101 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.102 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1806,7 +1806,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.101';
+const CURRENT_VERSION = '1.0.102';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -4067,7 +4067,7 @@ function renderProductPage(filter) {
   for (var i = 0; i < filtered.length; i++) {
     var p = filtered[i];
     var realIdx = productLibrary.indexOf(p);
-    var imgHtml = p.image ? '<img class="prod-card-img" src="' + p.image + '">' : '<div class="prod-card-img-placeholder">&#128717;</div>';
+    var imgHtml = p.image ? '<img class="prod-card-img" data-src="' + p.image + '" src="" style="background:var(--card2)" onload="this.style.background=\'\'";>' : '<div class="prod-card-img-placeholder">&#128717;</div>';
     html += '<div class="prod-card">' +
       imgHtml +
       '<div class="prod-card-body">' +
@@ -4088,6 +4088,23 @@ function renderProductPage(filter) {
   if (countEl) countEl.textContent = filtered.length + ' product' + (filtered.length !== 1 ? 's' : '');
   // Refresh company suggestions
   updateCompanySuggestions();
+  // Lazy load images with IntersectionObserver
+  var lazyImgs = grid.querySelectorAll('img[data-src]');
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var img = entry.target;
+          img.src = img.dataset.src;
+          observer.unobserve(img);
+        }
+      });
+    }, { rootMargin: '100px' });
+    lazyImgs.forEach(function(img) { observer.observe(img); });
+  } else {
+    // Fallback for older Chromium
+    lazyImgs.forEach(function(img) { img.src = img.dataset.src; });
+  }
 }
 
 function _getImageDomain(url) {
