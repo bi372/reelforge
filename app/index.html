@@ -1708,7 +1708,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.104 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.105 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1806,7 +1806,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.104';
+const CURRENT_VERSION = '1.0.105';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -4066,20 +4066,21 @@ function renderProductPage(filter) {
   var html = '';
   for (var i = 0; i < filtered.length; i++) {
     var p = filtered[i];
-    var realIdx = productLibrary.indexOf(p);
+    var _activeLibForIdx = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+    var realIdx = _activeLibForIdx.indexOf(p);
     var imgHtml = p.image ? '<img class="prod-card-img" data-src="' + p.image + '" src="" style="background:var(--card2)" onload="this.style.background=\'\'";>' : '<div class="prod-card-img-placeholder">&#128717;</div>';
     html += '<div class="prod-card">' +
       imgHtml +
       '<div class="prod-card-body">' +
-      '<div class="prod-card-name" data-url="' + esc(p.url) + '" onclick="startRenameProduct(this,this.dataset.url)" title="Click to rename" style="cursor:text">' + esc(p.name) + '</div>' +
+      '<div class="prod-card-name" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" onclick="startRenameProduct(this)" title="Click to rename" style="cursor:text">' + esc(p.name) + '</div>' +
       '<div style="position:relative;margin-top:4px">' +
-      '<input class="prod-card-company-inp" data-url="' + esc(p.url) + '" value="' + esc(p.company || '') + '" placeholder="Company / brand name" oninput="showCompanySuggestions(this,this.dataset.url)" onblur="hideCompanySuggestions(this)" onkeydown="companyKeyDown(event,this,this.dataset.url)" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--txt);font-family:Inter,sans-serif;box-sizing:border-box" />' +
+      '<input class="prod-card-company-inp" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" value="' + esc(p.company || '') + '" placeholder="Company / brand name" oninput="showCompanySuggestions(this,this.dataset.ridx,this.dataset.market)" onblur="hideCompanySuggestions(this)" onkeydown="companyKeyDown(event,this,this.dataset.ridx,this.dataset.market)" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--txt);font-family:Inter,sans-serif;box-sizing:border-box" />' +
       '<div class="company-dd" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-top:2px;z-index:999;max-height:120px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4)"></div>' +
       '</div>' +
-      '<span class="prod-card-link" data-url="' + esc(p.url) + '" onclick="openProductLink(this.dataset.url)">' + p.url.substring(0, 32) + '...</span>' +
+      '<span class="prod-card-link" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" onclick="openProductLink(this)">' + p.url.substring(0, 32) + '...</span>' +
       '<div class="prod-card-actions">' +
-      '<button class="prod-card-use-btn" data-url="' + esc(p.url) + '" onclick="copyProductName(this)">Copy name</button>' +
-      '<button class="prod-card-del-btn" data-url="' + esc(p.url) + '" onclick="deleteProdAndRefresh(this.dataset.url)">Delete</button>' +
+      '<button class="prod-card-use-btn" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" onclick="copyProductName(this)">Copy name</button>' +
+      '<button class="prod-card-del-btn" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" onclick="deleteProdAndRefresh(this)">Delete</button>' +
       '</div></div></div>';
   }
   grid.innerHTML = html;
@@ -4164,16 +4165,17 @@ function detectCompanyName(newProduct) {
   return matched.charAt(0).toUpperCase() + matched.slice(1);
 }
 
-function showCompanySuggestions(inp, url) {
+function showCompanySuggestions(inp, ridx, market) {
   var val = inp.value.trim().toLowerCase();
   var dd = inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
   if (!dd) return;
   if (!val) { dd.style.display = 'none'; return; }
-  // Get unique company names that match what's typed
+  // Get unique company names from both libraries that match what's typed
+  var _allLibs = productLibrary.concat(productLibraryUK);
   var seen = {};
   var matches = [];
-  for (var i = 0; i < productLibrary.length; i++) {
-    var c = (productLibrary[i].company || '').trim();
+  for (var i = 0; i < _allLibs.length; i++) {
+    var c = (_allLibs[i].company || '').trim();
     if (c && c.toLowerCase().includes(val) && !seen[c.toLowerCase()]) {
       seen[c.toLowerCase()] = true;
       matches.push(c);
@@ -4182,7 +4184,7 @@ function showCompanySuggestions(inp, url) {
   if (!matches.length) { dd.style.display = 'none'; return; }
   dd.innerHTML = matches.map(function(m) {
     return '<div class="company-dd-item" style="padding:6px 10px;font-size:11px;cursor:pointer;color:var(--txt)" ' +
-      'onmousedown="pickCompany(event,this.closest(\'.company-dd\').previousElementSibling,' + idx + ',\'' + m.replace(/'/g,"\'") + '\')" ' +
+      'onmousedown="pickCompany(event,this.closest(\'.company-dd\').previousElementSibling,' + ridx + ',\'' + market + '\',\'' + m.replace(/'/g,"\'") + '\')" ' +
       'onmouseover="this.style.background=\'rgba(255,255,255,.06)\'" ' +
       'onmouseout="this.style.background=\'\'">'+m+'</div>';
   }).join('');
@@ -4192,18 +4194,19 @@ function showCompanySuggestions(inp, url) {
 function hideCompanySuggestions(inp) {
   var dd = inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
   if (dd) setTimeout(function() { dd.style.display = 'none'; }, 150);
-  updateProductCompany(parseInt(inp.dataset.ridx), inp.value);
+  updateProductCompany(inp, inp.value);
 }
 
-function pickCompany(e, inp, url, val) {
+function pickCompany(e, inp, ridx, market, val) {
   e.preventDefault();
   if (inp) inp.value = val;
   var dd = inp && inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
   if (dd) dd.style.display = 'none';
-  updateProductCompany(url, val);
+  var _fakeEl = { dataset: { ridx: ridx, market: market } };
+  updateProductCompany(_fakeEl, val);
 }
 
-function companyKeyDown(e, inp, url) {
+function companyKeyDown(e, inp, ridx, market) {
   var dd = inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
   if (e.key === 'Enter') { inp.blur(); if (dd) dd.style.display = 'none'; }
   if (e.key === 'Escape') { if (dd) dd.style.display = 'none'; }
@@ -4224,9 +4227,11 @@ function updateCompanySuggestions() {
   list.innerHTML = options;
 }
 
-function updateProductCompany(url, value) {
-  var _activeLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
-  var _prod = _activeLib.find(function(p) { return p.url === url; });
+function updateProductCompany(el, value) {
+  var idx = parseInt(el.dataset ? el.dataset.ridx : el);
+  var market = el.dataset ? (el.dataset.market || 'us') : activeMarket;
+  var _activeLib = market === 'uk' ? productLibraryUK : productLibrary;
+  var _prod = _activeLib[idx];
   if (_prod) {
     _prod.company = value;
     saveProductLibrary();
@@ -4239,18 +4244,21 @@ function updateProductCompany(url, value) {
 
 
 function copyProductName(btn) {
-  var url = btn.dataset.url;
-  var _copyLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
-  var p = _copyLib.find(function(p) { return p.url === url; });
+  var idx = parseInt(btn.dataset.ridx);
+  var market = btn.dataset.market || 'us';
+  var _copyLib = market === 'uk' ? productLibraryUK : productLibrary;
+  var p = _copyLib[idx];
   if (!p) return;
   try { navigator.clipboard.writeText(p.name); } catch(e) {}
   btn.textContent = 'Copied!';
   setTimeout(function() { btn.textContent = 'Copy name'; }, 1500);
 }
 
-function startRenameProduct(el, url) {
-  var _renameActiveLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
-  var p = _renameActiveLib.find(function(p) { return p.url === url; });
+function startRenameProduct(el) {
+  var idx = parseInt(el.dataset.ridx);
+  var market = el.dataset.market || 'us';
+  var _renameActiveLib = market === 'uk' ? productLibraryUK : productLibrary;
+  var p = _renameActiveLib[idx];
   if (!p) return;
   var inp = document.createElement('input');
   inp.value = p.name;
@@ -4261,18 +4269,25 @@ function startRenameProduct(el, url) {
   function save() {
     var newName = inp.value.trim();
     if (newName && newName !== p.name) {
-      if (p) p.name = newName;
+      // Explicitly update in the active library array
+      var _saveLib = market === 'uk' ? productLibraryUK : productLibrary;
+      var _saveIdx = idx;
+      if (_saveIdx !== -1) {
+        _saveLib[_saveIdx].name = newName;
+      }
       saveProductLibrary();
       toast('Renamed to ' + newName);
       var _teamCode = localStorage.getItem('rf_team_code');
       if (_teamCode) setTimeout(function() { syncToTeam(); }, 500);
     }
+    // Remove blur handler to prevent double-fire
+    inp.onblur = null;
     var search = document.getElementById('prod-page-search');
     renderProductPage(search ? search.value : '');
   }
   inp.onblur = save;
   inp.onkeydown = function(e) {
-    if (e.key === 'Enter') { inp.blur(); }
+    if (e.key === 'Enter') { e.preventDefault(); save(); }
     if (e.key === 'Escape') { inp.onblur = null; var search = document.getElementById('prod-page-search'); renderProductPage(search ? search.value : ''); }
   };
 }
@@ -4420,7 +4435,12 @@ function prodLinkInput(val) {}
 
 function renderProductLibrary() {}
 
-function openProductLink(url) {
+function openProductLink(el) {
+  var idx = parseInt(el.dataset.ridx);
+  var market = el.dataset.market || 'us';
+  var _lib = market === 'uk' ? productLibraryUK : productLibrary;
+  var url = _lib[idx] ? _lib[idx].url : '';
+  if (!url) return;
   if (window.electronAPI && window.electronAPI.openExternal) window.electronAPI.openExternal(url);
   else window.open(url, '_blank');
 }
@@ -4431,10 +4451,12 @@ function deleteProduct(i) {
   saveProductLibrary();
 }
 
-function deleteProdAndRefresh(url) {
-  var _delLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
-  var deletedProduct = _delLib.find(function(p) { return p.url === url; });
-  var i = _delLib.indexOf(deletedProduct);
+function deleteProdAndRefresh(el) {
+  var i = parseInt(el.dataset.ridx);
+  var market = el.dataset.market || 'us';
+  var _delLib = market === 'uk' ? productLibraryUK : productLibrary;
+  var deletedProduct = _delLib[i];
+  if (market !== activeMarket) { activeMarket = market; }
   deleteProduct(i);
   var _teamCode = localStorage.getItem('rf_team_code');
   var _teamRole = localStorage.getItem('rf_team_role');
@@ -4444,7 +4466,7 @@ function deleteProdAndRefresh(url) {
       fetch(TEAM_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'leader_delete', teamCode: _teamCode, deletedUrl: deletedProduct.url })
+        body: JSON.stringify({ action: 'leader_delete', teamCode: _teamCode, deletedUrl: deletedProduct.url, market: market })
       }).catch(function() {});
     }
     setTimeout(function() { syncToTeam(); }, 500);
@@ -4848,8 +4870,10 @@ async function pushTeamData() {
       body: JSON.stringify({
         action: 'push',
         teamCode: teamCode,
-        licenseKey: currentUser.licenseKey || currentUser.email,
+        userEmail: currentUser.email,
+        isLeader: localStorage.getItem('rf_team_role') === 'leader',
         products: productLibrary,
+        productsUK: productLibraryUK,
         presets: presets
       })
     });
@@ -4859,6 +4883,7 @@ async function pushTeamData() {
       toast('Team synced! ✓');
     } else {
       if (status) status.textContent = 'Sync failed: ' + (data.error || 'Unknown error');
+      toast('Sync failed: ' + (data.error || 'Unknown'));
     }
   } catch(e) {
     if (status) status.textContent = 'Connection error';
