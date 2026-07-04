@@ -1708,7 +1708,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.103 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.104 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1806,7 +1806,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.103';
+const CURRENT_VERSION = '1.0.104';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -4071,15 +4071,15 @@ function renderProductPage(filter) {
     html += '<div class="prod-card">' +
       imgHtml +
       '<div class="prod-card-body">' +
-      '<div class="prod-card-name" data-ridx="' + realIdx + '" onclick="startRenameProduct(this,parseInt(this.dataset.ridx))" title="Click to rename" style="cursor:text">' + esc(p.name) + '</div>' +
+      '<div class="prod-card-name" data-url="' + esc(p.url) + '" onclick="startRenameProduct(this,this.dataset.url)" title="Click to rename" style="cursor:text">' + esc(p.name) + '</div>' +
       '<div style="position:relative;margin-top:4px">' +
       '<input class="prod-card-company-inp" data-url="' + esc(p.url) + '" value="' + esc(p.company || '') + '" placeholder="Company / brand name" oninput="showCompanySuggestions(this,this.dataset.url)" onblur="hideCompanySuggestions(this)" onkeydown="companyKeyDown(event,this,this.dataset.url)" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--txt);font-family:Inter,sans-serif;box-sizing:border-box" />' +
       '<div class="company-dd" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-top:2px;z-index:999;max-height:120px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4)"></div>' +
       '</div>' +
-      '<span class="prod-card-link" data-ridx="' + realIdx + '" onclick="openProductLink(productLibrary[parseInt(this.dataset.ridx)].url)">' + p.url.substring(0, 32) + '...</span>' +
+      '<span class="prod-card-link" data-url="' + esc(p.url) + '" onclick="openProductLink(this.dataset.url)">' + p.url.substring(0, 32) + '...</span>' +
       '<div class="prod-card-actions">' +
-      '<button class="prod-card-use-btn" data-ridx="' + realIdx + '" onclick="copyProductName(this)">Copy name</button>' +
-      '<button class="prod-card-del-btn" data-ridx="' + realIdx + '" onclick="deleteProdAndRefresh(parseInt(this.dataset.ridx))">Delete</button>' +
+      '<button class="prod-card-use-btn" data-url="' + esc(p.url) + '" onclick="copyProductName(this)">Copy name</button>' +
+      '<button class="prod-card-del-btn" data-url="' + esc(p.url) + '" onclick="deleteProdAndRefresh(this.dataset.url)">Delete</button>' +
       '</div></div></div>';
   }
   grid.innerHTML = html;
@@ -4239,16 +4239,18 @@ function updateProductCompany(url, value) {
 
 
 function copyProductName(btn) {
-  var idx = parseInt(btn.dataset.ridx);
-  var p = productLibrary[idx];
+  var url = btn.dataset.url;
+  var _copyLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+  var p = _copyLib.find(function(p) { return p.url === url; });
   if (!p) return;
   try { navigator.clipboard.writeText(p.name); } catch(e) {}
   btn.textContent = 'Copied!';
   setTimeout(function() { btn.textContent = 'Copy name'; }, 1500);
 }
 
-function startRenameProduct(el, idx) {
-  var p = productLibrary[idx];
+function startRenameProduct(el, url) {
+  var _renameActiveLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+  var p = _renameActiveLib.find(function(p) { return p.url === url; });
   if (!p) return;
   var inp = document.createElement('input');
   inp.value = p.name;
@@ -4259,8 +4261,7 @@ function startRenameProduct(el, idx) {
   function save() {
     var newName = inp.value.trim();
     if (newName && newName !== p.name) {
-      var _renameLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
-      if (_renameLib[idx]) _renameLib[idx].name = newName;
+      if (p) p.name = newName;
       saveProductLibrary();
       toast('Renamed to ' + newName);
       var _teamCode = localStorage.getItem('rf_team_code');
@@ -4430,8 +4431,10 @@ function deleteProduct(i) {
   saveProductLibrary();
 }
 
-function deleteProdAndRefresh(i) {
-  var deletedProduct = productLibrary[i];
+function deleteProdAndRefresh(url) {
+  var _delLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+  var deletedProduct = _delLib.find(function(p) { return p.url === url; });
+  var i = _delLib.indexOf(deletedProduct);
   deleteProduct(i);
   var _teamCode = localStorage.getItem('rf_team_code');
   var _teamRole = localStorage.getItem('rf_team_role');
