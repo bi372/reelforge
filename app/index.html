@@ -1514,7 +1514,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
     <div style="display:flex;align-items:center;gap:8px;margin-top:20px">
       <input id="batch-prefix" class="set-inp" placeholder='Output prefix (e.g. "sale_")' style="flex:1;padding:10px 14px;font-size:13px" oninput="saveSettings()"/>
     </div>
-    <button class="process-btn" onclick="processBatch()" style="margin-top:8px">Process batch</button>
+    <button class="process-btn" onclick="processBatch()" style="margin-top:8px" id="process-btn-main">Process batch</button>
     <div class="strike-tog" onclick="toggleFadeEnd()" style="margin-top:10px"><div class="togbox" id="fade-end-tog"></div><span class="strike-label">Fade overlay out 1s before end &mdash; end cover mode</span></div>
     </div>
 
@@ -1708,7 +1708,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.102 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.103 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1806,7 +1806,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.102';
+const CURRENT_VERSION = '1.0.103';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2990,13 +2990,13 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
       const pnEl = document.getElementById('fi-pn-' + idx);
       if (pnEl && pnEl.value.trim()) {
         fileItem.productName = pnEl.value.trim();
-        // Also look up company name from active library
-        if (!fileItem.companyName) {
-          var _activeLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
-          var _match = _activeLib.find(function(p) { return p.name === fileItem.productName; });
-          if (_match) fileItem.companyName = _match.company || '';
-        }
       }
+    }
+    // Always look up company name from library if missing — even if productName was already set
+    if (fileItem.productName && !fileItem.companyName) {
+      var _activeLib2 = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+      var _match2 = _activeLib2.find(function(p) { return p.name === fileItem.productName; });
+      if (_match2) fileItem.companyName = _match2.company || '';
     }
     const prefix = document.getElementById('batch-prefix') ? (document.getElementById('batch-prefix').value.trim() || 'rf') : 'rf';
     const outputPath = readyFolder+_sep+prefix+'_'+fileItem.file.name.replace(/\.[^.]+$/, '.mp4');
@@ -4073,7 +4073,7 @@ function renderProductPage(filter) {
       '<div class="prod-card-body">' +
       '<div class="prod-card-name" data-ridx="' + realIdx + '" onclick="startRenameProduct(this,parseInt(this.dataset.ridx))" title="Click to rename" style="cursor:text">' + esc(p.name) + '</div>' +
       '<div style="position:relative;margin-top:4px">' +
-      '<input class="prod-card-company-inp" data-ridx="' + realIdx + '" value="' + esc(p.company || '') + '" placeholder="Company / brand name" oninput="showCompanySuggestions(this,parseInt(this.dataset.ridx))" onblur="hideCompanySuggestions(this)" onkeydown="companyKeyDown(event,this,parseInt(this.dataset.ridx))" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--txt);font-family:Inter,sans-serif;box-sizing:border-box" />' +
+      '<input class="prod-card-company-inp" data-url="' + esc(p.url) + '" value="' + esc(p.company || '') + '" placeholder="Company / brand name" oninput="showCompanySuggestions(this,this.dataset.url)" onblur="hideCompanySuggestions(this)" onkeydown="companyKeyDown(event,this,this.dataset.url)" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--txt);font-family:Inter,sans-serif;box-sizing:border-box" />' +
       '<div class="company-dd" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-top:2px;z-index:999;max-height:120px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4)"></div>' +
       '</div>' +
       '<span class="prod-card-link" data-ridx="' + realIdx + '" onclick="openProductLink(productLibrary[parseInt(this.dataset.ridx)].url)">' + p.url.substring(0, 32) + '...</span>' +
@@ -4164,7 +4164,7 @@ function detectCompanyName(newProduct) {
   return matched.charAt(0).toUpperCase() + matched.slice(1);
 }
 
-function showCompanySuggestions(inp, idx) {
+function showCompanySuggestions(inp, url) {
   var val = inp.value.trim().toLowerCase();
   var dd = inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
   if (!dd) return;
@@ -4195,15 +4195,15 @@ function hideCompanySuggestions(inp) {
   updateProductCompany(parseInt(inp.dataset.ridx), inp.value);
 }
 
-function pickCompany(e, inp, idx, val) {
+function pickCompany(e, inp, url, val) {
   e.preventDefault();
   if (inp) inp.value = val;
   var dd = inp && inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
   if (dd) dd.style.display = 'none';
-  updateProductCompany(idx, val);
+  updateProductCompany(url, val);
 }
 
-function companyKeyDown(e, inp, idx) {
+function companyKeyDown(e, inp, url) {
   var dd = inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
   if (e.key === 'Enter') { inp.blur(); if (dd) dd.style.display = 'none'; }
   if (e.key === 'Escape') { if (dd) dd.style.display = 'none'; }
@@ -4224,10 +4224,11 @@ function updateCompanySuggestions() {
   list.innerHTML = options;
 }
 
-function updateProductCompany(idx, value) {
+function updateProductCompany(url, value) {
   var _activeLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
-  if (_activeLib[idx]) {
-    _activeLib[idx].company = value;
+  var _prod = _activeLib.find(function(p) { return p.url === url; });
+  if (_prod) {
+    _prod.company = value;
     saveProductLibrary();
     updateCompanySuggestions();
     var _teamCode = localStorage.getItem('rf_team_code');
@@ -4870,7 +4871,7 @@ async function syncToTeam() {
     var res = await fetch(TEAM_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'push', teamCode: teamCode, userEmail: currentUser ? currentUser.email : 'unknown', isLeader: localStorage.getItem('rf_team_role') === 'leader', products: productLibrary, presets: presets })
+      body: JSON.stringify({ action: 'push', teamCode: teamCode, userEmail: currentUser ? currentUser.email : 'unknown', isLeader: localStorage.getItem('rf_team_role') === 'leader', products: productLibrary, productsUK: productLibraryUK, presets: presets })
     });
     var data = await res.json();
     if (data.success) {
@@ -4920,9 +4921,31 @@ async function pullTeamData() {
       // Safety: only replace if Supabase has products — never wipe with empty
       if (deduped.length > 0) {
         productLibrary = deduped;
-        saveProductLibrary();
-        renderProductPage('');
+        localStorage.setItem('rf_products', JSON.stringify(productLibrary));
       }
+    }
+    if (data.productsUK !== undefined && data.productsUK.length > 0) {
+      var rawUK = data.productsUK;
+      if (data.deletedUrls && data.deletedUrls.length) {
+        rawUK = rawUK.filter(function(p) { return !data.deletedUrls.includes(p.url); });
+      }
+      var seenUKUrls = {}, seenUKNames = {}, dedupedUK = [];
+      for (var _qi = 0; _qi < rawUK.length; _qi++) {
+        var _q = rawUK[_qi];
+        var _qUrl = (_q.url || '').trim().toLowerCase();
+        var _qName = (_q.name || '').trim().toLowerCase();
+        if (seenUKUrls[_qUrl] || (seenUKNames[_qName] && _qName)) continue;
+        seenUKUrls[_qUrl] = true;
+        if (_qName) seenUKNames[_qName] = true;
+        dedupedUK.push(_q);
+      }
+      if (dedupedUK.length > 0) {
+        productLibraryUK = dedupedUK;
+        localStorage.setItem('rf_products_uk', JSON.stringify(productLibraryUK));
+      }
+    }
+    if (data.products !== undefined || data.productsUK !== undefined) {
+      renderProductPage('');
     }
     if (data.presets && data.presets.length) {
       // Merge presets — no duplicates by name
