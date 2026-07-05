@@ -1,305 +1,5053 @@
-const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron')
-const { autoUpdater } = require('electron-updater')
-const path = require('path')
-const { execFile } = require('child_process')
-const fs = require('fs')
-const os = require('os')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>RoyalForge</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;
+  --card:#101010;
+  --card2:#181818;
+  --border:#1e1e1e;
+  --border2:#2d2d2d;
+  --txt:#f5f5f5;
+  --muted:#5a5a5a;
+  --muted2:#333;
+  --gold:#c9a84c;
+  --gold2:#e8c46a;
+  --gold-glow:rgba(201,168,76,0.15);
+  --red:#e03d52;
+  --red-glow:rgba(224,61,82,0.18);
+  --green:#22c55e;
+}
+
+.light-mode {
+  --bg:#f4f4f0;
+  --card:#ffffff;
+  --card2:#ebebeb;
+  --border:#dedede;
+  --border2:#cecece;
+  --txt:#111111;
+  --muted:#888888;
+  --muted2:#bbbbbb;
+  --gold:#b8922e;
+  --gold2:#d4a83a;
+  --gold-glow:rgba(184,146,46,0.12);
+  --red:#d42e42;
+  --red-glow:rgba(212,46,66,0.12);
+  --green:#16a34a;
+}
+.light-mode .phone-frame{border-color:#ccc}
+.light-mode .phone-bg{background:linear-gradient(160deg,#e0e0e0 0%,#f0f0f0 100%)}
+
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;font-size:14px;overflow-x:hidden}
+
+/* ======= VIEWS ======= */
+.view{display:none}
+.view.on{display:block}
+
+/* ======= LANDING PAGE ======= */
+.land-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 48px;position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.04)}
+.land-logo{display:flex;align-items:center;gap:10px}
+.land-logo-mark{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:8px;display:flex;align-items:center;justify-content:center}
+.land-logo-mark svg{width:13px;height:13px;fill:#000}
+.land-logo-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--txt)}
+.land-logo-name span{color:var(--gold)}
+.land-nav-links{display:flex;align-items:center;gap:32px}
+.land-nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .15s;cursor:pointer}
+.land-nav-links a:hover{color:var(--txt)}
+.land-nav-right{display:flex;align-items:center;gap:10px}
+.nav-login-btn{background:none;border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:7px 18px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.nav-login-btn:hover{border-color:var(--gold);color:var(--gold)}
+.nav-signup-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.nav-signup-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,0.06) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--gold);margin-bottom:32px;letter-spacing:.5px;font-weight:500}
+.hero-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(40px,6vw,72px);font-weight:800;line-height:1.05;letter-spacing:-1.5px;margin-bottom:20px;max-width:800px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:500px;margin-bottom:44px;font-weight:400}
+.hero-cta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:64px}
+.hero-cta{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:15px 40px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;letter-spacing:.1px}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px var(--gold-glow)}
+.hero-cta-ghost{background:none;border:1px solid var(--border2);color:var(--muted);border-radius:12px;padding:15px 32px;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.hero-cta-ghost:hover{border-color:var(--border2);color:var(--txt)}
+.hero-proof{font-size:12px;color:var(--muted2)}
+.hero-proof span{color:var(--muted)}
+
+/* MARQUEE STRIP */
+.marquee-wrap{width:100%;overflow:hidden;padding:0 0 80px;mask-image:linear-gradient(90deg,transparent,black 10%,black 90%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,black 10%,black 90%,transparent)}
+.marquee-track{display:flex;gap:14px;width:max-content;animation:marquee-left 28s linear infinite}
+.marquee-track:hover{animation-play-state:paused}
+@keyframes marquee-left{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.mcard{width:130px;height:220px;border-radius:16px;background:var(--card2);border:1px solid var(--border2);flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:flex-start;justify-content:flex-start}
+.mcard-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1a1a1a 0%,#0d0d0d 100%)}
+.mcard-img{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:.15}
+.mcard-overlay{position:absolute;top:10px;left:0;right:0;display:flex;flex-direction:column;gap:4px;padding:0 8px}
+.mcard-overlay.bottom{top:auto;bottom:10px}
+.mo-banner{border-radius:4px;padding:4px 8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-align:center;line-height:1.2}
+.mo-red{background:var(--red);color:#fff}
+.mo-white{background:#fff;color:#000}
+.mo-gold{background:var(--gold);color:#000}
+.mo-text{font-size:9px;color:#fff;text-align:center;line-height:1.4;text-shadow:0 1px 4px rgba(0,0,0,.8);padding:0 4px}
+
+/* HOW IT WORKS */
+.section{padding:100px 24px;max-width:900px;margin:0 auto;text-align:center}
+.section-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:600}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-1px;margin-bottom:16px;line-height:1.1}
+.section-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:500px;margin:0 auto 56px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:left}
+.step{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px;transition:border-color .2s}
+.step:hover{border-color:rgba(201,168,76,0.2)}
+.step-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:800;color:var(--gold);opacity:.4;margin-bottom:14px;line-height:1}
+.step-title{font-size:15px;font-weight:600;margin-bottom:8px}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;text-align:left;max-width:800px;margin:0 auto}
+.feature{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;transition:border-color .2s}
+.feature:hover{border-color:rgba(201,168,76,0.18)}
+.feature-icon{font-size:22px;margin-bottom:12px}
+.feature-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.feature-desc{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:700px;margin:0 auto;text-align:left}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.price-card.featured{border-color:rgba(201,168,76,0.35);background:rgba(201,168,76,0.04)}
+.price-tag{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:inline-block;padding:3px 10px;background:rgba(201,168,76,0.1);border-radius:4px}
+.price-name{font-size:18px;font-weight:700;margin-bottom:4px}
+.price-amount{font-family:'Playfair Display',serif;font-size:40px;font-weight:800;margin-bottom:4px}
+.price-amount sup{font-size:18px;font-weight:600;vertical-align:super}
+.price-per{font-size:12px;color:var(--muted);margin-bottom:20px}
+.price-list{list-style:none;margin-bottom:24px}
+.price-list li{font-size:13px;color:var(--muted);padding:5px 0;display:flex;align-items:center;gap:8px}
+.price-list li::before{content:'';width:6px;height:6px;background:var(--gold);border-radius:50%;flex-shrink:0}
+.price-list li.active{color:var(--txt)}
+.price-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.price-btn:hover{opacity:.9}
+.price-btn-ghost{width:100%;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:10px;padding:12px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.price-btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+/* SCROLL ANIMATIONS */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+
+/* HOW IT WORKS - horizontal timeline */
+.hiw-section{padding:110px 48px;max-width:1100px;margin:0 auto}
+.hiw-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;position:relative;margin-top:56px}
+.hiw-steps::before{content:'';position:absolute;top:32px;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),rgba(201,168,76,0.3),transparent)}
+.hiw-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 32px}
+.hiw-num-wrap{width:64px;height:64px;border-radius:50%;background:var(--card);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:24px;position:relative;z-index:1}
+.hiw-num-wrap::before{content:'';position:absolute;inset:-1px;border-radius:50%;background:linear-gradient(135deg,rgba(201,168,76,.3),transparent);z-index:-1}
+.hiw-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--gold)}
+.hiw-title{font-size:16px;font-weight:700;margin-bottom:10px;letter-spacing:-.2px}
+.hiw-desc{font-size:13px;color:var(--muted);line-height:1.7}
+.hiw-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.hiw-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px}
+.hiw-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:480px}
+
+/* FEATURES - alternating layout */
+.feat-section{padding:0 48px 110px;max-width:1100px;margin:0 auto}
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:56px}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;position:relative;overflow:hidden;transition:border-color .25s,transform .25s}
+.feat-card:hover{border-color:rgba(201,168,76,.2);transform:translateY(-2px)}
+.feat-card::before{content:'';position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle,rgba(201,168,76,.04) 0%,transparent 70%);pointer-events:none}
+.feat-card.wide{grid-column:span 2}
+.feat-icon-wrap{width:44px;height:44px;border-radius:11px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.15);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px}
+.feat-title{font-size:16px;font-weight:700;margin-bottom:8px;letter-spacing:-.2px}
+.feat-desc{font-size:13px;color:var(--muted);line-height:1.7}
+.feat-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.18);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:600;margin-top:14px}
+.feat-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.feat-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px}
+.feat-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:480px}
+
+/* SOCIAL PROOF STRIP */
+.proof-strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px 48px;background:var(--card);display:flex;align-items:center;justify-content:center;gap:64px;flex-wrap:wrap;margin-bottom:0}
+.proof-item{text-align:center}
+.proof-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;color:var(--gold);margin-bottom:2px}
+.proof-label{font-size:12px;color:var(--muted)}
+
+/* PRICING - upgraded */
+.price-section{padding:110px 48px;max-width:900px;margin:0 auto;text-align:center}
+.price-tag2{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.price-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px}
+.price-sub2{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:52px}
+.pricing-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px;display:flex;flex-direction:column}
+.pc.hot{border-color:rgba(201,168,76,.35);background:linear-gradient(160deg,rgba(201,168,76,.05) 0%,var(--card) 60%);position:relative}
+.pc.hot::before{content:'Most Popular';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-size:11px;font-weight:700;padding:4px 16px;border-radius:0 0 10px 10px;letter-spacing:.5px}
+.pc-name{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:.8px}
+.pc-price{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
+.pc-price .amt{font-family:'Playfair Display',serif;font-size:46px;font-weight:800;line-height:1}
+.pc-price .cur{font-size:20px;font-weight:600;color:var(--muted);align-self:flex-start;margin-top:8px}
+.pc-per{font-size:12px;color:var(--muted);margin-bottom:24px}
+.pc-divider{height:1px;background:var(--border);margin-bottom:20px}
+.pc-list{list-style:none;flex:1;margin-bottom:28px}
+.pc-list li{font-size:13px;color:var(--muted);padding:7px 0;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.pc-list li:last-child{border-bottom:none}
+.pc-list li.yes{color:var(--txt)}
+.pc-list li.yes::before{content:'';width:16px;height:16px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' fill='none' stroke='%23c9a84c' stroke-width='1.8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='2,5 4,7 8,3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:10px}
+.pc-list li.no{color:var(--muted2)}
+.pc-list li.no::before{content:'';width:16px;height:16px;background:var(--card2);border:1px solid var(--border);border-radius:50%;flex-shrink:0}
+.pc-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;letter-spacing:.1px}
+.pc-btn:hover{opacity:.9;transform:translateY(-1px)}
+.pc-btn-ghost{width:100%;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:11px;padding:13px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.pc-btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.price-note{font-size:12px;color:var(--muted2);margin-top:20px;text-align:center}
+
+/* TESTIMONIALS */
+.testi-section{padding:0 48px 110px;max-width:1100px;margin:0 auto;text-align:center}
+.testi-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.testi-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:52px}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:left}
+.testi-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:16px;transition:border-color .2s}
+.testi-card:hover{border-color:rgba(201,168,76,.2)}
+.testi-stars{display:flex;gap:3px}
+.testi-star{color:var(--gold);font-size:13px}
+.testi-quote{font-size:14px;color:var(--txt);line-height:1.7;flex:1;font-style:italic}
+.testi-quote::before{content:'"';font-family:'Playfair Display',serif;font-size:40px;color:rgba(201,168,76,.2);line-height:0;vertical-align:-14px;margin-right:4px}
+.testi-author{display:flex;align-items:center;gap:10px;border-top:1px solid var(--border);padding-top:14px}
+.testi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;color:#000}
+.testi-info-name{font-size:13px;font-weight:600}
+.testi-info-handle{font-size:11px;color:var(--muted)}
+
+/* ONBOARDING MODAL */
+.onboard-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;align-items:center;justify-content:center}
+.onboard-bg.show{display:flex}
+.onboard-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:40px;width:480px;max-width:90vw;text-align:center;position:relative}
+.onboard-logo{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:24px}
+.onboard-logo-mark{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:8px;display:flex;align-items:center;justify-content:center}
+.onboard-logo-mark svg{width:12px;height:12px;fill:#000}
+.onboard-logo-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700}
+.onboard-logo-name span{color:var(--gold)}
+.onboard-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:28px}
+.onboard-step{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:18px 12px;transition:all .3s}
+.onboard-step.active-step{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.05)}
+.os-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--gold);opacity:.3;margin-bottom:8px;transition:opacity .3s}
+.onboard-step.active-step .os-num{opacity:1}
+.os-title{font-size:12px;font-weight:600;margin-bottom:4px}
+.os-desc{font-size:10px;color:var(--muted);line-height:1.5}
+.onboard-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;margin-bottom:8px;letter-spacing:-.3px}
+.onboard-title span{color:var(--gold)}
+.onboard-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto}
+.onboard-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:11px;padding:13px 40px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.onboard-btn:hover{opacity:.9;transform:translateY(-1px)}
+.onboard-skip{display:block;margin-top:14px;font-size:12px;color:var(--muted2);cursor:pointer;transition:color .15s}
+.onboard-skip:hover{color:var(--muted)}
+.onboard-progress{display:flex;gap:5px;justify-content:center;margin-top:20px}
+.op-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);transition:background .3s}
+.op-dot.active{background:var(--gold)}
+.faq-section{padding:0 48px 110px;max-width:780px;margin:0 auto}
+.faq-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.faq-heading{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,38px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:48px}
+.faq-list{display:flex;flex-direction:column;gap:0}
+.faq-item{border-top:1px solid var(--border);padding:0}
+.faq-item:last-child{border-bottom:1px solid var(--border)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:20px 0;cursor:pointer;gap:16px;transition:color .15s}
+.faq-q:hover{color:var(--gold)}
+.faq-q-txt{font-size:15px;font-weight:600;letter-spacing:-.2px;flex:1}
+.faq-icon{width:22px;height:22px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s;font-size:14px;color:var(--muted)}
+.faq-item.open .faq-icon{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.3);color:var(--gold);transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:20px}
+.faq-a-txt{font-size:14px;color:var(--muted);line-height:1.8}background:var(--card);border:1px solid var(--border);border-radius:20px;padding:56px 48px;text-align:center;position:relative;overflow:hidden}
+.cta-band::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:400px;height:200px;background:radial-gradient(ellipse,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
+.cta-band h2{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,36px);font-weight:800;letter-spacing:-.5px;margin-bottom:10px}
+.cta-band p{font-size:15px;color:var(--muted);margin-bottom:28px}
+.cta-band-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:15px 44px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.cta-band-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 32px var(--gold-glow)}
+
+/* FOOTER upgrade */
+.land-footer{border-top:1px solid var(--border);padding:40px 48px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px}
+.footer-logo-wrap{display:flex;align-items:center;gap:9px}
+.footer-logo-mark{width:24px;height:24px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:6px;display:flex;align-items:center;justify-content:center}
+.footer-logo-mark svg{width:10px;height:10px;fill:#000}
+.footer-logo-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--muted)}
+.footer-logo-name span{color:var(--gold)}
+.footer-links{display:flex;gap:24px;justify-content:center}
+.footer-links a{font-size:12px;color:var(--muted2);text-decoration:none;cursor:pointer;transition:color .15s}
+.footer-links a:hover{color:var(--muted)}
+.footer-copy{font-size:12px;color:var(--muted2);text-align:right}
+
+/* ======= AUTH PAGES (LOGIN / SIGNUP) ======= */
+.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative}
+.auth-page::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:400px;height:300px;background:radial-gradient(ellipse,rgba(201,168,76,0.05) 0%,transparent 70%);pointer-events:none}
+.auth-back{position:fixed;top:24px;left:24px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;transition:color .15s;z-index:10}
+.auth-back:hover{color:var(--txt)}
+.auth-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.auth-box{width:100%;max-width:420px;position:relative}
+.auth-logo{display:flex;align-items:center;gap:9px;justify-content:center;margin-bottom:40px}
+.auth-logo-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:9px;display:flex;align-items:center;justify-content:center}
+.auth-logo-mark svg{width:14px;height:14px;fill:#000}
+.auth-logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--txt)}
+.auth-logo-name span{color:var(--gold)}
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:36px 32px}
+.auth-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.auth-title em{font-style:normal;color:var(--gold)}
+.auth-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.5}
+.auth-sub a{color:var(--gold);cursor:pointer;text-decoration:none}
+.auth-sub a:hover{opacity:.8}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;letter-spacing:.3px}
+.auth-input{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:11px 14px;color:var(--txt);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border .2s}
+.auth-input:focus{border-color:rgba(201,168,76,0.5)}
+.auth-input::placeholder{color:var(--muted2)}
+.auth-forgot{text-align:right;margin-top:-8px;margin-bottom:20px}
+.auth-forgot a{font-size:12px;color:var(--muted);cursor:pointer;transition:color .15s}
+.auth-forgot a:hover{color:var(--gold)}
+.auth-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-top:6px;letter-spacing:.1px}
+.auth-btn:hover{opacity:.9;transform:translateY(-1px)}
+.auth-btn:active{transform:scale(.98)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-divider span{font-size:11px;color:var(--muted2)}
+.auth-error{background:rgba(224,61,82,0.1);border:1px solid rgba(224,61,82,0.25);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
+.auth-error.show{display:block}
+.auth-success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--green);margin-bottom:14px;display:none}
+.auth-success.show{display:block}
+.terms-note{font-size:11px;color:var(--muted2);text-align:center;margin-top:16px;line-height:1.6}
+.terms-note a{color:var(--muted);cursor:pointer}
+
+/* ======= APP ======= */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 24px;border-bottom:1px solid var(--border);background:#090909;position:sticky;top:0;z-index:50}
+.app-logo{display:flex;align-items:center;gap:8px;cursor:pointer}
+.app-logo-mark{width:26px;height:26px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:7px;display:flex;align-items:center;justify-content:center}
+.app-logo-mark svg{width:11px;height:11px;fill:#000}
+.app-logo-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--txt)}
+.app-logo-name span{color:var(--gold)}
+.app-logo-sub{font-size:11px;color:var(--muted);margin-left:2px}
+.tbar-r{display:flex;align-items:center;gap:8px}
+.pro-pill{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:600}
+.tcount{font-size:12px;color:var(--muted)}
+.tbtn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:5px 8px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.tbtn:hover{background:var(--card2);color:var(--txt)}
+
+/* APP VIEWS */
+.app-view{display:none;overflow:visible}
+.app-view.on{display:block;overflow:visible}
+
+/* DASHBOARD */
+.dash{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 54px);padding:40px 20px;text-align:center}
+.dash-hi{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.dash-hi span{color:var(--gold)}
+/* DASHBOARD STATS */
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:580px;margin-bottom:32px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;text-align:left;transition:border-color .2s}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-card-val.gold{color:var(--gold)}
+.stat-card-val.red{color:var(--red)}
+.stat-card-val.purple{color:#a78bfa}
+.stat-card-val.white{color:var(--txt)}
+.stat-card-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.split-bof{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(224,61,82,.1);color:var(--red);border:1px solid rgba(224,61,82,.2);display:inline-block}
+.split-mof{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.2);display:inline-block}
+.brow-split{display:flex;align-items:center;gap:5px}
+
+.dash-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.start-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:50px;padding:15px 60px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 0 40px var(--gold-glow);transition:all .2s;letter-spacing:.1px}
+.start-btn:hover{transform:scale(1.02);box-shadow:0 0 60px rgba(201,168,76,.25)}
+.start-btn:active{transform:scale(.98)}
+.recent-wrap{margin-top:36px;width:100%;max-width:580px}
+.recent-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);text-align:center;margin-bottom:14px}
+.btable{width:100%;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)}
+.btable-head{display:grid;grid-template-columns:1fr 130px 100px 80px;padding:9px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px}
+.brow{display:grid;grid-template-columns:1fr 130px 100px 80px;padding:12px 16px;align-items:center;border-bottom:1px solid var(--border);transition:background .15s}
+.brow:last-child{border-bottom:none}
+.brow:hover{background:var(--card2)}
+.brow-date{font-size:13px}
+.brow-ct{font-size:12px;color:var(--muted);text-align:center}
+.brow-status{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.brow-open{font-size:12px;color:var(--gold);cursor:pointer;text-align:right;font-weight:500}
+.brow-open:hover{opacity:.7}
+.no-batches{padding:20px;text-align:center;font-size:13px;color:var(--muted)}
+
+/* EDITOR */
+.editor{max-width:640px;margin:0 auto;padding:28px 20px 100px}
+.ed-back{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:24px;transition:color .15s;width:fit-content}
+.ed-back:hover{color:var(--txt)}
+.ed-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px}
+.sec-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.sec-desc{font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:14px}
+.info-dot{width:13px;height:13px;border-radius:50%;border:1px solid var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:var(--muted);cursor:default;flex-shrink:0}
+.ov-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:3px}
+.ov-btn{background:none;border:none;border-radius:6px;padding:9px;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .2s}
+.ov-btn.active{background:var(--gold);color:#000;font-weight:600}
+.ov-btn:hover:not(.active){background:var(--card);color:var(--txt)}
+.row-lbl{font-size:12px;color:var(--muted);margin-top:14px;margin-bottom:0;display:flex;align-items:center;gap:6px}
+.color-dots{display:flex;gap:4px;margin-left:4px}
+.cdot{width:10px;height:10px;border-radius:50%;cursor:pointer;transition:transform .15s;border:1.5px solid transparent}
+.cdot:hover{transform:scale(1.3)}
+.cdot.sel{border-color:#fff}
+.item-list{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.item-row{display:flex;align-items:center;gap:7px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;transition:border-color .15s}
+.item-row.on{border-color:rgba(201,168,76,0.3)}
+.item-chk{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.item-chk.on{background:var(--gold);border-color:var(--gold)}
+.item-chk.on::after{content:'';display:block;width:7px;height:5px;border-left:1.5px solid #000;border-bottom:1.5px solid #000;transform:rotate(-45deg) translate(0,-1px)}
+.item-col{width:14px;height:14px;border-radius:3px;border:none;cursor:pointer;flex-shrink:0;padding:0}
+.item-inp{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;min-width:0}
+.item-inp::placeholder{color:var(--muted2)}
+.item-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;line-height:1;padding:0 2px;flex-shrink:0;transition:color .15s}
+.item-del:hover{color:var(--red)}
+.add-item-btn{display:flex;align-items:center;gap:5px;background:none;border:1px dashed var(--border2);border-radius:8px;padding:7px 13px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:5px;width:100%}
+.add-item-btn:hover{border-color:var(--gold);color:var(--gold)}
+.add-to-list-btn{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:6px;font-weight:500}
+.add-to-list-btn:hover{background:rgba(201,168,76,0.08);color:var(--gold);border-color:rgba(201,168,76,0.2)}
+.strike-tog{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:7px;border:1px solid var(--border);background:var(--card2);cursor:pointer;margin-top:14px;transition:border-color .15s}
+.strike-tog:hover{border-color:var(--border2)}
+.togbox{width:13px;height:13px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.togbox.on{background:var(--gold);border-color:var(--gold)}
+.togbox.on::after{content:'';display:block;width:7px;height:5px;border-left:1.5px solid #000;border-bottom:1.5px solid #000;transform:rotate(-45deg) translate(0,-1px)}
+.strike-label{font-size:11px;color:var(--muted)}
+.strike-inputs{display:none;flex-direction:column;gap:7px;margin-top:7px}
+.strike-inputs.show{display:flex}
+.si{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border .15s}
+.si:focus{border-color:rgba(201,168,76,0.4)}
+.strike-preview{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.sp-orig{font-size:15px;font-weight:800;color:var(--muted);text-decoration:line-through}
+.sp-disc{font-size:15px;font-weight:800;background:var(--red);color:#fff;padding:2px 9px;border-radius:4px}
+textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;resize:vertical;min-height:80px;outline:none;line-height:1.6;transition:border .15s;margin-top:8px}
+textarea:focus{border-color:rgba(201,168,76,0.35)}
+textarea::placeholder{color:var(--muted2)}
+.hook-list{display:flex;flex-direction:column;gap:5px}
+.drop-zone{border:1.5px dashed var(--border2);border-radius:8px;padding:36px;text-align:center;cursor:pointer;transition:all .2s;background:var(--card2)}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:rgba(201,168,76,0.03)}
+.dz-text{font-size:13px;color:var(--muted)}
+.file-list{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.file-item{display:flex;flex-direction:column;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 12px}
+.file-item-top{display:flex;align-items:center;justify-content:space-between;}.file-item.is-bof{border-color:rgba(224,61,82,0.25)}
+.file-item.is-mof{border-color:rgba(167,139,250,0.25)}
+.fi-left{display:flex;align-items:center;gap:8px;min-width:0}
+.fi-thumb{width:36px;height:36px;border-radius:5px;background:var(--card);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:13px;pointer-events:none}
+.fi-thumb video{width:100%;height:100%;object-fit:cover}
+.fi-info{min-width:0}
+.fi-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.fi-meta{display:flex;align-items:center;gap:6px;margin-top:2px}
+.fi-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:.4px}
+.fi-bof{background:rgba(224,61,82,.1);color:var(--red);border:1px solid rgba(224,61,82,.2)}
+.fi-mof{background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.2)}
+.fi-dur{font-size:10px;color:var(--muted);font-family:monospace}
+.fi-auto{font-size:9px;color:var(--muted2)}
+.fi-rm{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;flex-shrink:0;transition:color .15s;padding:0 4px}
+.fi-rm:hover{color:var(--red)}
+.fi-thumb{cursor:pointer;position:relative;overflow:hidden}
+.fi-thumb video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
+.fi-thumb.loaded video{opacity:1}
+.fi-badge{cursor:pointer;user-select:none;transition:all .15s}
+.fi-badge:hover{opacity:.8;transform:scale(1.05)}
+.add-files-btn{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:10px;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:8px}
+.add-files-btn:hover{background:var(--card);color:var(--txt)}
+.process-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:50px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:20px;box-shadow:0 0 30px var(--gold-glow);transition:all .2s}
+.process-btn:hover{transform:translateY(-1px);box-shadow:0 0 50px rgba(201,168,76,.2)}
+
+/* LIVE PREVIEW */
+.editor-shell-2col{display:grid;grid-template-columns:1fr 280px;gap:24px;max-width:960px;margin:0 auto;padding:28px 20px 100px;align-items:start}
+.editor-controls{min-width:0;padding-right:8px}
+.preview-panel{position:fixed;top:70px;right:calc((100vw - 960px)/2 + 20px);width:280px;z-index:40}
+.preview-panel-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;text-align:center}
+.phone-frame{width:100%;aspect-ratio:9/16;max-height:520px;border-radius:24px;overflow:hidden;position:relative;background:#111;border:2px solid var(--border2);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.phone-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1c1c1c 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center;overflow:hidden}.phone-bg video,.phone-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.85}
+.phone-product-emoji{font-size:56px;opacity:.12;user-select:none}
+.phone-overlay{position:absolute;left:0;right:0;display:flex;flex-direction:column;gap:4px;padding:0 10px}
+.phone-overlay.top-pos{top:14px}
+.phone-overlay.center-pos{top:50%;transform:translateY(-50%)}
+.phone-overlay.bottom-pos{bottom:14px}
+.phone-banner{border-radius:5px;padding:6px 8px;font-weight:800;text-align:center;letter-spacing:.5px;line-height:1.2;font-family:'Inter',sans-serif;word-break:break-word}
+.phone-fulltext{text-align:center;line-height:1.5;font-size:13px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.9);padding:0 6px;font-family:'Inter',sans-serif;word-break:break-word}
+.phone-strike{display:flex;flex-direction:column;gap:3px;align-items:flex-start;padding:0 2px}
+.phone-strike-orig{font-size:13px;font-weight:800;color:rgba(255,255,255,.7);text-decoration:line-through;letter-spacing:.3px}
+.phone-strike-disc{font-size:15px;font-weight:800;background:var(--red);color:#fff;padding:2px 10px;border-radius:4px;letter-spacing:.5px}
+.preview-hint{font-size:11px;color:var(--muted2);text-align:center;margin-top:10px;line-height:1.5}
+.preview-cycle-btn{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-top:6px}
+.preview-cycle-btn:hover{background:var(--card2);color:var(--txt)}
+.set-back{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:20px;transition:color .15s}
+.set-back:hover{color:var(--txt)}
+.set-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.set-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;margin-bottom:18px;letter-spacing:-.5px}
+.set-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:10px}
+.set-card-title{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:12px}
+.set-row{margin-bottom:10px}
+.set-row:last-child{margin-bottom:0}
+.set-lbl{font-size:12px;color:var(--muted);margin-bottom:4px}
+.set-val{font-size:13px;font-weight:600;padding:8px 11px;background:var(--card2);border:1px solid var(--border);border-radius:7px;opacity:.7}
+.set-inp{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border .15s}
+.set-inp:focus{border-color:rgba(201,168,76,.4)}
+.set-note{font-size:11px;color:var(--muted2);line-height:1.6;margin-bottom:8px}
+.set-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;font-weight:500}
+.set-btn:hover{background:var(--card);color:var(--txt);border-color:var(--border2)}
+.set-btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;font-weight:700}
+.set-btn-gold:hover{opacity:.9}
+.set-btn-red{background:rgba(224,61,82,.08);border:1px solid rgba(224,61,82,.2);color:var(--red)}
+.set-btn-red:hover{background:rgba(224,61,82,.15)}
+.folder-display{font-size:12px;font-family:monospace;padding:8px 11px;background:var(--card2);border:1px solid var(--border);border-radius:7px;color:var(--muted);margin-bottom:7px;word-break:break-all}
+.folder-display.set{color:var(--txt)}
+
+/* OVERLAYS */
+.proc-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;align-items:center;justify-content:center}
+.proc-bg.on{display:flex}
+.proc-box{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:32px 40px;text-align:center;min-width:300px}
+.proc-box h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:800;margin-bottom:20px}
+.prog-bar{background:var(--card2);border-radius:20px;height:4px;overflow:hidden;margin-bottom:12px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:20px;transition:width .35s;width:0%}
+.proc-fname{font-size:12px;color:var(--muted);margin-bottom:3px}
+.proc-stat{font-size:10px;color:var(--muted2)}
+.done-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;align-items:center;justify-content:center}
+.done-bg.on{display:flex}
+.done-box{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:32px 40px;text-align:center;min-width:300px}
+.done-box h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:800;margin-bottom:6px}
+.done-box p{font-size:13px;color:var(--muted);margin-bottom:8px}
+.folder-tags{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.ftag{font-size:11px;font-weight:600;padding:4px 8px;background:var(--card2);border:1px solid var(--border2);border-radius:6px}
+.done-btns{display:flex;gap:8px;justify-content:center}
+.done-open{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:9px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+.done-back{background:var(--card2);border:1px solid var(--border2);color:var(--txt);border-radius:9px;padding:10px 22px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:9px 18px;font-size:12px;color:var(--txt);opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* LOADING SCREEN */
+.loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .5s ease}
+.loader.fade{opacity:0;pointer-events:none}
+.loader-logo{display:flex;align-items:center;gap:10px}
+.loader-mark{width:44px;height:44px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:12px;display:flex;align-items:center;justify-content:center;animation:loader-pulse 1.5s ease infinite}
+.loader-mark svg{width:18px;height:18px;fill:#000}
+.loader-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:800;color:var(--txt)}
+.loader-name span{color:var(--gold)}
+.loader-bar{width:120px;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+.loader-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;animation:loader-fill 1.4s ease forwards}
+@keyframes loader-pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.4)}50%{box-shadow:0 0 0 8px rgba(201,168,76,0)}}
+@keyframes loader-fill{0%{width:0%}100%{width:100%}}
+
+/* EMPTY STATE */
+.empty-state{padding:40px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty-icon{width:52px;height:52px;background:var(--card2);border:1px solid var(--border2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:4px}
+.empty-title{font-size:15px;font-weight:600}
+.empty-sub{font-size:13px;color:var(--muted);line-height:1.6;max-width:260px}
+.empty-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:9px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-top:4px}
+.empty-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+/* DASHBOARD GREETING ROW */
+.dash-greeting-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.dash-greeting-time{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);color:var(--gold)}
+
+/* VIDEO COUNTER BAR */
+.vid-counter{display:flex;align-items:center;justify-content:space-between;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px}
+.vc-left{display:flex;align-items:center;gap:10px}
+.vc-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:var(--gold);line-height:1}
+.vc-label{font-size:11px;color:var(--muted);margin-top:1px}
+.vc-pills{display:flex;gap:5px}
+.vc-empty{font-size:12px;color:var(--muted2);font-style:italic}
+
+/* CHANGE PASSWORD */
+.pw-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0}
+.pw-toggle-lbl{font-size:12px;color:var(--muted)}
+.pw-toggle-btn{font-size:11px;color:var(--gold);font-weight:600;cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
+.pw-form{display:none;flex-direction:column;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.pw-form.show{display:flex}
+.pw-err{font-size:11px;color:var(--red);display:none}
+.pw-err.show{display:block}
+.pw-ok{font-size:11px;color:var(--green);display:none}
+.pw-ok.show{display:block}
+
+/* VERSION BADGE */
+.ver-footer{display:flex;align-items:center;justify-content:space-between;padding:18px 0 6px;margin-top:8px;border-top:1px solid var(--border)}
+.ver-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.18);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:600}
+.ver-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.ver-copy{font-size:11px;color:var(--muted2)}
+
+/* MOBILE */
+@media(max-width:700px){
+  .editor-shell-2col{grid-template-columns:1fr;padding:16px 12px 80px}
+  .preview-panel{display:none}
+  .dash-stats{grid-template-columns:1fr 1fr;max-width:100%}
+  .land-nav{padding:14px 20px}
+  .land-nav-links{display:none}
+  .hero{padding:90px 20px 40px}
+  .hero h1{font-size:clamp(32px,8vw,52px)}
+  .hiw-section{padding:60px 20px}
+  .hiw-steps{grid-template-columns:1fr;gap:16px}
+  .hiw-steps::before{display:none}
+  .feat-section{padding:0 20px 60px}
+  .feat-grid{grid-template-columns:1fr}
+  .feat-card.wide{grid-column:span 1}
+  .testi-section{padding:0 20px 60px}
+  .testi-grid{grid-template-columns:1fr}
+  .price-section{padding:60px 20px}
+  .pricing-wrap{grid-template-columns:1fr}
+  .faq-section{padding:0 20px 60px}
+  .cta-band{margin:0 20px 60px;padding:36px 24px}
+  .land-footer{padding:24px 20px;grid-template-columns:1fr;text-align:center;gap:12px}
+  .footer-copy{text-align:center}
+  .btable-head,.brow{grid-template-columns:1fr 100px 80px}
+  .proof-strip{gap:32px;padding:20px}
+  .auth-card{padding:28px 20px}
+  .topbar{padding:10px 14px}
+  .tcount{display:none}
+}
+
+input[type=file]{display:none}
+.pos-slider-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;width:28px;padding:8px 0}
+.pos-slider{-webkit-appearance:slider-vertical;appearance:slider-vertical;writing-mode:vertical-lr;direction:rtl;width:4px;height:220px;cursor:pointer;accent-color:var(--gold);background:var(--border);border-radius:4px}
+.pos-slider::-webkit-slider-thumb{width:16px;height:16px}
+.upgrade-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:500;align-items:center;justify-content:center}
+/* INTERACTIVE ONBOARDING */
+.tour-overlay{display:none;position:fixed;inset:0;z-index:800;pointer-events:none}
+.tour-overlay.active{display:block}
+.tour-backdrop{position:fixed;inset:0;background:transparent}
+.tour-highlight{position:absolute;border-radius:10px;box-shadow:0 0 0 4px var(--gold),0 0 0 9999px rgba(0,0,0,.75);z-index:1;pointer-events:none;transition:all .4s ease}
+.tour-tooltip{position:absolute;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:20px;width:280px;z-index:2;box-shadow:0 12px 40px rgba(0,0,0,.8)}
+.tour-tooltip::before{content:'';position:absolute;width:10px;height:10px;background:var(--card);border:1px solid var(--border2);transform:rotate(45deg)}
+.tour-tooltip.arrow-left::before{left:-6px;top:20px;border-right:none;border-top:none}
+.tour-tooltip.arrow-right::before{right:-6px;top:20px;border-left:none;border-bottom:none}
+.tour-tooltip.arrow-top::before{top:-6px;left:50%;transform:translateX(-50%) rotate(45deg);border-right:none;border-bottom:none}
+.tour-tooltip.arrow-bottom::before{bottom:-6px;left:50%;transform:translateX(-50%) rotate(45deg);border-left:none;border-top:none}
+.tour-step-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);font-weight:600;margin-bottom:10px}
+.tour-title{font-size:15px;font-weight:700;margin-bottom:6px;letter-spacing:-.2px}
+.tour-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.tour-actions{display:flex;align-items:center;justify-content:space-between}
+.tour-next-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;pointer-events:all}
+.tour-next-btn:hover{opacity:.9}
+.tour-skip{font-size:11px;color:var(--muted2);cursor:pointer;pointer-events:all;transition:color .15s}
+.tour-skip:hover{color:var(--muted)}
+.tour-dots{display:flex;gap:4px}
+.tour-dot{width:5px;height:5px;border-radius:50%;background:var(--border2);transition:background .3s}
+.tour-dot.active{background:var(--gold)}
+.upgrade-bg.show{display:flex}
+.upgrade-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:36px;width:560px;max-width:90vw}
+.upgrade-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px;text-align:center}
+.upgrade-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+.upgrade-plans{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.upgrade-plan{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;position:relative;transition:border-color .2s}
+.upgrade-plan.popular{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.04)}
+.upgrade-plan-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-size:10px;font-weight:700;padding:3px 12px;border-radius:20px;white-space:nowrap}
+.upgrade-plan-name{font-size:14px;font-weight:700;margin-bottom:8px}
+.upgrade-plan-price{font-family:'Playfair Display',serif;font-size:32px;font-weight:800;color:var(--gold);line-height:1}
+.upgrade-plan-per{font-size:11px;color:var(--muted);margin-bottom:14px}
+.upgrade-plan-features{font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:16px;text-align:left}
+.upgrade-plan-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.upgrade-plan-btn:hover{opacity:.9}
+.upgrade-plan-btn.ghost{background:none;border:1px solid var(--border2);color:var(--muted)}
+.upgrade-plan-btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
+.upgrade-close{display:block;text-align:center;margin-top:14px;font-size:12px;color:var(--muted2);cursor:pointer}
+.upgrade-close:hover{color:var(--muted)}
+.update-bar{display:none;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;padding:8px 20px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;transition:opacity .2s}
+.update-bar:hover{opacity:.9}
+.update-bar.show{display:block}
+.pos-row{display:flex;align-items:center;gap:6px;margin-top:10px}
+.pos-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:5px 8px;cursor:pointer;color:var(--muted);font-size:11px;font-family:'Inter',sans-serif;font-weight:600;transition:all .2s;flex:1;text-align:center}
+.pos-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
+.download-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:12px;padding:16px 36px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;letter-spacing:.1px}
+.download-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 32px var(--gold-glow)}
+.download-btn svg{width:20px;height:20px;fill:#000;flex-shrink:0}
+.download-meta{font-size:12px;color:var(--muted2);margin-top:10px}
+.download-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:40px}
+.bg-style-none{color:#fff;background:transparent!important;border-color:rgba(255,255,255,.4)!important;text-shadow:0 0 4px rgba(0,0,0,.8)}
+.bg-style-semi{color:#fff;background:rgba(0,0,0,.4)!important;border-color:transparent!important}
+.bg-style-solid{color:#000;background:#fff!important;border-color:transparent!important}
+.bg-style-color{color:#fff;background:var(--red)!important;border-color:transparent!important}
+.font-picker-wrap{overflow-x:auto;padding-bottom:6px;margin-top:10px}
+.font-picker-wrap::-webkit-scrollbar{height:3px}
+.font-picker-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.font-picker-row{display:flex;gap:8px;width:max-content}
+.font-opt{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:76px}
+.font-opt.active{border-color:var(--gold);background:rgba(201,168,76,.06)}
+.font-opt-preview{font-size:18px;color:var(--txt);line-height:1}
+.font-opt-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.size-row{display:flex;align-items:center;gap:8px;margin-top:12px}
+.size-btn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 14px;cursor:pointer;color:var(--muted);transition:all .2s;font-family:'Inter',sans-serif;font-weight:700}
+.size-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.06)}
+/* TEAM */
+.team-code-box{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.team-code-val{font-size:22px;font-weight:900;letter-spacing:4px;color:var(--gold);font-family:monospace}
+.team-copy-btn{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold);border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all .2s}
+.team-copy-btn:hover{background:rgba(201,168,76,.2)}
+.team-member-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3);color:#a78bfa;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;margin-bottom:12px}
+/* PRESETS */
+.preset-bar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.preset-chip{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;transition:all .2s;font-family:Inter,sans-serif;color:var(--muted)}
+.preset-chip:hover{border-color:var(--gold);color:var(--gold)}
+.preset-chip-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:13px;line-height:1;padding:0;margin-left:2px}
+.preset-chip-del:hover{color:var(--red)}
+.preset-save-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:1px dashed var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s;font-family:Inter,sans-serif}
+.preset-save-btn:hover{border-color:var(--gold);color:var(--gold)}
+/* PRODUCT GRID CARDS */
+.prod-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s,transform .2s;cursor:default}
+.prod-card:hover{border-color:rgba(201,168,76,.25);transform:translateY(-2px)}
+.prod-card-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--card2);display:block}
+.prod-card-img-placeholder{width:100%;aspect-ratio:1;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:48px}
+.prod-card-body{padding:12px}
+.prod-card-name{font-size:14px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-card-link{font-size:11px;color:var(--gold);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-bottom:10px}
+.prod-card-link:hover{opacity:.8}
+.prod-card-actions{display:flex;gap:6px}
+.prod-card-use-btn{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:7px;padding:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.prod-card-use-btn:hover{opacity:.9}
+.prod-card-del-btn{background:rgba(224,61,82,.08);border:1px solid rgba(224,61,82,.2);color:var(--red);border-radius:7px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.prod-card-del-btn:hover{background:rgba(224,61,82,.15)}
+.prod-empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)}
+.prod-empty-icon{font-size:48px;margin-bottom:12px}
+.prod-empty-title{font-size:16px;font-weight:600;margin-bottom:6px}
+.prod-empty-sub{font-size:13px;color:var(--muted2)}
+
+/* PRODUCT LIBRARY */
+.prod-lib-wrap{position:relative;width:100%}
+.prod-lib-input-row{display:flex;align-items:center;gap:6px}
+.prod-lib-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--txt);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border .15s}
+.prod-lib-input:focus{border-color:rgba(201,168,76,.4)}
+.prod-lib-input::placeholder{color:var(--muted2)}
+.prod-lib-add-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:7px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all .2s}
+.prod-lib-add-btn:hover{opacity:.9}
+.prod-lib-add-btn:disabled{opacity:.5;cursor:not-allowed}
+.prod-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border2);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:200;margin-top:4px;max-height:280px;overflow:hidden;display:none}
+.prod-dropdown.show{display:block}
+.prod-search{padding:10px;border-bottom:1px solid var(--border)}
+.prod-search-inp{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--txt);font-size:12px;font-family:'Inter',sans-serif;outline:none}
+.prod-search-inp::placeholder{color:var(--muted2)}
+.prod-list{max-height:210px;overflow-y:auto}
+.prod-list::-webkit-scrollbar{width:3px}
+.prod-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.prod-item{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
+.prod-item:last-child{border-bottom:none}
+.prod-item:hover{background:var(--card2)}
+.prod-item-img{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--card2);border:1px solid var(--border)}
+.prod-item-img-placeholder{width:40px;height:40px;border-radius:6px;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.prod-item-info{flex:1;min-width:0}
+.prod-item-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-item-link{font-size:10px;color:var(--gold);cursor:pointer;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.prod-item-link:hover{opacity:.8}
+.prod-item-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0}
+.prod-item-del:hover{color:var(--red)}
+.prod-empty{padding:20px;text-align:center;font-size:12px;color:var(--muted2)}
+.prod-fetching{padding:14px;text-align:center;font-size:12px;color:var(--muted);display:none}
+.prod-fetching.show{display:block}
+.fi-product-inp{cursor:pointer}
+.fi-product-inp{width:100%;background:none;border:none;border-top:1px solid var(--border);outline:none;color:var(--muted);font-size:10px;font-family:'Inter',sans-serif;padding:3px 0;margin-top:3px;}
+.fi-product-inp::placeholder{color:var(--muted2)}
+.fi-product-inp:focus{color:var(--txt)}
+
+<style>
+@font-face{font-family:'RF-Bebas';src:url('fonts/bebas.ttf')}
+@font-face{font-family:'RF-Playfair';src:url('fonts/playfair.ttf')}
+@font-face{font-family:'RF-Pacifico';src:url('fonts/pacifico.ttf')}
+@font-face{font-family:'RF-Oswald';src:url('fonts/oswald.ttf')}
+@font-face{font-family:'RF-Abril';src:url('fonts/abril.ttf')}
+@font-face{font-family:'RF-Dancing';src:url('fonts/dancing.ttf')}
+@font-face{font-family:'RF-Courier';src:url('fonts/courier.ttf')}
+@font-face{font-family:'RF-Special';src:url('fonts/specialelite.ttf')}
+@font-face{font-family:'RF-Comic';src:url('fonts/comicneue.ttf')}
+@font-face{font-family:'RF-BlackHan';src:url('fonts/blackhan.ttf')}
+@font-face{font-family:'RF-Nunito';src:url('fonts/nunito.ttf')}
+input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, 'NotoColorEmoji', sans-serif; }
+</style>
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div class="loader" id="loader">
+  <div class="loader-logo">
+    <div class="loader-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+    <span class="loader-name">Royal<span>Forge</span></span>
+  </div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- INTERACTIVE TOUR -->
+<div class="tour-overlay" id="tour-overlay">
+  <div class="tour-highlight" id="tour-highlight"></div>
+  <div class="tour-tooltip" id="tour-tooltip">
+    <div class="tour-step-badge" id="tour-badge">Step 1 of 10</div>
+    <div class="tour-title" id="tour-title"></div>
+    <div class="tour-desc" id="tour-desc"></div>
+    <div class="tour-actions">
+      <div class="tour-dots" id="tour-dots"></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="tour-skip" onclick="endTour()">Skip tour</span>
+        <button class="tour-next-btn" id="tour-next-btn" onclick="tourNext()">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING MODAL (keep for first launch welcome) -->
+<div class="onboard-bg" id="onboard-bg">
+  <div class="onboard-box">
+    <div class="onboard-logo">
+      <div class="onboard-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+      <span class="onboard-logo-name">Royal<span>Forge</span></span>
+    </div>
+    <div style="text-align:center;padding:10px 0 20px">
+      <div class="onboard-title">Welcome to <span>RoyalForge</span></div>
+      <div class="onboard-sub">The fastest way to batch edit TikTok Shop videos. Want a quick tour of the app?</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+        <button class="onboard-btn" onclick="startTour()">Take the tour →</button>
+        <button style="background:none;border:1px solid var(--border2);color:var(--muted);border-radius:11px;padding:13px 24px;font-size:14px;cursor:pointer;font-family:Inter,sans-serif" onclick="closeOnboard()">Skip</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 
-function getFFmpegPath() {
-  // Try ffmpeg-static first (works on Mac and Windows)
+<div class="toast" id="toast"></div>
+<input type="file" id="file-in" multiple accept="video/*" onchange="handleFiles(this.files)"/>
+
+<!-- ======= LANDING PAGE ======= -->
+<div class="view on" id="view-land">
+
+  <nav class="land-nav">
+    <div class="land-logo">
+      <div class="land-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+      <span class="land-logo-name">Royal<span>Forge</span></span>
+    </div>
+    <div class="land-nav-links">
+      <a onclick="scrollToSection('how-it-works')">How it works</a>
+      <a onclick="scrollToSection('features')">Features</a>
+      <a onclick="scrollToSection('pricing')">Pricing</a>
+      <a onclick="scrollToSection('faq')">FAQ</a>
+    </div>
+    <div class="land-nav-right">
+      <button class="nav-login-btn" onclick="showLogin()">Log in</button>
+      <button class="nav-signup-btn" onclick="showSignup()">Get started free</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge"><div class="hero-badge-dot"></div>Built for TikTok Shop affiliates</div>
+    <h1>Batch edit TikTok Shop<br>videos in <em>seconds.</em></h1>
+    <p class="hero-sub">Add overlays, hooks, and urgency text to 50+ videos at once. No manual editing. No cloud uploads. Your videos never leave your machine.</p>
+    <div class="hero-cta-row">
+      <button class="hero-cta" onclick="showSignup()">Start for free &rarr;</button>
+      <button class="hero-cta-ghost" onclick="showLogin()">Already have an account</button>
+    </div>
+    <div class="download-wrap">
+      <a href="https://github.com/bi372/reelforge/releases/download/v1.0.4/RoyalForge.Setup.1.0.4.exe" class="download-btn" download>
+        <svg viewBox="0 0 24 24"><path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-6 2h12v2H6v-2z"/></svg>
+        Download for Windows
+      </a>
+      <div class="download-meta">Windows 10/11 &middot; v1.0.6 &middot; 170MB &middot; FFmpeg included</div>
+    </div>
+    <div class="hero-proof"><span>Free to start</span> &nbsp;&middot;&nbsp; <span>No credit card required</span> &nbsp;&middot;&nbsp; <span>Cancel anytime</span></div>
+  </div>
+
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <!-- SET 1 -->
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-red">50% OFF &#128557;</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129749;</div><div class="mcard-overlay"><div class="mo-text">If you waited until today you absolutely won because this is dirt cheap rn with free shipping</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127960;</div><div class="mcard-overlay"><div class="mo-banner mo-gold">TRIPLE DISCOUNT</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-text">Anyone else grabbing a boatload of these today since its a fraction of the price?</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-red">40% OFF &#128557;</div><div class="mo-banner mo-white">LAST CHANCE &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127381;</div><div class="mcard-overlay"><div class="mo-banner mo-white">LARGE SALE</div><div class="mo-banner mo-red">LIMITED LEFT &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-text">TikTok bullied the price down and now this is on a massive sale &#128557;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-banner mo-red">2x DISCOUNT</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129749;</div><div class="mcard-overlay"><div class="mo-text">Someone f*cked up at TikTok cus this just went on a massive discount &#128680;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127960;</div><div class="mcard-overlay"><div class="mo-banner mo-gold">50% OFF</div><div class="mo-banner mo-red">LAST CHANCE &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-text">Ur card won't decline on this... it's violently discounted rn &#128575;&#128512;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-white">TRIPLE DISCOUNT</div><div class="mo-banner mo-red">LIMITED LEFT &#128722;</div></div></div>
+      <!-- SET 2 (duplicate for seamless loop) -->
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-red">50% OFF &#128557;</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129749;</div><div class="mcard-overlay"><div class="mo-text">If you waited until today you absolutely won because this is dirt cheap rn with free shipping</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127960;</div><div class="mcard-overlay"><div class="mo-banner mo-gold">TRIPLE DISCOUNT</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-text">Anyone else grabbing a boatload of these today since its a fraction of the price?</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-red">40% OFF &#128557;</div><div class="mo-banner mo-white">LAST CHANCE &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127381;</div><div class="mcard-overlay"><div class="mo-banner mo-white">LARGE SALE</div><div class="mo-banner mo-red">LIMITED LEFT &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-text">TikTok bullied the price down and now this is on a massive sale &#128557;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-banner mo-red">2x DISCOUNT</div><div class="mo-banner mo-white">CHECK COUPONS &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129749;</div><div class="mcard-overlay"><div class="mo-text">Someone f*cked up at TikTok cus this just went on a massive discount &#128680;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#127960;</div><div class="mcard-overlay"><div class="mo-banner mo-gold">50% OFF</div><div class="mo-banner mo-red">LAST CHANCE &#128722;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#128138;</div><div class="mcard-overlay"><div class="mo-text">Ur card won't decline on this... it's violently discounted rn &#128575;&#128512;</div></div></div>
+      <div class="mcard"><div class="mcard-bg"></div><div class="mcard-img">&#129514;</div><div class="mcard-overlay"><div class="mo-banner mo-white">TRIPLE DISCOUNT</div><div class="mo-banner mo-red">LIMITED LEFT &#128722;</div></div></div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="hiw-section" id="how-it-works">
+    <div class="reveal"><div class="hiw-tag">How it works</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="hiw-heading">From raw clips to ready-to-post<br>in three steps.</h2></div>
+    <div class="reveal reveal-delay-2"><p class="hiw-sub">No editing skills. No waiting. Drop your clips, set your style, and ship.</p></div>
+    <div class="hiw-steps">
+      <div class="hiw-step reveal reveal-delay-1">
+        <div class="hiw-num-wrap"><span class="hiw-num">1</span></div>
+        <div class="hiw-title">Drop your videos</div>
+        <div class="hiw-desc">Add your raw .MOV or .MP4 clips. BOF and MOF are auto-detected by duration. Override any clip you want individually.</div>
+      </div>
+      <div class="hiw-step reveal reveal-delay-2">
+        <div class="hiw-num-wrap"><span class="hiw-num">2</span></div>
+        <div class="hiw-title">Configure your overlay</div>
+        <div class="hiw-desc">Pick banner, full text, or mix both. Edit every hook line to match your style. Add your own custom text in seconds.</div>
+      </div>
+      <div class="hiw-step reveal reveal-delay-3">
+        <div class="hiw-num-wrap"><span class="hiw-num">3</span></div>
+        <div class="hiw-title">Process &amp; post</div>
+        <div class="hiw-desc">Hit Process batch. Overlays burn into every clip at once. Your videos land in a ready/ folder, stamped and ready to post.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOCIAL PROOF -->
+  <div class="proof-strip reveal">
+    <div class="proof-item"><div class="proof-num">50+</div><div class="proof-label">Videos per batch</div></div>
+    <div class="proof-item"><div class="proof-num">90%</div><div class="proof-label">Less editing time</div></div>
+    <div class="proof-item"><div class="proof-num">2</div><div class="proof-label">Funnel types — BOF &amp; MOF</div></div>
+    <div class="proof-item"><div class="proof-num">0</div><div class="proof-label">Cloud uploads needed</div></div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="feat-section" id="features" style="padding-top:110px">
+    <div class="reveal"><div class="feat-tag">Features</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="feat-heading">Everything you need.<br>Nothing you don't.</h2></div>
+    <div class="reveal reveal-delay-2"><p class="feat-sub">Built for creators who post volume, not hobbyists who edit one clip at a time.</p></div>
+    <div class="feat-grid">
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon-wrap">&#9889;</div>
+        <div class="feat-title">Batch processing</div>
+        <div class="feat-desc">Process 50+ videos in seconds. Ship entire drops in one pass. Stop editing clips one by one.</div>
+        <div class="feat-pill">Up to 50 clips at once</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon-wrap">&#127919;</div>
+        <div class="feat-title">BOF &amp; MOF auto-tagging</div>
+        <div class="feat-desc">Drop your clips and walk away. Videos are automatically tagged as Bottom of Funnel or Middle of Funnel by duration. No manual sorting.</div>
+        <div class="feat-pill">14-18s = BOF &nbsp;&middot;&nbsp; 7-10s = MOF</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon-wrap">&#9999;</div>
+        <div class="feat-title">Fully editable hooks</div>
+        <div class="feat-desc">Every line of text is yours to edit. Add your own hooks, delete what you don't want, and build a style that actually matches how you speak.</div>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon-wrap">&#128274;</div>
+        <div class="feat-title">Local processing</div>
+        <div class="feat-desc">Your videos never leave your machine. Everything runs locally on your computer. No cloud uploads, no privacy concerns, no waiting on servers.</div>
+        <div class="feat-pill">100% offline processing</div>
+      </div>
+      <div class="feat-card wide reveal reveal-delay-1">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center">
+          <div>
+            <div class="feat-icon-wrap">&#127775;</div>
+            <div class="feat-title">Banner + Full text overlays</div>
+            <div class="feat-desc">Choose Banner style for red and white urgency text bars, Full text for scroll-stopping hook lines, or Mix both across your batch for natural variety. Each video gets a randomly selected variant so nothing looks copied.</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px">
+            <div style="background:var(--red);color:#fff;border-radius:5px;padding:6px 8px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.5px">40% OFF</div>
+            <div style="background:#fff;color:#000;border-radius:5px;padding:6px 8px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.5px">LAST CHANCE</div>
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:5px;padding:6px 8px;font-size:11px;color:var(--muted);text-align:center">If you waited until today you absolutely won...</div>
+            <div style="background:var(--gold);color:#000;border-radius:5px;padding:6px 8px;font-size:12px;font-weight:800;text-align:center;letter-spacing:.5px">TRIPLE DISCOUNT</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <div class="testi-section">
+    <div class="reveal"><div class="testi-tag">Creator stories</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="testi-heading">TikTok Shop affiliates<br>are already shipping faster.</h2></div>
+    <div class="testi-grid">
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">I was spending 2 hours a day editing 40+ BOF videos. RoyalForge got that down to 10 minutes. I post 3x more content now and my sales went up with it.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#ff6b6b,#ee5a24)">A</div>
+          <div>
+            <div class="testi-info-name">Ashley R.</div>
+            <div class="testi-info-handle">@ashleyshops &middot; 48K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">The BOF and MOF auto-tagging is actually genius. I just drop all my clips in and it sorts them for me. No more manually going through every video figuring out what's what.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7)">M</div>
+          <div>
+            <div class="testi-info-name">Marcus T.</div>
+            <div class="testi-info-handle">@marcusfinds &middot; 112K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-3">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">I used to dread editing days. Now I literally just drop my clips in, hit process, and I'm done. The hook text randomization means every video looks slightly different too.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#55efc4,#00b894)">J</div>
+          <div>
+            <div class="testi-info-name">Jasmine K.</div>
+            <div class="testi-info-handle">@jasminefinds &middot; 29K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">I ship drops of 20-30 videos now. Before this I could maybe do 5 in a day. The difference in output is insane. This is the tool I wish existed when I started TikTok Shop.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#fdcb6e,#e17055)">D</div>
+          <div>
+            <div class="testi-info-name">Devon L.</div>
+            <div class="testi-info-handle">@devondeals &middot; 67K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">The live preview is a game changer. I can see exactly what the overlay looks like before I process anything. No more guessing if the text color works on my video.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#fd79a8,#e84393)">S</div>
+          <div>
+            <div class="testi-info-name">Sofia M.</div>
+            <div class="testi-info-handle">@sofiashopfinds &middot; 91K followers</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal reveal-delay-3">
+        <div class="testi-stars"><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span><span class="testi-star">&#9733;</span></div>
+        <div class="testi-quote">Videos never leave my computer, which I love. A lot of tools want you to upload everything to their servers. This is all local and it's so much faster because of it.</div>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#74b9ff,#0984e3)">R</div>
+          <div>
+            <div class="testi-info-name">Ryan C.</div>
+            <div class="testi-info-handle">@ryanshopfinds &middot; 38K followers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="price-section" id="pricing">
+    <div class="reveal"><div class="price-tag2">Pricing</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="price-heading">Simple pricing.<br>No surprises.</h2></div>
+    <div class="reveal reveal-delay-2"><p class="price-sub2">Start free, upgrade when you're ready to scale.</p></div>
+    <div class="pricing-wrap reveal reveal-delay-1">
+      <div class="pc">
+        <div class="pc-name">Forge</div>
+        <div class="pc-price"><span class="cur">$</span><span class="amt">29.99</span></div>
+        <div class="pc-per">per month &mdash; cancel anytime</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-list">
+          <li class="yes">50 videos per day</li>
+          <li class="yes">All overlay styles</li>
+          <li class="yes">All fonts</li>
+          <li class="yes">BOF + MOF auto-tagging</li>
+          <li class="yes">Local processing</li>
+          <li class="no">Unlimited videos</li>
+          <li class="no">Priority support</li>
+          <li class="no">Early access features</li>
+        </ul>
+        <button class="pc-btn-ghost" onclick="showSignup();showUpgrade()">Get started</button>
+      </div>
+      <div class="pc hot">
+        <div class="pc-name">Royal</div>
+        <div class="pc-price"><span class="cur">$</span><span class="amt">39.99</span></div>
+        <div class="pc-per">per month &mdash; cancel anytime</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-list">
+          <li class="yes">Unlimited videos per day</li>
+          <li class="yes">All overlay styles</li>
+          <li class="yes">All fonts</li>
+          <li class="yes">BOF + MOF auto-tagging</li>
+          <li class="yes">Local processing</li>
+          <li class="yes">Priority support</li>
+          <li class="yes">Early access features</li>
+          <li class="yes">Everything in Forge</li>
+        </ul>
+        <button class="pc-btn" onclick="showSignup();showUpgrade()">Go unlimited</button>
+      </div>
+    </div>
+    <div class="price-note reveal">Free to start &middot; No credit card required &middot; Cancel anytime</div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section" id="faq">
+    <div class="reveal"><div class="faq-tag">FAQ</div></div>
+    <div class="reveal reveal-delay-1"><h2 class="faq-heading">Quick answers<br>before you start.</h2></div>
+    <div class="faq-list">
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Does it work on Mac and Windows?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Yes. RoyalForge runs in your browser as a web app so it works on any device — Mac, Windows, or anything with a modern browser. No installation required. Just open it from your desktop shortcut and you're ready to go.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Will TikTok ban me for using this?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">No. RoyalForge just burns text overlays onto your video files locally — the same thing you'd do manually in CapCut or any editor. TikTok sees a normal video. There's no bot, no automation on TikTok's side, and no API access. You upload the finished video yourself just like you always do.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">What's the difference between BOF and MOF?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">BOF (Bottom of Funnel) videos are 14-18 seconds, show the product immediately, and use urgency overlays like "50% OFF" and "LAST CHANCE" to push the sale. MOF (Middle of Funnel) videos are 7-10 seconds, delay showing the product, and use soft hook text to build curiosity and trust first. RoyalForge auto-detects which is which based on your clip duration.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Do my videos get uploaded to any server?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">No. Everything happens locally on your machine. Your raw clips go into a raw/ folder on your computer, get processed, and the finished versions land in a ready/ folder — all without any cloud upload. Your footage never leaves your device.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">How many videos can I process at once?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Starter plan users can process up to 25 videos per day. Pro plan users get unlimited videos per day with no cap. You can drop all your clips in at once and process the whole batch in one go — no need to run multiple sessions.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Can I customize the overlay text?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Completely. Every line of text is editable — you can change the default hooks, delete ones you don't want, add your own custom lines, and pick your own colors. Your hooks are yours. RoyalForge just makes it fast to apply them to dozens of videos at once.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Is there a free trial?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Yes — you can sign up and start using RoyalForge for free. The free tier lets you explore the editor and run small batches so you can see the workflow before committing to a plan. No credit card required to get started.</p></div>
+      </div>
+
+      <div class="faq-item reveal" onclick="toggleFaq(this)">
+        <div class="faq-q">
+          <span class="faq-q-txt">Can I cancel anytime?</span>
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-a"><p class="faq-a-txt">Yes. No contracts, no cancellation fees. Cancel anytime from your account settings and your subscription stays active until the end of your current billing period.</p></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CTA BAND -->
+  <div class="cta-band reveal">
+    <h2>Ready to stop editing<br>one clip at a time?</h2>
+    <p>Join TikTok Shop affiliates already shipping faster with RoyalForge.</p>
+    <button class="cta-band-btn" onclick="showSignup()">Start for free &rarr;</button>
+  </div>
+
+  <footer class="land-footer">
+    <div class="footer-logo-wrap">
+      <div class="footer-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+      <span class="footer-logo-name">Royal<span>Forge</span></span>
+    </div>
+    <div class="footer-links">
+      <a>Terms</a><a>Privacy</a><a>Contact</a>
+    </div>
+    <div class="footer-copy">&copy; 2026 RoyalForge. All rights reserved.</div>
+  </footer>
+
+</div>
+
+<!-- ======= LOGIN ======= -->
+<div class="view" id="view-login">
+  <div class="auth-page">
+    <div class="auth-back" onclick="showLand()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
+      Back to home
+    </div>
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="auth-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+        <span class="auth-logo-name">Royal<span>Forge</span></span>
+      </div>
+      <div class="auth-card">
+        <div class="auth-title">Log <em>in</em></div>
+        <div class="auth-sub">Welcome back. <a onclick="showSignup()">New here? Create an account</a></div>
+        <div class="auth-error" id="login-error">Incorrect email or password. Please try again.</div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" type="email" id="login-email" placeholder="you@example.com"/>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input class="auth-input" type="password" id="login-pw" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
+        <div class="auth-forgot"><a onclick="showForgot()">Forgot password?</a></div>
+        <button class="auth-btn" onclick="doLogin()">Sign in</button>
+        <div class="terms-note">By signing in you agree to our <a>Terms of Service</a> and <a>Privacy Policy</a>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= SIGNUP ======= -->
+<div class="view" id="view-signup">
+  <div class="auth-page">
+    <div class="auth-back" onclick="showLand()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
+      Back to home
+    </div>
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="auth-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+        <span class="auth-logo-name">Royal<span>Forge</span></span>
+      </div>
+      <div class="auth-card">
+        <div class="auth-title">Create an <em>account</em></div>
+        <div class="auth-sub">Already have one? <a onclick="showLogin()">Log in instead</a></div>
+        <div class="auth-error" id="signup-error">An account with this email already exists.</div>
+        <div class="auth-success" id="signup-success">Account created! Signing you in...</div>
+        <div class="auth-field">
+          <label>Your Name</label>
+          <input class="auth-input" type="text" id="signup-name" placeholder="First name"/>
+        </div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" type="email" id="signup-email" placeholder="you@example.com"/>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input class="auth-input" type="password" id="signup-pw" placeholder="Choose a password (min 6 chars)" onkeydown="if(event.key==='Enter')doSignup()"/>
+        </div>
+        <button class="auth-btn" onclick="doSignup()">Create account &rarr;</button>
+        <div class="terms-note">By creating an account you agree to our <a>Terms of Service</a> and <a>Privacy Policy</a>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= FORGOT PASSWORD ======= -->
+<div class="view" id="view-forgot">
+  <div class="auth-page">
+    <div class="auth-back" onclick="showLogin()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
+      Back to login
+    </div>
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="auth-logo-mark"><svg viewBox="0 0 14 14"><polygon points="2,1 12,7 2,13"/></svg></div>
+        <span class="auth-logo-name">Royal<span>Forge</span></span>
+      </div>
+
+      <!-- STEP 1: Enter email -->
+      <div class="auth-card" id="forgot-step-1">
+        <div class="auth-title">Reset <em>password</em></div>
+        <div class="auth-sub">Enter your email and we'll send you a 6-digit code.</div>
+        <div class="auth-error" id="forgot-error-1"></div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input class="auth-input" type="email" id="forgot-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')sendResetCode()"/>
+        </div>
+        <button class="auth-btn" onclick="sendResetCode()">Send reset code</button>
+      </div>
+
+      <!-- STEP 2: Enter code + new password -->
+      <div class="auth-card" id="forgot-step-2" style="display:none">
+        <div class="auth-title">Enter <em>code</em></div>
+        <div class="auth-sub" id="forgot-step-2-sub">We sent a 6-digit code to your email.</div>
+        <div class="auth-error" id="forgot-error-2"></div>
+        <div class="auth-success" id="forgot-success-2"></div>
+        <div class="auth-field">
+          <label>6-digit code</label>
+          <input class="auth-input" type="text" id="forgot-code" placeholder="000000" maxlength="6" style="letter-spacing:8px;font-size:20px;font-weight:700;text-align:center"/>
+        </div>
+        <div class="auth-field">
+          <label>New password</label>
+          <input class="auth-input" type="password" id="forgot-newpw" placeholder="New password (min 6 chars)"/>
+        </div>
+        <div class="auth-field">
+          <label>Confirm password</label>
+          <input class="auth-input" type="password" id="forgot-confirmpw" placeholder="Confirm new password" onkeydown="if(event.key==='Enter')verifyResetCode()"/>
+        </div>
+        <button class="auth-btn" onclick="verifyResetCode()">Reset password</button>
+        <div class="auth-forgot" style="text-align:center;margin-top:12px">
+          <a onclick="sendResetCode(true)">Resend code</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======= APP ======= -->
+<div class="view" id="view-app">
+
+  <div class="topbar">
+    <div class="app-logo" onclick="showAppDash()">
+      <div class="app-logo-mark"><img src="icon.png" style="width:26px;height:26px;border-radius:7px;object-fit:cover"/></div>
+      <span class="app-logo-name">Royal<span>Forge</span></span>
+      <span class="app-logo-sub" id="user-email-display">you@example.com</span>
+    </div>
+    <div class="tbar-r">
+      <span class="pro-pill" onclick="showUpgrade()" style="cursor:pointer">Upgrade</span>
+      <span class="tcount" id="vid-count">0 videos today</span>
+      <button class="tbtn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
+      <button class="tbtn" onclick="showAppProducts()">Products</button>
+      <button class="tbtn" onclick="showAppSettings()">Settings</button>
+      <button class="tbtn" onclick="doLogout()">Log out</button>
+    </div>
+  </div>
+
+  <div class="update-bar" id="update-bar" onclick="openUpdateLink()"></div>
+
+  <!-- DASHBOARD -->
+  <div class="app-view on" id="app-dash">
+    <div class="dash">
+      <div class="dash-greeting-row">
+        <span class="dash-greeting-time" id="dash-time-pill">Good morning</span>
+      </div>
+      <div class="dash-hi">Hi, <span id="dash-name">Creator</span></div>
+      <div class="dash-sub">Your next batch is one click away.</div>
+
+      <!-- STATS ROW -->
+      <div class="dash-stats">
+        <div class="stat-card">
+          <div class="stat-card-val white" id="stat-total">0</div>
+          <div class="stat-card-lbl">Total Videos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-val gold" id="stat-batches">0</div>
+          <div class="stat-card-lbl">Batches Run</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-val red" id="stat-bof">0</div>
+          <div class="stat-card-lbl">BOF Videos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-val purple" id="stat-mof">0</div>
+          <div class="stat-card-lbl">MOF Videos</div>
+        </div>
+      </div>
+
+      <button class="start-btn" onclick="showAppEditor()">Start batch</button>
+
+      <div class="recent-wrap">
+        <div class="recent-lbl">Recent Batches</div>
+        <div class="btable">
+          <div class="btable-head">
+            <span>Date</span>
+            <span>Split</span>
+            <span>Status</span>
+            <span style="text-align:right">Folder</span>
+          </div>
+          <div id="batch-rows">
+            <div class="empty-state">
+              <div class="empty-icon">&#127909;</div>
+              <div class="empty-title">No batches yet</div>
+              <div class="empty-sub">Drop your first clips and hit Process batch to get started.</div>
+              <button class="empty-btn" onclick="showAppEditor()">Start your first batch</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="app-view" id="app-editor">
+  <div style="padding:16px 20px 0;max-width:960px;margin:0 auto">
+    <div class="ed-back" onclick="showAppDash()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>
+      Back to dashboard
+    </div>
+  </div>
+  <div class="editor-shell-2col">
+
+    <!-- LEFT: CONTROLS -->
+    <div class="editor-controls">
+
+    
+
+    <!-- PRESETS BAR -->
+    <div class="sec" style="padding:14px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="sec-label" style="margin-bottom:0">Presets <span class="info-dot">i</span></div>
+        <button class="preset-save-btn" onclick="showSavePresetModal()" style="border-style:solid;border-color:rgba(201,168,76,.4);color:var(--gold)">+ Save preset</button>
+      </div>
+      <div class="preset-bar" id="preset-bar"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-label">Font &amp; Size <span class="info-dot">i</span></div>
+      <div class="font-picker-wrap"><div class="font-picker-row" id="font-picker-row">
+        <div class="font-opt active" onclick="setFont('classic',this)"><div class="font-opt-preview" style="font-family:Arial,sans-serif;font-weight:700;font-size:16px">ABC</div><div class="font-opt-name">Arial</div></div>
+        <div class="font-opt" onclick="setFont('elegance',this)"><div class="font-opt-preview" style="font-family:'RF-Playfair',serif;font-size:16px">ABC</div><div class="font-opt-name">Playfair</div></div>
+        <div class="font-opt" onclick="setFont('neon',this)"><div class="font-opt-preview" style="font-family:'RF-Bebas',sans-serif;font-size:22px;letter-spacing:2px">ABC</div><div class="font-opt-name">Bebas</div></div>
+        <div class="font-opt" onclick="setFont('retro',this)"><div class="font-opt-preview" style="font-family:'RF-Pacifico',cursive;font-size:14px">Abc</div><div class="font-opt-name">Pacifico</div></div>
+        <div class="font-opt" onclick="setFont('comic',this)"><div class="font-opt-preview" style="font-family:'RF-Comic',cursive;font-size:16px">Abc</div><div class="font-opt-name">Comic Neue</div></div>
+        <div class="font-opt" onclick="setFont('tallhaus',this)"><div class="font-opt-preview" style="font-family:'RF-Oswald',sans-serif;font-size:18px">ABC</div><div class="font-opt-name">Oswald</div></div>
+        <div class="font-opt" onclick="setFont('vintage',this)"><div class="font-opt-preview" style="font-family:'RF-Abril',serif;font-size:16px">Abc</div><div class="font-opt-name">Abril</div></div>
+        <div class="font-opt" onclick="setFont('bomb',this)"><div class="font-opt-preview" style="font-family:'RF-BlackHan',sans-serif;font-size:16px">ABC</div><div class="font-opt-name">Black Han</div></div>
+        <div class="font-opt" onclick="setFont('signature',this)"><div class="font-opt-preview" style="font-family:'RF-Dancing',cursive;font-size:18px">Abc</div><div class="font-opt-name">Dancing</div></div>
+        <div class="font-opt" onclick="setFont('printer',this)"><div class="font-opt-preview" style="font-family:'RF-Courier',monospace;font-size:15px">ABC</div><div class="font-opt-name">Courier</div></div>
+        <div class="font-opt" onclick="setFont('typewriter',this)"><div class="font-opt-preview" style="font-family:'RF-Special',monospace;font-size:14px">Abc</div><div class="font-opt-name">Special Elite</div></div>
+        <div class="font-opt" onclick="setFont('nunito',this)"><div class="font-opt-preview" style="font-family:'RF-Nunito',sans-serif;font-size:16px;font-style:italic">Abc</div><div class="font-opt-name">Nunito</div></div>
+      </div></div>
+      <div class="size-row">
+        <span style="font-size:11px;color:var(--muted)">A</span>
+        <input type="range" id="font-size-slider" min="24" max="64" value="52"
+          oninput="onFontSizeSlider(parseInt(this.value))"
+          style="flex:1;accent-color:var(--gold);cursor:pointer"/>
+        <span style="font-size:20px;color:var(--muted)">A</span>
+        <span id="font-size-val" style="font-size:11px;color:var(--gold);min-width:24px;text-align:right">52</span>
+
+      </div>
+
+    </div>
+
+    <div class="sec">
+      <div class="sec-label">Overlay Style <span class="info-dot">i</span></div>
+      <div class="ov-toggle" id="ov-toggle">
+        <button class="ov-btn active" onclick="setOvStyle('banner',this)">Banner</button>
+        <button class="ov-btn" onclick="setOvStyle('fulltext',this)">Full text</button>
+        <button class="ov-btn" onclick="setOvStyle('mix',this)">Mix both</button>
+      </div>
+    </div>
+
+    <div class="sec" id="sec-banner">
+      <div class="sec-label">Banner Hooks <span class="info-dot">i</span></div>
+      <div class="sec-desc">Check the ones you want active. Edit any text. Mixed randomly per video.</div>
+      <div class="row-lbl">
+        Top text
+        <button id="top-bg-btn" onclick="cycleTopBg()" title="Tap to cycle background style" style="margin-left:8px;background:#e03d52;color:#fff;border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif;letter-spacing:.5px">bg</button>
+        <div class="color-dots" id="top-color-dots">
+          <div class="cdot sel" style="background:#e03d52" onclick="setTopColor('#e03d52',this)"></div>
+          <div class="cdot" style="background:#fff;border-color:#555" onclick="setTopColor('#ffffff',this)"></div>
+          <div class="cdot" style="background:#c9a84c" onclick="setTopColor('#c9a84c',this)"></div>
+          <div class="cdot" style="background:#f97316" onclick="setTopColor('#f97316',this)"></div>
+          <div class="cdot" style="background:#a855f7" onclick="setTopColor('#a855f7',this)"></div>
+          <div class="cdot" style="background:#3b82f6" onclick="setTopColor('#3b82f6',this)"></div>
+          <input type="color" id="top-color-wheel" value="#e03d52" oninput="setTopColorCustom(this.value);updatePreview()" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #555;cursor:pointer;padding:0;background:none" title="Any color"/>
+        </div>
+      </div>
+      <div class="item-list" id="top-list"></div>
+      <button class="add-item-btn" onclick="addBannerItem('top')">+ Add top text</button>
+      <div class="row-lbl" style="margin-top:14px">Bottom text
+        <button id="bot-bg-btn" onclick="cycleBotBg()" title="Tap to cycle background style" style="margin-left:8px;background:#ffffff;color:#000;border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif;letter-spacing:.5px">bg</button>
+        <div class="color-dots" id="bot-color-dots">
+          <div class="cdot" style="background:#e03d52" onclick="setBotColor('#e03d52',this)"></div>
+          <div class="cdot sel" style="background:#fff;border-color:#555" onclick="setBotColor('#ffffff',this)"></div>
+          <div class="cdot" style="background:#c9a84c" onclick="setBotColor('#c9a84c',this)"></div>
+          <div class="cdot" style="background:#f97316" onclick="setBotColor('#f97316',this)"></div>
+          <div class="cdot" style="background:#a855f7" onclick="setBotColor('#a855f7',this)"></div>
+          <div class="cdot" style="background:#3b82f6" onclick="setBotColor('#3b82f6',this)"></div>
+          <input type="color" id="bot-color-wheel" value="#ffffff" oninput="setBotColorCustom(this.value)" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #555;cursor:pointer;padding:0;background:none" title="Any color"/>
+        </div>
+      </div>
+      <div class="item-list" id="bot-list"></div>
+      <button class="add-item-btn" onclick="addBannerItem('bot')">+ Add bottom text</button>
+      <div class="strike-tog" onclick="toggleStrike()"><div class="togbox" id="stog"></div><span class="strike-label">Strike layout &mdash; crossed out price</span></div>
+      <div class="strike-inputs" id="strike-inputs">
+        <input class="si" id="si-orig" value="FULL PRICE" oninput="updSP();updatePreview();saveSettings()"/>
+        <input class="si" id="si-disc" value="50% OFF" oninput="updSP();updatePreview();saveSettings()"/>
+        <div class="strike-preview"><span class="sp-orig" id="sp-orig">FULL PRICE</span><span class="sp-disc" id="sp-disc">50% OFF</span></div>
+      </div>
+      <div class="row-lbl" style="margin-top:14px">Custom pairs <span class="info-dot">i</span></div>
+      <textarea placeholder="40% OFF | ENDS TODAY&#10;HUGE SALE | LAST CHANCE"></textarea>
+    </div>
+
+    <div class="sec" id="sec-fulltext" style="display:none">
+      <div class="sec-label">Full Text Hooks <span class="info-dot">i</span></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+        <span style="font-size:11px;color:var(--muted)">Color</span>
+        <button id="hook-bg-btn" onclick="cycleHookBg()" title="Tap to cycle background style" style="background:#ffffff;color:#000;border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif;letter-spacing:.5px">bg</button>
+        <div class="color-dots" id="hook-color-dots">
+          <div class="cdot" style="background:#e03d52" onclick="setHookColor('#e03d52',this)"></div>
+          <div class="cdot sel" style="background:#fff;border-color:#555" onclick="setHookColor('#ffffff',this)"></div>
+          <div class="cdot" style="background:#c9a84c" onclick="setHookColor('#c9a84c',this)"></div>
+          <div class="cdot" style="background:#f97316" onclick="setHookColor('#f97316',this)"></div>
+          <div class="cdot" style="background:#a855f7" onclick="setHookColor('#a855f7',this)"></div>
+          <div class="cdot" style="background:#3b82f6" onclick="setHookColor('#3b82f6',this)"></div>
+          <input type="color" id="hook-color-wheel" value="#ffffff" oninput="setHookColorCustom(this.value)" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #555;cursor:pointer;padding:0;background:none" title="Any color"/>
+        </div>
+      </div>
+      <div class="sec-desc">Check the ones you want. Edit any line. One random line per video.</div>
+      <div class="item-list" id="hook-list"></div>
+      <button class="add-item-btn" onclick="addHookItem()" style="margin-top:5px">+ Add hook</button>
+      <div class="row-lbl" style="margin-top:14px">Custom lines <span class="info-dot">i</span></div>
+      <textarea id="custom-lines" placeholder="Type your hook here...&#10;Use [product] for product name and [company] for brand name. E.g. price of the [product] dropped so HARD"></textarea>
+      <button class="add-to-list-btn" onclick="addCustomToList()">Add to list</button>
+    </div>
+
+    <div class="sec">
+      <div class="sec-label">Videos <span class="info-dot">i</span></div>
+      <div class="drop-zone" id="drop-zone"
+           onclick="pickFilesNative()"
+           ondragover="event.preventDefault();this.classList.add('over')"
+           ondragleave="this.classList.remove('over')"
+           ondrop="handleDrop(event)">
+        <div class="dz-text">Drag and drop video files here, or click to browse.</div>
+      </div>
+      <div class="file-list" id="file-list"></div>
+      <button class="add-files-btn" onclick="pickFilesNative()">Add files...</button>
+    </div>
+
+    <div class="vid-counter" id="vid-counter-bar">
+      <div class="vc-left">
+        <div>
+          <div class="vc-num" id="vc-num">0</div>
+          <div class="vc-label">videos ready</div>
+        </div>
+        <div class="vc-pills" id="vc-pills"></div>
+      </div>
+      <span class="vc-empty" id="vc-empty">Add videos above to get started</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-top:20px">
+      <input id="batch-prefix" class="set-inp" placeholder='Output prefix (e.g. "sale_")' style="flex:1;padding:10px 14px;font-size:13px" oninput="saveSettings()"/>
+    </div>
+    <button class="process-btn" onclick="processBatch()" style="margin-top:8px" id="process-btn-main">Process batch</button>
+    <div class="strike-tog" onclick="toggleFadeEnd()" style="margin-top:10px"><div class="togbox" id="fade-end-tog"></div><span class="strike-label">Fade overlay out 1s before end &mdash; end cover mode</span></div>
+    </div>
+
+    <!-- RIGHT: LIVE PREVIEW -->
+    <div class="preview-panel">
+      <div class="preview-panel-label">Live Preview</div>
+      <div class="phone-frame">
+        <div class="phone-bg">
+          <div class="phone-product-emoji" id="prev-emoji">&#129514;</div>
+        </div>
+        <div id="phone-overlay-content" style="position:absolute;left:0;right:0;top:14px;display:flex;flex-direction:column;gap:0px;padding:0 4px;cursor:grab;user-select:none" 
+    ></div>
+  <div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:9px;color:rgba(255,255,255,.25);pointer-events:none">drag to reposition</div>
+  <button id="preview-play-btn" onclick="togglePreviewPlay()" style="display:none;position:absolute;bottom:28px;right:10px;background:rgba(0,0,0,.7);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer;z-index:20;backdrop-filter:blur(4px);font-family:Inter,sans-serif">&#9654;</button>
+      </div>
+      <div style="margin-top:10px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--muted2)">BOF position</span>
+            <span style="font-size:10px;color:var(--gold)" id="pos-pct-label-bof">12%</span>
+          </div>
+          <input type="range" id="pos-slider-bof" min="3" max="90" value="12"
+            style="width:100%;accent-color:var(--gold);cursor:pointer"
+            oninput="onPosSliderBof(this.value)"/>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--muted2)">MOF position</span>
+            <span style="font-size:10px;color:var(--gold)" id="pos-pct-label-mof">12%</span>
+          </div>
+          <input type="range" id="pos-slider-mof" min="3" max="90" value="12"
+            style="width:100%;accent-color:var(--gold);cursor:pointer"
+            oninput="onPosSliderMof(this.value)"/>
+        </div>
+      </div>
+    </div>
+    <div class="preview-hint">Updates as you edit. Tap cycle to see different variants.</div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="preview-cycle-btn" style="flex:1" onclick="previewNav(-1)">&#8592; Prev</button>
+        <button class="preview-cycle-btn" style="flex:1;background:var(--card2)" onclick="cyclePreview()">Cycle</button>
+        <button class="preview-cycle-btn" style="flex:1" onclick="previewNav(1)">Next &#8594;</button>
+      </div>
+      <div id="preview-file-label" style="font-size:10px;color:var(--muted2);text-align:center;margin-top:6px"></div>
+    </div>
+
+  </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="app-view" id="app-products">
+  <div class="settings-view" style="max-width:960px;margin:0 auto;padding:28px 24px 100px">
+    <div class="set-back" onclick="showAppDash()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>Back
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="set-title" style="margin-bottom:0">Product Library</div>
+        <div style="display:flex;gap:0;background:var(--card2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <button id="market-us-btn" onclick="switchMarket('us')" style="background:var(--gold);color:#000;border:none;padding:4px 16px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px">US</button>
+          <button id="market-uk-btn" onclick="switchMarket('uk')" style="background:none;color:var(--muted);border:none;padding:4px 16px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px">UK</button>
+        </div>
+        <div id="prod-count" style="font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:2px 10px;font-weight:600"></div>
+        <div id="team-sync-countdown" style="display:none;font-size:11px;color:var(--muted);padding:2px 0"></div>
+      </div>
+      <button class="start-btn" style="padding:10px 24px;font-size:13px;border-radius:10px;box-shadow:none" onclick="showAddProductModal()">+ Add Product</button>
+    </div>
+
+    <!-- Search bar -->
+    <div style="position:relative;margin-bottom:20px">
+      <input class="set-inp" id="prod-page-search" placeholder="Search products..." oninput="renderProductPage(this.value)" style="padding-left:36px"/>
+      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px">&#128269;</span>
+    </div>
+
+    <!-- Product grid -->
+    <div id="prod-page-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
+  </div>
+  </div>
+
+  <!-- ADD PRODUCT MODAL -->
+  <div class="upgrade-bg" id="add-prod-modal">
+    <div class="upgrade-box" style="max-width:520px">
+      <div class="upgrade-title">Add Products</div>
+      <div class="upgrade-sub">Paste one or multiple TikTok Shop links — one per line</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <textarea class="set-inp" id="prod-modal-inp" placeholder="https://shop.tiktok.com/...&#10;https://shop.tiktok.com/...&#10;https://shop.tiktok.com/..." style="font-size:13px;height:100px;resize:vertical;font-family:Inter,sans-serif" oninput="prodModalInput(this.value)"></textarea>
+        <div id="prod-modal-fetching" style="display:none;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px" id="prod-modal-fetch-status">Fetching products...</div>
+          <div style="background:var(--border);border-radius:4px;height:4px;overflow:hidden">
+            <div id="prod-modal-progress" style="background:var(--gold);height:100%;width:0%;transition:width .3s;border-radius:4px"></div>
+          </div>
+        </div>
+        <div id="prod-modal-results" style="display:none;max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="pc-btn" id="prod-modal-save-btn" onclick="fetchAndAddProducts()" style="flex:1">Fetch &amp; Add</button>
+          <button class="pc-btn-ghost" onclick="closeAddProductModal()" style="flex:1">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="app-view" id="app-settings">
+  <div class="settings-view">
+    <div class="set-back" onclick="showAppDash()">
+      <svg viewBox="0 0 14 14"><path d="M9 2L4 7l5 5"/></svg>Back
+    </div>
+    <div class="set-title">Settings</div>
+    <div class="set-card">
+      <div class="set-card-title">Account</div>
+      <div class="set-row"><div class="set-lbl">Email</div><div class="set-val" id="set-email-disp"></div></div>
+      <div class="set-row"><div class="set-lbl">Display Name</div><input class="set-inp" id="set-name" placeholder="Your name" oninput="updateName(this.value)"/></div>
+      <div class="set-row">
+        <div class="pw-toggle">
+          <span class="pw-toggle-lbl">Password</span>
+          <button class="pw-toggle-btn" onclick="togglePwForm()">Change password</button>
+        </div>
+        <div class="pw-form" id="pw-form">
+          <input class="set-inp" type="password" id="pw-curr" placeholder="Current password"/>
+          <input class="set-inp" type="password" id="pw-new" placeholder="New password (min 6 chars)"/>
+          <input class="set-inp" type="password" id="pw-confirm" placeholder="Confirm new password"/>
+          <div class="pw-err" id="pw-err">Passwords don't match or current password is wrong.</div>
+          <div class="pw-ok" id="pw-ok">Password updated successfully!</div>
+          <button class="set-btn" onclick="doChangePassword()" style="align-self:flex-start">Update password</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-card">
+      <div class="set-card-title">Output Folder</div>
+      <div class="set-note">Processed videos are saved here. Defaults to Downloads\RoyalForge\ready</div>
+      <div class="folder-display" id="set-folder">Downloads\RoyalForge\ready (default)</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input class="set-inp" id="custom-folder-inp" placeholder="C:\Users\you\Videos\ready" style="flex:1"/>
+        <button class="set-btn" onclick="saveCustomFolder()">Save</button>
+        <button class="set-btn" onclick="resetFolder()">Reset</button>
+      </div>
+    </div>
+    <div class="set-card">
+      <div class="set-card-title">Subscription</div>
+      <div class="set-note">Enter your email to verify your plan after subscribing.</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input class="set-inp" id="license-email" placeholder="your@email.com" style="flex:1"/>
+        <button class="set-btn set-btn-gold" onclick="verifyLicense()">Verify</button>
+      </div>
+      <div id="license-status" style="font-size:12px;color:var(--muted)">
+        Current plan: <strong id="plan-display" style="color:var(--gold)">Free</strong>
+      </div>
+      <div style="margin-top:10px">
+        <button class="set-btn" onclick="showUpgrade()">Upgrade plan</button>
+      </div>
+    </div>
+    <div class="set-card">
+      <div class="set-card-title">Updates</div>
+      <div class="set-note">Check whether a newer version is available.</div>
+      <button class="set-btn" onclick="toast('You are on the latest version.')">Check for updates</button>
+    </div>
+    <div class="set-card" id="team-section">
+      <div class="set-card-title">Team</div>
+      <div id="team-leader-view" style="display:none">
+        <div class="team-member-badge">&#128081; Team Leader</div>
+        <p class="set-desc" style="margin:8px 0 10px">Share this code with your team. They paste it to join and get access to your shared products and presets.</p>
+        <div class="team-code-box">
+          <span class="team-code-val" id="team-code-display">------</span>
+          <button class="team-copy-btn" onclick="copyTeamCode()">Copy code</button>
+        </div>
+        <button class="set-btn" onclick="pushTeamData()" style="width:100%;margin-bottom:8px">&#8593; Sync products &amp; presets to team</button>
+        <div id="team-sync-status" style="font-size:11px;color:var(--muted2);text-align:center;margin-top:4px"></div>
+      </div>
+      <div id="team-member-view" style="display:none">
+        <div class="team-member-badge">&#128101; Team Member</div>
+        <p class="set-desc" style="margin:8px 0 10px">You're connected to a team. Pull the latest shared products and presets from your team leader.</p>
+        <button class="set-btn" onclick="pullTeamData()" style="width:100%;margin-bottom:8px">&#8595; Pull team products &amp; presets</button>
+        <button class="set-btn" onclick="leaveTeam()" style="width:100%;margin-top:4px;background:rgba(224,61,82,.08);border-color:rgba(224,61,82,.2);color:var(--red);font-size:12px">Leave team</button>
+        <div id="team-sync-status-member" style="font-size:11px;color:var(--muted2);text-align:center;margin-top:4px"></div>
+      </div>
+      <div id="team-join-view">
+        <p class="set-desc" style="margin:0 0 10px">Enter a team code from your team leader to join and get shared products and presets.</p>
+        <div style="display:flex;gap:8px">
+          <input class="set-inp" id="team-code-inp" placeholder="Team code..." style="flex:1;letter-spacing:3px;font-size:15px;font-weight:700;text-transform:uppercase" maxlength="8"/>
+          <button class="set-btn" onclick="joinTeam()">Join</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-card">
+      <div class="set-card-title">Danger Zone</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(224,61,82,.06);border:1px solid rgba(224,61,82,.2);border-radius:7px">
+        <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--red)">Log out</div><div style="font-size:11px;color:var(--muted)">You'll be taken back to the home screen.</div></div>
+        <button class="set-btn set-btn-red" onclick="doLogout()">Log out</button>
+      </div>
+    </div>
+    <div class="ver-footer">
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.106 &mdash; RoyalForge</div>
+      <span class="ver-copy">&copy; 2026 RoyalForge</span>
+    </div>
+  </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- PRESET NAME MODAL -->
+<div class="upgrade-bg" id="preset-modal">
+  <div class="upgrade-box" style="max-width:380px;padding:28px">
+    <div class="upgrade-title" style="font-size:20px;margin-bottom:6px">Save preset</div>
+    <div class="upgrade-sub" style="margin-bottom:16px">Give this setup a name so you can load it later.</div>
+    <input class="set-inp" id="preset-modal-inp" placeholder="e.g. BOF Red Setup, MOF Gold..." style="font-size:14px;margin-bottom:16px" onkeydown="if(event.key==='Enter')confirmSavePreset()"/>
+    <div style="display:flex;gap:8px">
+      <button class="pc-btn" onclick="confirmSavePreset()" style="flex:1">Save</button>
+      <button class="pc-btn-ghost" onclick="closeSavePresetModal()" style="flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="upgrade-bg" id="upgrade-bg">
+  <div class="upgrade-box">
+    <div class="upgrade-title">Upgrade RoyalForge</div>
+    <div class="upgrade-sub">Choose the plan that fits your workflow</div>
+    <div class="upgrade-plans">
+      <div class="upgrade-plan">
+        <div class="upgrade-plan-name">Free</div>
+        <div class="upgrade-plan-price">$0</div>
+        <div class="upgrade-plan-per">forever</div>
+        <div class="upgrade-plan-features">✓ 5 videos/day<br>✓ All overlay styles<br>✓ All fonts<br>✗ Limited batch size</div>
+        <button class="upgrade-plan-btn ghost" onclick="closeUpgrade()">Current plan</button>
+      </div>
+      <div class="upgrade-plan">
+        <div class="upgrade-plan-name">Forge</div>
+        <div class="upgrade-plan-price">$29<span style="font-size:16px">.99</span></div>
+        <div class="upgrade-plan-per">per month</div>
+        <div class="upgrade-plan-features">✓ 50 videos/day<br>✓ All overlay styles<br>✓ All fonts<br>✓ Priority support</div>
+        <button class="upgrade-plan-btn" onclick="openStripe('forge')">Get Forge</button>
+      </div>
+      <div class="upgrade-plan popular">
+        <div class="upgrade-plan-badge">Most Popular</div>
+        <div class="upgrade-plan-name">Royal</div>
+        <div class="upgrade-plan-price">$39<span style="font-size:16px">.99</span></div>
+        <div class="upgrade-plan-per">per month</div>
+        <div class="upgrade-plan-features">✓ Unlimited videos<br>✓ All overlay styles<br>✓ All fonts<br>✓ Priority support</div>
+        <button class="upgrade-plan-btn" onclick="openStripe('royal')">Get Royal</button>
+      </div>
+      <div class="upgrade-plan" style="border-color:rgba(167,139,250,.3)">
+        <div class="upgrade-plan-name" style="color:#a78bfa">Team</div>
+        <div class="upgrade-plan-price">$79<span style="font-size:16px">.99</span></div>
+        <div class="upgrade-plan-per">per month &mdash; up to 5 users</div>
+        <div class="upgrade-plan-features">&#10003; Everything in Royal<br>&#10003; Up to 5 team members<br>&#10003; Shared product library<br>&#10003; Shared presets</div>
+        <button class="upgrade-plan-btn" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)" onclick="openStripe('team')">Get Team</button>
+      </div>
+    </div>
+    <span class="upgrade-close" onclick="closeUpgrade()">Maybe later</span>
+  </div>
+</div>
+
+
+
+<!-- PROCESSING -->
+<div class="proc-bg" id="proc-bg">
+  <div class="proc-box">
+    <h2>Processing batch</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span id="proc-fname" style="font-size:12px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Preparing...</span>
+      <span id="proc-counter" style="font-size:12px;color:var(--gold);font-weight:700;flex-shrink:0;margin-left:8px">0 / 0</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+    <div id="proc-stat" style="font-size:11px;color:var(--muted2);margin-top:6px;text-align:center">Starting...</div>
+    <div id="proc-eta" style="font-size:11px;color:var(--muted2);margin-top:3px;text-align:center"></div>
+  </div>
+</div>
+
+<!-- DONE -->
+<div class="done-bg" id="done-bg">
+  <div class="done-box" style="max-width:420px">
+    <div style="font-size:32px;margin-bottom:8px" id="done-icon">✅</div>
+    <h2 id="done-title">Batch complete!</h2>
+    <p id="done-msg" style="margin-bottom:16px">Processed 0 video(s).</p>
+    <div id="done-stats" style="display:flex;gap:10px;justify-content:center;margin-bottom:16px"></div>
+    <div id="done-failed-list" style="display:none;margin-bottom:16px;text-align:left;background:rgba(224,61,82,.06);border:1px solid rgba(224,61,82,.2);border-radius:8px;padding:10px 14px;max-height:150px;overflow-y:auto">
+      <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Failed videos</div>
+      <div id="done-failed-items"></div>
+    </div>
+    <div class="done-btns">
+      <button class="done-open" onclick="openReady()">Open ready/ folder</button>
+      <button id="done-retry-btn" class="done-back" style="display:none;background:rgba(224,61,82,.1);border:1px solid rgba(224,61,82,.3);color:var(--red)" onclick="retryFailed()">Retry failed</button>
+      <button class="done-back" onclick="closeDone()">New batch</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const CURRENT_VERSION = '1.0.106';
+function checkForUpdates() {
+  // Update checking handled by electron-updater in main process
+}
+function openUpdateLink() {
+  const bar = document.getElementById('update-bar');
+  if (bar && bar._downloading) return;
+  if (bar && bar._ready) { window.electronAPI && window.electronAPI.installUpdate && window.electronAPI.installUpdate(); return; }
+  bar._downloading = true;
+  bar.textContent = '⬇ Downloading update... 0%';
+  if (window.electronAPI && window.electronAPI.startUpdateDownload) window.electronAPI.startUpdateDownload();
+}
+
+const STRIPE_FORGE = 'https://buy.stripe.com/bJebJ1f5AalO3lwfgi8AE00';
+const STRIPE_ROYAL = 'https://buy.stripe.com/6oU4gz7D80Le8FQ4BE8AE01';
+const STRIPE_TEAM = 'https://buy.stripe.com/4gM00jaPkctWbS25FI8AE02';
+
+function showUpgrade(){
+  document.getElementById('upgrade-bg').classList.add('show');
+}
+function closeUpgrade(){
+  document.getElementById('upgrade-bg').classList.remove('show');
+}
+function openStripe(plan){
+  const url = plan === 'forge' ? STRIPE_FORGE : plan === 'team' ? STRIPE_TEAM : STRIPE_ROYAL;
+  if(window.electronAPI && window.electronAPI.openExternal){
+    window.electronAPI.openExternal(url);
+  } else {
+    window.open(url, '_blank');
+  }
+  closeUpgrade();
+}
+
+const LICENSE_API = 'https://royalforge-api.netlify.app/.netlify/functions/verify-license';
+let currentPlan = localStorage.getItem('rf_plan') || 'royal';
+let planLimits = { free: 5, forge: 50, royal: Infinity, team: Infinity };
+
+function updatePlanDisplay() {
+  const el = document.getElementById('plan-display');
+  if (el) {
+    el.textContent = currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1);
+    el.style.color = currentPlan === 'royal' ? 'var(--gold)' : currentPlan === 'forge' ? '#a78bfa' : 'var(--muted)';
+  }
+  // Update topbar pill
+  const pill = document.querySelector('.pro-pill');
+  if (pill) {
+    pill.textContent = currentPlan === 'royal' ? '👑 Royal' : currentPlan === 'forge' ? '🔥 Forge' : currentPlan === 'team' ? '👥 Team' : 'Upgrade';
+  }
+}
+
+async function verifyLicense() {
+  const emailEl = document.getElementById('license-email');
+  const email = emailEl ? emailEl.value.trim() : '';
+  if (!email) { toast('Enter your email first.'); return; }
+  
+  const statusEl = document.getElementById('license-status');
+  if (statusEl) statusEl.innerHTML = 'Verifying...';
+  
   try {
-    const staticPath = require('ffmpeg-static')
-    if (staticPath && fs.existsSync(staticPath)) return staticPath
-  } catch(e) {}
-  // Try bundled Windows binary
-  const bundledPath = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg.exe')
-  if (fs.existsSync(bundledPath)) return bundledPath
-  // Try bundled Mac/Linux binary
-  const bundledMac = path.join(process.resourcesPath || __dirname, 'ffmpeg', 'ffmpeg')
-  if (fs.existsSync(bundledMac)) return bundledMac
-  // System FFmpeg fallback
-  const systemPath = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
-  if (fs.existsSync(systemPath)) return systemPath
-  return 'ffmpeg'
-}
-
-const FFMPEG = getFFmpegPath()
-
-// Ensure FFmpeg is executable on Mac
-try { fs.chmodSync(FFMPEG, 0o755) } catch(e) {}
-
-const FONTS = {
-  classic:    'font.ttf',
-  elegance:   'fonts\\playfair.ttf',
-  neon:       'fonts\\bebas.ttf',
-  retro:      'fonts\\pacifico.ttf',
-  comic:      'fonts\\comicneue.ttf',
-  tallhaus:   'fonts\\oswald.ttf',
-  vintage:    'fonts\\abril.ttf',
-  bomb:       'fonts\\blackhan.ttf',
-  signature:  'fonts\\dancing.ttf',
-  printer:    'fonts\\courier.ttf',
-  typewriter: 'fonts\\specialelite.ttf',
-  nunito:     'fonts\\nunito.ttf'
-}
-
-function getFontPath(fontKey) {
-  const rel = FONTS[fontKey] || FONTS.classic
-  const resourceFont = path.join(process.resourcesPath || __dirname, rel)
-  const localFont = path.join(__dirname, rel)
-  // Also check app/fonts/ subfolder for Mac compatibility
-  const appFont = path.join(__dirname, 'app', rel)
-  const fontFile = fs.existsSync(resourceFont) ? resourceFont : fs.existsSync(localFont) ? localFont : appFont
-  return fontFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
-}
-
-function getDrawtextStyle(bgIdx, col) {
-  const idx = parseInt(bgIdx) || 0
-  const isLight = (hex) => {
-    const c = (hex||'').replace('#','').padEnd(6,'0')
-    const r = parseInt(c.substr(0,2),16)
-    const g = parseInt(c.substr(2,2),16)
-    const b = parseInt(c.substr(4,2),16)
-    return (r*299+g*587+b*114)/1000 > 128
-  }
-  const cleanCol = (col||'ffffff').replace('#','')
-  const isWhite = cleanCol.toLowerCase() === 'ffffff'
-  const borderColor = isWhite ? '000000' : 'ffffff'
-  if (idx === 0) {
-    const textColor = isLight('#'+cleanCol) ? 'black' : 'white'
-    return { fontcolor: textColor, box: `box=1:boxcolor=0x${cleanCol}@1.0:boxborderw=22` }
-  }
-  if (idx === 1) {
-    return { fontcolor: `0x${cleanCol}`, box: `borderw=5:bordercolor=0x${borderColor}` }
-  }
-  return { fontcolor: `0x${cleanCol}`, box: '' }
-}
-
-function escapeFFmpeg(text) {
-  return text
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, '\u2019')
-    .replace(/:/g, '\\:')
-    .replace(/\[/g, '\\[')
-    .replace(/\]/g, '\\]')
-    .replace(/,/g, '\\,')
-}
-
-function wrapText(text, maxChars) {
-  const words = text.split(' ')
-  const lines = []
-  let current = ''
-  for (const word of words) {
-    const test = current ? current + ' ' + word : word
-    if (test.length <= maxChars) { current = test }
-    else { if (current) lines.push(current); current = word }
-  }
-  if (current) lines.push(current)
-  return lines
-}
-
-let mainWin = null
-autoUpdater.autoDownload = true
-autoUpdater.autoInstallOnAppQuit = true
-autoUpdater.on('update-available', () => { if(mainWin) mainWin.webContents.send('update-available', 'new version') })
-autoUpdater.on('download-progress', (p) => { if(mainWin) mainWin.webContents.send('update-progress', Math.round(p.percent)) })
-autoUpdater.on('update-downloaded', () => { if(mainWin) mainWin.webContents.send('update-progress', 100); setTimeout(() => autoUpdater.quitAndInstall(false, true), 2000) })
-
-function createWindow() {
-  const win = new BrowserWindow({
-    width: 1280, height: 820, minWidth: 900, minHeight: 600,
-    webPreferences: {
-      nodeIntegration: false, contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
-    },
-    title: 'RoyalForge', backgroundColor: '#080808',
-    icon: path.join(__dirname, 'app', 'icon.ico')
-  })
-  mainWin = win
-  win.loadFile('app/index.html')
-  win.setMenuBarVisibility(false)
-}
-
-let processCounter = 0
-
-// Save PNG from base64 — use safe filename (no dots)
-ipcMain.handle('save-temp-png', async (event, base64Data, uid) => {
-  try {
-    const safeUid = String(uid).replace(/\./g, '_')
-    const pngPath = path.join(os.tmpdir(), `rf_overlay_${safeUid}.png`)
-    fs.writeFileSync(pngPath, Buffer.from(base64Data, 'base64'))
-    return pngPath
-  } catch(e) {
-    console.error('Failed to save PNG:', e)
-    return null
-  }
-})
-
-ipcMain.handle('process-video', async (event, data) => {
-  const { inputPath, outputPath, topText, botText, color, botColor, hookColor, fontKey, fontSize, topBgStyle, botBgStyle, hookBgStyle, ovStyle, textYPercent, preWrappedLines, overlayPngPath, fadeEndOverlay } = data
-
-  const fontSrc = 'C:\\Windows\\Fonts\\arialbd.ttf'
-  const fontDest = path.join(__dirname, 'font.ttf')
-  if (!fs.existsSync(fontDest)) {
-    try { fs.copyFileSync(fontSrc, fontDest) } catch(e) {}
-  }
-
-  const FONT = getFontPath(fontKey || 'classic')
-  const fSize = fontSize || 52
-  const scale = 2.0
-  const BOX_BORDER = 22
-  const bofSize = Math.round(fSize * scale)
-  const bofBotSize = Math.round(fSize * scale * 0.78)
-  const videoFontSize = Math.round(fSize * scale * 0.75) // 0.75 keeps fulltext from overflowing video width
-  const topCol = (color || '#e03d52').replace('#', '')
-  const botCol = (botColor || '#ffffff').replace('#', '')
-  const hookCol = (hookColor || '#ffffff').replace('#', '')
-
-  const isFulltext = ovStyle === 'fulltext' || (ovStyle === 'mix' && topText && topText.length > 30 && !botText)
-
-  const pct = parseFloat(textYPercent) || 12
-  const videoH = 3840
-  const topY = Math.round((pct / 100) * videoH)
-  const botY = topY + Math.round(bofSize * 0.75) + (BOX_BORDER * 2)
-
-  const uid = ++processCounter
-  const _dur = parseFloat(data.duration) || 0;
-  const _fadeEndStr = fadeEndOverlay && _dur > 2 ? `*lte(t,${_dur-1})` : '';
-  const ENABLE_EXPR = `gte(t,0.1)${_fadeEndStr}`;
-
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true })
-
-  // PNG overlay path — uses 2-input filter_complex with transpose for rotation
-  if (overlayPngPath && fs.existsSync(overlayPngPath)) {
-    return new Promise((resolve, reject) => {
-      // Scale PNG to fit 2160 wide, then overlay centered at topY position
-      // transpose=2 handles -90 degree rotation metadata on iPhone videos
-      const filterComplex = `[0:v]scale=2160:-2[rot];[rot][1:v]overlay=0:0:enable='${ENABLE_EXPR}'`
-      const args = [
-        '-i', inputPath,
-        '-i', overlayPngPath,
-        '-filter_complex', filterComplex,
-        '-c:v', 'libx264', '-c:a', 'copy', '-preset', 'ultrafast', '-crf', '18', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-y', outputPath
-      ]
-
-      try { fs.writeFileSync(path.join(__dirname, 'last_filter.txt'), 'PNG_OVERLAY: ' + filterComplex, 'utf8') } catch(e) {}
-
-      execFile(FFMPEG, args, { maxBuffer: 1024 * 1024 * 200 }, (err, stdout, stderr) => {
-        try { fs.unlinkSync(overlayPngPath) } catch(e) {}
-        if (err) {
-          console.error('PNG overlay failed:', err.message)
-          console.error('FFmpeg stderr:', stderr.substring(0, 500))
-          processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofSize, bofBotSize, videoFontSize, topCol, botCol, hookCol, topBgStyle, botBgStyle, hookBgStyle, isFulltext, topY, botY, BOX_BORDER, preWrappedLines, uid, ENABLE_EXPR, resolve, reject)
-        } else {
-          resolve(outputPath)
-        }
-      })
-    })
-  }
-
-  return new Promise((resolve, reject) => {
-    processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofSize, bofBotSize, videoFontSize, topCol, botCol, hookCol, topBgStyle, botBgStyle, hookBgStyle, isFulltext, topY, botY, BOX_BORDER, preWrappedLines, uid, ENABLE_EXPR, resolve, reject)
-  })
-})
-
-function processWithDrawtext(inputPath, outputPath, topText, botText, FONT, bofSize, bofBotSize, videoFontSize, topCol, botCol, hookCol, topBgStyle, botBgStyle, hookBgStyle, isFulltext, topY, botY, BOX_BORDER, preWrappedLines, uid, ENABLE_EXPR, resolve, reject) {
-  const filters = []
-  const botFile = path.join(os.tmpdir(), `rf_bot_${uid}.txt`)
-  const filterFile = path.join(os.tmpdir(), `rf_filter_${uid}.txt`)
-
-  if (topText && topText.trim()) {
-    const style = getDrawtextStyle(isFulltext ? (hookBgStyle||0) : topBgStyle, isFulltext ? hookCol : topCol)
-    const useSize = isFulltext ? videoFontSize : bofSize
-    const boxPart = style.box ? `:${style.box}` : ''
-
-    if (isFulltext) {
-      const lines = (preWrappedLines && preWrappedLines.length > 0) ? preWrappedLines : wrapText(topText.trim(), 10)
-      const lineHeight = Math.round(useSize * 0.72) + BOX_BORDER * 2
-      lines.forEach((line, i) => {
-        const y = topY + (i * lineHeight)
-        const escaped = escapeFFmpeg(line)
-        filters.push(`drawtext=fontfile='${FONT}':text='${escaped}':fontsize=${useSize}:fontcolor=${style.fontcolor}${boxPart}:x=(w-text_w)/2:y=${y}` + `:enable='${ENABLE_EXPR}'` + ``)
-      })
+    const res = await fetch(LICENSE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    
+    if (data.plan && data.plan !== 'free') {
+      currentPlan = data.plan;
+      localStorage.setItem('rf_plan', data.plan);
+      localStorage.setItem('rf_plan_email', email);
+      if (data.teamLimit) localStorage.setItem('rf_team_limit', data.teamLimit);
+      // Also update currentUser object so team UI can read it
+      if (currentUser) {
+        currentUser.plan = data.plan;
+        localStorage.setItem('rf_user', JSON.stringify(currentUser));
+      }
+      toast('Plan verified! You are on ' + data.plan.charAt(0).toUpperCase() + data.plan.slice(1));
+      updatePlanDisplay();
+      initTeamUI();
+      if (statusEl) statusEl.innerHTML = 'Current plan: <strong style="color:var(--gold)">' + data.plan.charAt(0).toUpperCase() + data.plan.slice(1) + '</strong>';
     } else {
-      const topFile = path.join(os.tmpdir(), `rf_top_${uid}.txt`)
-      fs.writeFileSync(topFile, topText.trim(), 'utf8')
-      const topPath = topFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
-      filters.push(`drawtext=fontfile='${FONT}':textfile='${topPath}':expansion=none:fontsize=${bofSize}:fontcolor=${style.fontcolor}${boxPart}:x=(w-text_w)/2:y=${topY}` + `:enable='${ENABLE_EXPR}'` + ``)
+      toast('No active subscription found for this email.');
+      if (statusEl) statusEl.innerHTML = 'Current plan: <strong style="color:var(--muted)">Free</strong>';
+    }
+  } catch(e) {
+    toast('Could not verify — check your connection.');
+    if (statusEl) statusEl.innerHTML = 'Current plan: <strong id="plan-display" style="color:var(--gold)">' + currentPlan + '</strong>';
+  }
+}
+
+function checkPlanLimit(count) {
+  const limit = planLimits[currentPlan] || 5;
+  if (count > limit) {
+    toast('Your ' + currentPlan + ' plan allows ' + limit + ' videos per batch. Upgrade to process more.');
+    return false;
+  }
+  return true;
+}
+
+function getWrappedLines(text, fontSizePx, containerWidthPx, fontFamily) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.font = 'bold ' + fontSizePx + 'px ' + (fontFamily || 'Arial') + ', ' + EMOJI_FONT;
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+  for (const word of words) {
+    const test = current ? current + ' ' + word : word;
+    if (ctx.measureText(test).width <= containerWidthPx) {
+      current = test;
+    } else {
+      if (current) lines.push(current);
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function syncHookInput(idx, val) {
+  if(hooks[idx] !== undefined) {
+    hooks[idx].text = val;
+    updatePreview();
+  }
+}
+function syncTopInput(idx, val) {
+  if(topChips[idx] !== undefined) {
+    topChips[idx].label = val;
+    updatePreview();
+  }
+}
+function syncBotInput(idx, val) {
+  if(botChips[idx] !== undefined) {
+    botChips[idx].label = val;
+    updatePreview();
+  }
+}
+
+async function captureOverlayPNG(uid, isFulltextParam, funnel) {
+  const el = document.getElementById('phone-overlay-content');
+  if (!el || !el.children.length) return null;
+
+  const isFulltextMode = isFulltextParam !== undefined ? isFulltextParam : (ovStyle === 'fulltext');
+
+  const VIDEO_W = 2160;
+  const VIDEO_H = 3840;
+  const VIDEO_SCALE = 5;
+  const _capFontSize = (funnel === 'mof') ? mofFontSize : bofFontSize;
+  const BOX_BORDER = 22;
+
+  // Read actual Y from preview element so position matches preview exactly
+  const phoneFrame = document.querySelector('.phone-frame');
+  const frameH = phoneFrame ? phoneFrame.offsetHeight : 480;
+  const elRect = el.getBoundingClientRect();
+  const frameRect = phoneFrame ? phoneFrame.getBoundingClientRect() : {top:0};
+  var _capYPct = (funnel === 'mof') ? mofTextYPercent : bofTextYPercent;
+  let currentY = Math.round((_capYPct / 100) * VIDEO_H);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = VIDEO_W;
+  canvas.height = VIDEO_H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, VIDEO_W, VIDEO_H);
+
+  // Load the actual TTF font into canvas
+  const _fontFiles = {
+    classic: null,
+    elegance: 'fonts/playfair.ttf',
+    neon: 'fonts/bebas.ttf',
+    retro: 'fonts/pacifico.ttf',
+    comic: 'fonts/comicneue.ttf',
+    tallhaus: 'fonts/oswald.ttf',
+    vintage: 'fonts/abril.ttf',
+    bomb: 'fonts/blackhan.ttf',
+    signature: 'fonts/dancing.ttf',
+    printer: 'fonts/courier.ttf',
+    typewriter: 'fonts/specialelite.ttf',
+    nunito: 'fonts/nunito.ttf'
+  };
+  const _fontFallback = {
+    classic:'Arial',elegance:'RF-Playfair',neon:'RF-Bebas',retro:'RF-Pacifico',
+    comic:'RF-Comic',tallhaus:'RF-Oswald',vintage:'RF-Abril',bomb:'RF-BlackHan',
+    signature:'RF-Dancing',printer:'RF-Courier',typewriter:'RF-Special'
+  };
+  let fontFamily = _fontFallback[selectedFont] || 'Arial';
+  // Try to load font into canvas context
+  try {
+    const fontFile = _fontFiles[selectedFont];
+    if (fontFile) {
+      const ff = new FontFace(fontFamily, 'url(' + fontFile + ')');
+      const loaded = await ff.load();
+      document.fonts.add(loaded);
+      await document.fonts.ready;
+    }
+  } catch(e) { fontFamily = 'Arial'; }
+
+  if (isFulltextMode) {
+    // Fulltext: draw each hook line with its background
+    const hbs = getBgForIdx(hookBgIdx, hookColor || '#ffffff');
+    const _capFontSize = (funnel === 'mof') ? mofFontSize : bofFontSize;
+    const fontSize = Math.round(_capFontSize * VIDEO_SCALE * 0.75); // matches main.js videoFontSize
+    const lineHeight = Math.round(fontSize * 0.88 + 44);
+    const maxWidth = Math.round(VIDEO_W * 0.62);
+
+    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+
+    // Get text from preview element
+    const child = Array.from(el.children).find(c => c.classList.contains('phone-fulltext')) || el.children[0];
+    if (!child) return null;
+    const text = child.textContent || '';
+
+    // Pixel-based wrapping — adjusts with font size, handles emojis correctly
+    // Leave room for BOX_BORDER padding that gets added to each line afterward
+    const wrapWidth = Math.round(VIDEO_W * 0.92) - BOX_BORDER * 2;
+    ctx.font = '800 ' + fontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+    const lines = [];
+    const words = text.split(' ');
+    let current = '';
+    for (const word of words) {
+      const test = current ? current + ' ' + word : word;
+      if (ctx.measureText(test).width <= wrapWidth) {
+        current = test;
+      } else {
+        if (current) lines.push(current);
+        current = word;
+      }
+    }
+    if (current) lines.push(current);
+    const _fulltextFontSize = fontSize;
+
+    // Draw each line
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const textW = ctx.measureText(line).width;
+      const boxW = textW + BOX_BORDER * 2;
+      const boxH = _fulltextFontSize + BOX_BORDER * 2;
+      const x = (VIDEO_W - boxW) / 2;
+
+      // Draw background (style 0 = solid box, style 1 = outline, style 2 = plain)
+      if (hookBgIdx === 0 && hbs.box && hbs.box !== 'transparent') {
+        // Solid color box
+        ctx.fillStyle = hbs.box;
+        ctx.fillRect(x, currentY, boxW, boxH);
+        ctx.fillStyle = hbs.textColor || '#ffffff';
+        ctx.font = '800 ' + _fulltextFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
+      } else if (hookBgIdx === 1) {
+        // Outline style — use strokeText
+        const outlineColor = (hookColor === '#ffffff' || hookColor === '#fff') ? '#000000' : '#ffffff';
+        const outlineW = Math.round(_fulltextFontSize * 0.06);
+        ctx.font = '800 ' + _fulltextFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = outlineW * 2;
+        ctx.lineJoin = 'round';
+        ctx.strokeText(line, VIDEO_W / 2, currentY + boxH / 2);
+        ctx.fillStyle = hookColor || '#ffffff';
+        ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
+      } else {
+        // Plain text
+        ctx.fillStyle = hookColor || '#ffffff';
+        ctx.font = '800 ' + _fulltextFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(line, VIDEO_W / 2, currentY + boxH / 2);
+      }
+
+      currentY += lineHeight;
+    }
+  } else {
+    // Banner mode: draw each banner element
+    const children = Array.from(el.children).filter(c => !c.classList.contains('phone-fulltext'));
+    for (let ci = 0; ci < children.length; ci++) {
+      const child = children[ci];
+
+      // Strike layout: draw orig (strikethrough) + disc (colored box) separately
+      if (child.classList.contains('phone-strike')) {
+        const origEl = child.querySelector('.phone-strike-orig');
+        const discEl = child.querySelector('.phone-strike-disc');
+        const origFontSize = Math.round(_capFontSize * VIDEO_SCALE * 0.85);
+        const discFontSize = Math.round(_capFontSize * VIDEO_SCALE * 0.82);
+
+        if (origEl) {
+          const origText = origEl.textContent.trim();
+          // Get disc color first so slash matches the 50% OFF box exactly
+          const slashColor = discEl ? window.getComputedStyle(discEl).backgroundColor : '#ff0000';
+          ctx.font = '800 ' + origFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+          const tW = ctx.measureText(origText).width;
+          // No BOX_BORDER padding — just font size so it sits flush against 50% OFF box
+          const textY = currentY + origFontSize / 2;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.lineJoin = 'round';
+          ctx.lineWidth = Math.round(origFontSize * 0.10);
+          ctx.strokeStyle = '#000000';
+          ctx.strokeText(origText, VIDEO_W / 2, textY);
+          ctx.fillStyle = 'rgba(255,255,255,0.9)';
+          ctx.fillText(origText, VIDEO_W / 2, textY);
+          // Slash: at middle of capital letters, same red as the disc box
+          const lineY = textY - Math.round(origFontSize * 0.12);
+          ctx.strokeStyle = slashColor;
+          ctx.lineWidth = Math.round(origFontSize * 0.13);
+          ctx.beginPath();
+          ctx.moveTo(VIDEO_W / 2 - tW / 2, lineY);
+          ctx.lineTo(VIDEO_W / 2 + tW / 2, lineY);
+          ctx.stroke();
+          // Small visible gap between elements
+          currentY += Math.round(origFontSize * 0.88);
+        }
+
+        if (discEl) {
+          const discText = discEl.textContent.trim();
+          const discStyle = window.getComputedStyle(discEl);
+          const discBg = discStyle.backgroundColor;
+          ctx.font = '800 ' + discFontSize + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+          const tW = ctx.measureText(discText).width;
+          const boxW = tW + BOX_BORDER * 2;
+          const boxH = discFontSize + BOX_BORDER * 2;
+          const x = (VIDEO_W - boxW) / 2;
+          if (discBg && discBg !== 'transparent' && discBg !== 'rgba(0, 0, 0, 0)') {
+            ctx.fillStyle = discBg;
+            ctx.fillRect(x, currentY, boxW, boxH);
+          }
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(discText, VIDEO_W / 2, currentY + boxH / 2);
+          currentY += boxH;
+        }
+        continue;
+      }
+
+      const style = window.getComputedStyle(child);
+      const bg = style.backgroundColor;
+      const color = style.color || '#ffffff';
+      const text = child.textContent || '';
+      const isBot = ci === 1;
+      const fontSize = isBot
+        ? Math.round(_capFontSize * VIDEO_SCALE * 0.78)
+        : Math.round(_capFontSize * VIDEO_SCALE);
+
+      let fontSize2 = fontSize;
+      ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+      while (ctx.measureText(text).width > VIDEO_W * 0.92 && fontSize2 > 40) {
+        fontSize2 -= 4;
+        ctx.font = '800 ' + fontSize2 + 'px ' + fontFamily + ', ' + EMOJI_FONT;
+      }
+      const textW = ctx.measureText(text).width;
+      const boxW = textW + BOX_BORDER * 2;
+      const boxH = fontSize + BOX_BORDER * 2;
+      const x = (VIDEO_W - boxW) / 2;
+
+      if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+        ctx.fillStyle = bg;
+        ctx.fillRect(x, currentY, boxW, boxH);
+      }
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const bgIdxForEl = isBot ? botBgIdx : topBgIdx;
+      if (bgIdxForEl === 1) {
+        // Outline style: strokeText with contrasting color + fillText with selected color
+        const outCol = (color === '#ffffff' || color === '#fff') ? '#000000' : '#ffffff';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = Math.round(fontSize * 0.12);
+        ctx.strokeStyle = outCol;
+        ctx.strokeText(text, VIDEO_W / 2, currentY + boxH / 2);
+      }
+      ctx.fillStyle = color;
+      ctx.fillText(text, VIDEO_W / 2, currentY + boxH / 2);
+      currentY += boxH;
     }
   }
 
-  if (botText && botText.trim()) {
-    fs.writeFileSync(botFile, botText.trim(), 'utf8')
-    const botPath = botFile.replace(/\\/g, '/').replace(/^([A-Za-z]):\//, '$1\\:/')
-    const botStyle = getDrawtextStyle(botBgStyle, botCol)
-    const boxPart = botStyle.box ? `:${botStyle.box}` : ''
-    filters.push(`drawtext=fontfile='${FONT}':textfile='${botPath}':expansion=none:fontsize=${bofBotSize}:fontcolor=${botStyle.fontcolor}${boxPart}:x=(w-text_w)/2:y=${botY}` + `:enable='${ENABLE_EXPR}'` + ``)
+  const dataUrl = canvas.toDataURL('image/png');
+  const base64 = dataUrl.replace(/^data:image\/png;base64,/, '');
+  // Free canvas memory immediately to prevent OOM crash on large batches
+  canvas.width = 0; canvas.height = 0;
+
+  if (window.electronAPI && window.electronAPI.saveTempPNG) {
+    return await window.electronAPI.saveTempPNG(base64, uid);
   }
-
-  if (filters.length === 0) filters.push('null')
-
-  const filterStr = filters.join(',')
-  fs.writeFileSync(filterFile, filterStr, 'utf8')
-  try { fs.writeFileSync(path.join(__dirname, 'last_filter.txt'), filterStr, 'utf8') } catch(e) {}
-
-  const env = Object.assign({}, process.env, {
-    FONTCONFIG_FILE: path.join(__dirname, 'fonts', 'fonts.conf'),
-    FC_CONFIG_DIR: path.join(__dirname, 'fonts')
-  })
-
-  const args = ['-i', inputPath, '-filter_script:v', filterFile, '-c:v', 'libx264', '-c:a', 'copy', '-preset', 'ultrafast', '-crf', '18', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-y', outputPath]
-
-  execFile(FFMPEG, args, { maxBuffer: 1024 * 1024 * 200, env }, (err, stdout, stderr) => {
-    try { fs.unlinkSync(filterFile) } catch(e) {}
-    try { fs.unlinkSync(botFile) } catch(e) {}
-    if (err) { console.error('FFmpeg error:', stderr); reject(stderr) }
-    else { resolve(outputPath) }
-  })
+  return null;
 }
 
-ipcMain.handle('pick-files', async () => {
-  const result = await dialog.showOpenDialog({
-    properties: ['openFile', 'multiSelections'],
-    filters: [{ name: 'Videos', extensions: ['mp4', 'mov', 'avi', 'mkv', 'MOV', 'MP4'] }]
-  })
-  return result.filePaths
-})
 
-ipcMain.handle('open-folder', async (event, p) => { shell.openPath(p) })
-ipcMain.handle('open-external', async (event, url) => { shell.openExternal(url) })
-ipcMain.handle('get-home-dir', async () => os.homedir())
-
-// Native video thumbnail capture for Mac (avoids GPU crash)
-ipcMain.handle('capture-thumb', async (event, videoPath) => {
-  if (process.platform !== 'darwin') return null
+async function pickFilesNative(){
   try {
-    const { execFileSync } = require('child_process')
-    const outPath = path.join(os.tmpdir(), 'rf_thumb_' + Date.now() + '.jpg')
-    const ffmpegPath = FFMPEG
-    execFileSync(ffmpegPath, [
-      '-ss', '0.1',
-      '-i', videoPath,
-      '-vframes', '1',
-      '-vf', 'scale=80:80:force_original_aspect_ratio=increase,crop=80:80',
-      '-q:v', '5',
-      '-y', outPath
-    ], { timeout: 8000 })
-    const data = fs.readFileSync(outPath)
-    try { fs.unlinkSync(outPath) } catch(e) {}
-    return 'data:image/jpeg;base64,' + data.toString('base64')
-  } catch(e) {
-    return null
+    const api = window.electronAPI;
+    if(api && api.pickFiles){
+      const paths = await api.pickFiles();
+      if(!paths || !paths.length) return;
+      // Use sequential queue — same as drag-drop, one video at a time
+      let pickerDupes = [];
+      for(const filePath of paths){
+        const name = filePath.split('\\').pop().split('/').pop();
+        if(files.find(x=>x.file.name===name)){ pickerDupes.push(name); continue; }
+        const entry = { file: { name, path: filePath }, funnel:'bof', duration:null };
+        files.push(entry);
+        _durationQueue.push({f:{path:filePath}, name});
+      }
+      if(pickerDupes.length) toast(pickerDupes.length+' duplicate'+(pickerDupes.length>1?'s':'')+' skipped: '+pickerDupes.slice(0,2).map(n=>n.length>20?n.slice(0,20)+'…':n).join(', ')+(pickerDupes.length>2?' +more':''));
+      renderFiles(); updateVidCounter();
+      _processDurationQueue();
+    } else {
+      document.getElementById('file-in').click();
+    }
+  } catch(e){
+    console.error('File picker error:', e);
+    document.getElementById('file-in').click();
   }
-})
+}
+
+// ===== FILES =====
+
+let dragSrcIdx = null;
+
+function dragStart(e, idx) {
+  dragSrcIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => {
+    const items = document.querySelectorAll('.file-item');
+    if(items[idx]) items[idx].style.opacity = '0.4';
+  }, 0);
+}
+
+function dragOver(e, idx) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.dataTransfer.dropEffect = 'move';
+  const items = document.querySelectorAll('.file-item');
+  items.forEach(el => el.style.outline = '');
+  if(items[idx] && idx !== dragSrcIdx) {
+    items[idx].style.outline = '2px solid var(--gold)';
+  }
+}
+
+function dragDrop(e, idx) {
+  e.preventDefault();
+  if(dragSrcIdx === null || dragSrcIdx === idx) return;
+  const moved = files.splice(dragSrcIdx, 1)[0];
+  files.splice(idx, 0, moved);
+  renderFiles();
+  updateVidCounter();
+}
+
+function dragEnd(e) {
+  dragSrcIdx = null;
+  document.querySelectorAll('.file-item').forEach(el => {
+    el.style.opacity = '';
+    el.style.outline = '';
+  });
+}
+
+// Debounced renderFiles — prevents hammering the DOM during batch adds
+let _renderTimer = null;
+function renderFiles(){ clearTimeout(_renderTimer); _renderTimer = setTimeout(_doRenderFiles, 80); }
+
+function _doRenderFiles(){ updatePreviewBg();
+  const el=document.getElementById('file-list');
+  if(!el) return;
+  el.innerHTML = files.map(function(f,i) {
+    var isBof = f.funnel === 'bof';
+    var itemClass = 'file-item ' + (isBof ? 'is-bof' : 'is-mof');
+    var badgeClass = 'fi-badge ' + (isBof ? 'fi-bof' : 'fi-mof');
+    var badgeText = isBof ? 'BOF' : 'MOF';
+    var autoText = getFunnelLabel(f);
+    var pname = esc(f.productName || '');
+    return '<div class="' + itemClass + '" draggable="true" ondragstart="dragStart(event,' + i + ')" ondragover="dragOver(event,' + i + ')" ondrop="dragDrop(event,' + i + ')" ondragend="dragEnd(event)" style="cursor:grab">' +
+      '<div class="file-item-top"><div class="fi-left">' +
+      '<div class="fi-thumb" id="fth-' + i + '" data-idx="' + i + '">&#127909;</div>' +
+      '<div class="fi-info">' +
+      '<div class="fi-name">' + esc(f.file.name) + '</div>' +
+      '<div class="fi-meta">' +
+      '<span class="' + badgeClass + '" onclick="toggleFunnel(' + i + ')" title="Tap to toggle BOF/MOF">' + badgeText + '</span>' +
+      '<span class="fi-dur">' + fmtD(f.duration) + '</span>' +
+      '<span class="fi-auto">' + autoText + '</span>' +
+      '</div></div></div>' +
+      '<button class="fi-rm" onclick="removeFile(' + i + ')">&#215;</button></div></div>' +
+      '<div class="prod-lib-wrap" style="margin-top:4px">' +
+      '<div style="display:flex;align-items:center;gap:4px" id="prod-wrap-' + i + '">' +
+      '<input class="fi-product-inp prod-lib-input" type="text" readonly value="' + pname + '" placeholder="Tap to pick product..." id="fi-pn-' + i + '" onclick="openProdDropdown(' + i + ', this)" style="cursor:pointer;font-size:11px;padding:6px 10px;flex:1"/>' +
+      (pname ? '<button onclick="clearProductName(' + i + ')" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;padding:0 4px;flex-shrink:0;line-height:1" title="Clear product">&#215;</button>' : '') +
+      '</div>' +
+      '<div class="prod-dropdown" id="prod-dd-' + i + '">' +
+      '<div class="prod-search"><input class="prod-search-inp" placeholder="Search products..." oninput="filterProdDropdown(' + i + ', this.value)"/></div>' +
+      '<div class="prod-list" id="prod-dd-list-' + i + '"></div>' +
+      '</div>' +
+      '</div>';
+  }).join('');
+  // Lazy thumbnails — only load what's visible
+  setTimeout(_attachThumbObservers, 50);
+}
+
+// Toggle BOF/MOF manually
+function getFunnelLabel(f) {
+  if (f.duration === null) return 'reading...';
+  if (f._manualFunnel) return 'manual';
+  return 'auto';
+}
+
+function toggleFunnel(i) {
+  if (!files[i]) return;
+  files[i].funnel = files[i].funnel === 'bof' ? 'mof' : 'bof';
+  files[i]._manualFunnel = true;
+  // Update just the badge and file-item class — no full re-render
+  const isBof = files[i].funnel === 'bof';
+  const item = document.querySelector('.file-item:nth-child(' + (i+1) + ')');
+  const badge = document.getElementById('fth-' + i) && document.getElementById('fth-' + i).closest('.file-item');
+  // Find by file-item index
+  const allItems = document.querySelectorAll('.file-item');
+  if (allItems[i]) {
+    allItems[i].className = 'file-item ' + (isBof ? 'is-bof' : 'is-mof');
+    const b = allItems[i].querySelector('.fi-badge');
+    if (b) {
+      b.className = 'fi-badge ' + (isBof ? 'fi-bof' : 'fi-mof');
+      b.textContent = isBof ? 'BOF' : 'MOF';
+    }
+    const auto = allItems[i].querySelector('.fi-auto');
+    if (auto) auto.textContent = 'manual';
+  }
+  updateVidCounter();
+}
+
+// Static frame thumbnail loader - sequential, frame 0, one at a time
+let _thumbQueue = [];
+let _thumbRunning = false;
+
+function _grabThumb(thumb, src) {
+  return new Promise((resolve) => {
+    var vid = document.createElement('video');
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.preload = 'metadata';
+    // Limit decode size on Mac to prevent memory spike
+    vid.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none';
+    document.body.appendChild(vid);
+    var done = false;
+    var cleanup = function() {
+      if (done) return; done = true;
+      try { vid.pause(); if (src && src.startsWith('blob:')) URL.revokeObjectURL(src); vid.src = ''; vid.load(); document.body.removeChild(vid); } catch(e) {}
+      vid = null;
+      resolve();
+    };
+    vid.onloadedmetadata = function() {
+      try { vid.currentTime = 0.1; } catch(e) { cleanup(); }
+    };
+    vid.onseeked = function() {
+      try {
+        // Use small canvas — no need for high res thumbnail
+        var canvas = document.createElement('canvas');
+        var W = 80, H = 80;
+        canvas.width = W; canvas.height = H;
+        var ctx = canvas.getContext('2d', { willReadFrequently: false });
+        var vw = vid.videoWidth || 1, vh = vid.videoHeight || 1;
+        var side = Math.min(vw, vh);
+        var sx = (vw - side) / 2, sy = (vh - side) / 2;
+        ctx.drawImage(vid, sx, sy, side, side, 0, 0, W, H);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        canvas.width = 0; canvas.height = 0;
+        canvas = null;
+        var img = document.createElement('img');
+        img.src = dataUrl;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:5px';
+        thumb.innerHTML = '';
+        thumb.appendChild(img);
+        thumb.classList.add('loaded');
+      } catch(e) {}
+      cleanup();
+    };
+    vid.onerror = cleanup;
+    setTimeout(cleanup, 8000);
+    try { vid.src = src; } catch(e) { cleanup(); }
+  });
+}
+
+async function _processThumbQueue() {
+  if (_thumbRunning) return;
+  _thumbRunning = true;
+  while (_thumbQueue.length > 0) {
+    const { thumb, src } = _thumbQueue.shift();
+    if (!thumb.classList.contains('loaded')) {
+      await _grabThumb(thumb, src);
+    }
+    await new Promise(r => setTimeout(r, 150));
+  }
+  _thumbRunning = false;
+}
+
+const _thumbObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const thumb = entry.target;
+    if (thumb.classList.contains('loaded') || thumb.dataset.queued) return;
+    const idx = parseInt(thumb.dataset.idx);
+    if (isNaN(idx) || !files[idx]) return;
+    const f = files[idx];
+    const _blobSrc = f.file._blob ? URL.createObjectURL(f.file._blob) : null;
+    const src = f.file.path ? ('file:///' + f.file.path.split('\\').join('/')) : _blobSrc;
+    if (!src) return;
+    thumb.dataset.queued = '1';
+    _thumbQueue.push({ thumb, src, isBlob: !!f.file._blob });
+    _processThumbQueue();
+  });
+}, { threshold: 0.1 });
+
+function _attachThumbObservers() {
+  _thumbQueue = [];
+  _thumbRunning = false;
+  document.querySelectorAll('.fi-thumb[data-idx]').forEach(thumb => {
+    delete thumb.dataset.queued;
+    _thumbObserver.observe(thumb);
+  });
+}
+let _durationQueue = [];
+let _durationRunning = false;
+function _processDurationQueue(){
+  if(_durationRunning || _durationQueue.length===0) return;
+  _durationRunning = true;
+  const {f, name} = _durationQueue.shift();
+  const v = document.createElement('video');
+  v.preload='metadata';
+  try {
+    const _durBlob = f instanceof File ? URL.createObjectURL(f) : null;
+    v.src = f.path ? ('file:///'+f.path.split('\\').join('/')) : (_durBlob || '');
+  } catch(e) { v.src=''; }
+  let settled = false;
+  const done = () => {
+    if(settled) return; settled=true;
+    const idx = files.findIndex(x=>x.file.name===name);
+    if(idx!==-1){ files[idx].duration=v.duration||null; files[idx].funnel=autoFunnel(v.duration||null); }
+    try{ if(_durBlob) URL.revokeObjectURL(_durBlob); v.src=''; v.load(); }catch(e){}
+    _durationRunning = false;
+    // Sort: MOFs first, then BOFs
+    files.sort(function(a, b) {
+      if (a.funnel === 'mof' && b.funnel !== 'mof') return -1;
+      if (a.funnel !== 'mof' && b.funnel === 'mof') return 1;
+      return 0;
+    });
+    renderFiles(); updateVidCounter();
+    setTimeout(_processDurationQueue, 50); // small gap between reads
+  };
+  v.onloadedmetadata = done;
+  v.onerror = done;
+  setTimeout(done, 4000); // safety timeout
+}
+
+function handleFiles(fl){
+  let dupes = [];
+  for(const f of fl){
+    if(files.find(x=>x.file.name===f.name)){ dupes.push(f.name); continue; }
+    const entry={file:{name:f.name, path:f.path||'', _blob:f},funnel:'bof',duration:null};
+    files.push(entry);
+    _durationQueue.push({f, name:f.name});
+  }
+  if(dupes.length) toast(dupes.length + ' duplicate'+(dupes.length>1?'s':'')+' skipped: ' + dupes.slice(0,2).map(n=>n.length>20?n.slice(0,20)+'…':n).join(', ')+(dupes.length>2?' +more':''));
+  renderFiles(); updateVidCounter();
+  _processDurationQueue();
+}
+function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('over');handleFiles(e.dataTransfer.files);}
+function removeFile(i){files.splice(i,1);renderFiles();updateVidCounter();updatePreviewBg();}
+
+// ===== PROCESS =====
+
+// ===== AUTH STATE =====
+let currentUser = JSON.parse(localStorage.getItem('rf_user')||'null');
+
+let accounts = JSON.parse(localStorage.getItem('rf_accounts')||'[]');
+let batches = JSON.parse(localStorage.getItem('rf_batches')||'[]');
+let folderPath = localStorage.getItem('rf_fp')||'';
+let ovStyle = 'banner';
+// Load Noto Color Emoji for cross-platform emoji rendering
+async function loadNotoFont() {
+  try {
+    const cdnUrl = 'https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji@main/fonts/NotoColorEmoji.ttf';
+    const font = new FontFace('NotoColorEmoji', 'url(' + cdnUrl + ')');
+    await font.load();
+    document.fonts.add(font);
+    console.log('Noto Color Emoji ready');
+  } catch(e) { console.log('Noto Color Emoji not available:', e.message); }
+}
+const EMOJI_FONT = ((window.electronAPI && window.electronAPI.platform) === 'darwin') ? 'Apple Color Emoji' : 'NotoColorEmoji';
+if ((window.electronAPI && window.electronAPI.platform) !== 'darwin') loadNotoFont();
+
+let selectedFont = 'classic';
+let textYPercent = 12;
+let bofTextYPercent = 12;
+let mofTextYPercent = 12;
+
+function _getPreviewYPercent() {
+  var f = files[previewVideoIdx];
+  var funnel = f ? f.funnel : 'bof';
+  return funnel === 'mof' ? mofTextYPercent : bofTextYPercent;
+}
+
+function onFontSizeSlider(v) {
+  selectedFontSize = v;
+  // Save per funnel
+  var f = files[previewVideoIdx];
+  var funnel = f ? f.funnel : 'bof';
+  if (funnel === 'mof') mofFontSize = v;
+  else bofFontSize = v;
+  var lbl = document.getElementById('font-size-val');
+  if (lbl) lbl.textContent = v;
+  saveSettings();
+  updatePreview();
+}
+
+function onPosSliderBof(v) {
+  bofTextYPercent = parseFloat(v);
+  var lbl = document.getElementById('pos-pct-label-bof');
+  if (lbl) lbl.textContent = Math.round(bofTextYPercent) + '%';
+  saveSettings();
+  updatePreview();
+}
+
+function onPosSliderMof(v) {
+  mofTextYPercent = parseFloat(v);
+  var lbl = document.getElementById('pos-pct-label-mof');
+  if (lbl) lbl.textContent = Math.round(mofTextYPercent) + '%';
+  saveSettings();
+  updatePreview();
+}
+
+function onPosSlider(val) {
+  textYPercent = parseFloat(val);
+  const el = document.getElementById('phone-overlay-content');
+  var _yPct = _getPreviewYPercent ? _getPreviewYPercent() : textYPercent;
+  if (el) el.style.top = _yPct + '%';
+  const lbl = document.getElementById('pos-pct-label');
+  if (lbl) lbl.textContent = Math.round(textYPercent) + '%';
+  saveSettings();
+  updatePreview();
+}
+let topBgIdx = 0;
+let botBgIdx = 0;
+let hookBgIdx = 0;
+function getBgForIdx(idx, color) {
+  const col = color || '#e03d52';
+  const isLightCol = isLight(col);
+  const outlineColor = (col==='#ffffff'||col==='#fff') ? '#000' : '#fff';
+  const outline = '-2px -2px 0 '+outlineColor+',2px -2px 0 '+outlineColor+',-2px 2px 0 '+outlineColor+',2px 2px 0 '+outlineColor+',-2px 0 0 '+outlineColor+',2px 0 0 '+outlineColor+',0 -2px 0 '+outlineColor+',0 2px 0 '+outlineColor;
+  if(idx===0) return {box:col, textColor:isLightCol?'#000':'#fff', shadow:'none'};
+  if(idx===1) return {box:'transparent', textColor:col, shadow:outline};
+  return {box:'transparent', textColor:col, shadow:'none'};
+}
+function cycleTopBg(){
+  topBgIdx=(topBgIdx+1)%3;
+  const btn=document.getElementById('top-bg-btn');
+  if(topBgIdx===0){btn.style.cssText='margin-left:8px;background:'+topColor+';color:'+(isLight(topColor)?'#000':'#fff')+';border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else if(topBgIdx===1){btn.style.cssText='margin-left:8px;background:transparent;color:'+topColor+';border:1px solid '+topColor+';border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else{btn.style.cssText='margin-left:8px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  updatePreview();
+}
+function cycleBotBg(){
+  botBgIdx=(botBgIdx+1)%3;
+  const btn=document.getElementById('bot-bg-btn');
+  if(botBgIdx===0){btn.style.cssText='margin-left:8px;background:'+botColor+';color:'+(isLight(botColor)?'#000':'#fff')+';border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else if(botBgIdx===1){btn.style.cssText='margin-left:8px;background:transparent;color:'+botColor+';border:1px solid '+botColor+';border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else{btn.style.cssText='margin-left:8px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  updatePreview();
+}
+function cycleHookBg(){
+  hookBgIdx=(hookBgIdx+1)%3;
+  const btn=document.getElementById('hook-bg-btn');
+  if(hookBgIdx===0){btn.style.cssText='margin-left:8px;background:'+hookColor+';color:'+(isLight(hookColor)?'#000':'#fff')+';border:none;border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else if(hookBgIdx===1){btn.style.cssText='margin-left:8px;background:transparent;color:'+hookColor+';border:1px solid '+hookColor+';border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  else{btn.style.cssText='margin-left:8px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:5px;padding:3px 10px;cursor:pointer;font-size:11px;font-weight:900;font-family:Inter,sans-serif';}
+  updatePreview();
+}
+let bgStyleIdx = 2;
+function getBgStyle(color){
+  if(bgStyleIdx===0) return {box:'transparent',textColor:'#fff',textShadow:'0 2px 8px rgba(0,0,0,.9)'};
+  if(bgStyleIdx===1) return {box:'rgba(0,0,0,0.5)',textColor:'#fff',textShadow:'none'};
+  return {box:color,textColor:'#fff',textShadow:'none'};
+}
+let selectedFontSize = 52;
+let bofFontSize = 52;
+let mofFontSize = 52;
+function setFont(key,el){selectedFont=key;document.querySelectorAll('.font-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');saveSettings();updatePreview();}
+
+let strikeOn = false;
+let fadeEndOverlay = false;
+let topColor = '#e03d52';
+let botColor = '#ffffff';
+let hookColor = '#ffffff';
+let files = [];
+
+const today = new Date().toDateString();
+const lastDay = localStorage.getItem('rf_lastday')||'';
+let vidCount = (lastDay === today) ? parseInt(localStorage.getItem('rf_vc')||'0',10) : 0;
+if(lastDay !== today){ localStorage.setItem('rf_vc','0'); localStorage.setItem('rf_lastday',today); }
+
+let topChips = [
+  {label:'40% OFF',on:true,color:'#e03d52'},
+  {label:'LARGE SALE',on:true,color:'#e03d52'},
+  {label:'50% OFF',on:true,color:'#ffffff'},
+  {label:'2x DISCOUNT',on:true,color:'#e03d52'},
+  {label:'TRIPLE DISCOUNT',on:true,color:'#e03d52'}
+];
+let botChips = [
+  {label:'CHECK COUPONS',on:true},
+  {label:'LAST CHANCE',on:true},
+  {label:'LIMITED 🛒 LEFT',on:true}
+];
+let hooks = [
+  {text:'If you waited until today to get these [product] you absolutely won because this is dirt cheap rn with free shipping',on:true},
+  {text:'Ur card won\'t decline on these [product]... it\'s violently discounted rn \uD83D\uDE3F\uD83D\uDE00',on:false},
+  {text:'TikTok bullied the price down on these [product] and now it\'s on a massive sale \uD83D\uDE2D',on:false},
+  {text:'Someone f*cked up at TikTok cus these [product] just went on a massive discount \uD83D\uDEA8',on:false},
+  {text:'Anyone else grabbing a boatload of these [product] today since it\'s a fraction of the price? \uD83D\uDC40',on:false},
+  {text:'Wait for it... you\'ll want to see these [product] before you scroll \uD83D\uDE33',on:false},
+  {text:'Give me 7 seconds before you decide anything about these [product] \u23F3',on:false}
+];
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function autoFunnel(d){if(d===null||d===undefined) return 'bof'; if(d>=7&&d<=13) return 'mof'; return 'bof';}
+function fmtD(d){if(d===null)return '...';const s=Math.round(d);return Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);}
+
+// ===== VIEWS =====
+function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.getElementById(id).classList.add('on');}
+function showLand(){showView('view-land');}
+function showLogin(){showView('view-login');document.getElementById('login-error').classList.remove('show');}
+function showSignup(){showView('view-signup');document.getElementById('signup-error').classList.remove('show');document.getElementById('signup-success').classList.remove('show');}
+
+async function silentVerifyPlan() {
+  if (!window.electronAPI) return; // skip in dev mode — stay Royal
+  const email = localStorage.getItem('rf_plan_email');
+  if (!email) return; // no email saved, stay free
+  // Only re-verify once every 6 hours to avoid hammering the server
+  const lastCheck = parseInt(localStorage.getItem('rf_plan_checked') || '0');
+  if (Date.now() - lastCheck < 6 * 60 * 60 * 1000) return;
+  try {
+    const res = await fetch(LICENSE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    const serverPlan = data.plan || 'free';
+    // Always trust the server — corrects any localStorage tampering
+    currentPlan = serverPlan;
+    localStorage.setItem('rf_plan', serverPlan);
+    localStorage.setItem('rf_plan_checked', Date.now().toString());
+    updatePlanDisplay();
+  } catch(e) {
+    // Offline — keep cached plan but don't update timestamp so we retry next launch
+  }
+}
+
+function showApp(){
+  currentPlan = localStorage.getItem('rf_plan') || 'free';
+  // Restore plan into currentUser so team UI can read it
+  var savedPlanEmail = localStorage.getItem('rf_plan_email');
+  if (currentUser && savedPlanEmail && savedPlanEmail === currentUser.email) {
+    currentUser.plan = currentPlan;
+  }
+  updatePlanDisplay();
+  // Initialize team UI first so leader's team code gets saved to localStorage
+  initTeamUI();
+
+  // Auto-sync/pull team data on app load + poll every 3 minutes
+  var _autoTeamCode = localStorage.getItem('rf_team_code');
+  if (_autoTeamCode) {
+    // Everyone syncs their products up then pulls the full team library
+    setTimeout(function() { syncToTeam(); }, 2000);
+    setTimeout(function() { pullTeamData(); }, 5000);
+    setInterval(function() {
+      syncToTeam();
+      setTimeout(function() { pullTeamData(); }, 3000);
+    }, 3 * 60 * 1000);
+
+    // Countdown timer display
+    window._syncCountdown = 180;
+    var _countdownEl = document.getElementById('team-sync-countdown');
+    if (_countdownEl) _countdownEl.style.display = 'block';
+    setInterval(function() {
+      window._syncCountdown--;
+      if (window._syncCountdown <= 0) window._syncCountdown = 180;
+      var _mins = Math.floor(window._syncCountdown / 60);
+      var _secs = window._syncCountdown % 60;
+      var _el = document.getElementById('team-sync-countdown');
+      if (_el) _el.textContent = 'Sync in ' + _mins + ':' + (_secs < 10 ? '0' : '') + _secs;
+    }, 1000);
+  }
+
+  // Silently re-verify plan with server to prevent localStorage tampering
+  silentVerifyPlan();
+  if(window.electronAPI && window.electronAPI.getHomeDir){
+    window.electronAPI.getHomeDir().then(d=>{ if(d) localStorage.setItem('rf_homedir',d); });
+  }
+  showView('view-app');
+  document.getElementById('user-email-display').textContent=currentUser.email;
+  document.getElementById('dash-name').textContent=currentUser.name||'Creator';
+  document.getElementById('vid-count').textContent=vidCount+' videos today';
+  setTimePill();
+  renderBatches();
+  // Load saved chips and hooks before rendering
+  try {
+    const savedTop = localStorage.getItem('rf_topChips');
+    const savedBot = localStorage.getItem('rf_botChips');
+    const savedHooks = localStorage.getItem('rf_hooks');
+    if(savedTop) topChips = JSON.parse(savedTop);
+    if(savedBot) botChips = JSON.parse(savedBot);
+    if(savedHooks) hooks = JSON.parse(savedHooks);
+  } catch(e) {}
+  renderBannerList('top');
+  renderBannerList('bot');
+  renderHooks();
+  renderProductLibrary();
+  showAppDash();
+  setTimeout(showOnboarding, 600);
+}
+function showAppDash(){document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));document.getElementById('app-dash').classList.add('on');renderBatches();}
+function showAppEditor(){
+  document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('app-editor').classList.add('on');
+  setTimeout(()=>{loadSettings();renderPresets();document.fonts.ready.then(()=>{updatePreview();});},50);
+}
+function showAppSettings(){
+  initTeamUI();
+  document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('app-settings').classList.add('on');
+  document.getElementById('set-email-disp').textContent=currentUser.email;
+  document.getElementById('set-name').value=currentUser.name||'';
+  const savedEmail=localStorage.getItem('rf_plan_email'); if(savedEmail){const le=document.getElementById('license-email');if(le)le.value=savedEmail;} updatePlanDisplay();
+  const fp=localStorage.getItem('rf_fp')||'';
+  if(fp){
+    document.getElementById('set-folder').textContent=fp+'/raw   |   '+fp+'/ready';
+    document.getElementById('set-folder').className='folder-display set';
+  }
+  const h=localStorage.getItem('rf_tt')||'';
+  if(h){
+    const nm=document.getElementById('set-tt-name');
+    const st=document.getElementById('set-tt-status');
+    const btn=document.getElementById('set-tt-btn');
+    if(nm) nm.textContent='@'+h;
+    if(st){st.textContent='Connected';st.style.color='var(--green)';}
+    if(btn) btn.textContent='Disconnect';
+  }
+}
+
+// ===== AUTH =====
+function doSignup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim().toLowerCase();
+  const pw=document.getElementById('signup-pw').value;
+  const err=document.getElementById('signup-error');
+  const suc=document.getElementById('signup-success');
+  err.classList.remove('show'); suc.classList.remove('show');
+  if(!name||!email||!pw){err.textContent='Please fill in all fields.';err.classList.add('show');return;}
+  if(pw.length<6){err.textContent='Password must be at least 6 characters.';err.classList.add('show');return;}
+  if(accounts.find(a=>a.email===email)){err.textContent='An account with this email already exists.';err.classList.add('show');return;}
+  const user={name,email,pw};
+  accounts.push(user);
+  localStorage.setItem('rf_accounts',JSON.stringify(accounts));
+  currentUser={name,email};
+  localStorage.setItem('rf_user',JSON.stringify(currentUser));
+  suc.classList.add('show');
+  setTimeout(()=>showApp(),1000);
+}
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim().toLowerCase();
+  const pw=document.getElementById('login-pw').value;
+  const err=document.getElementById('login-error');
+  err.classList.remove('show');
+  const account=accounts.find(a=>a.email===email&&a.pw===pw);
+  if(!account){err.classList.add('show');return;}
+  currentUser={name:account.name,email:account.email};
+  localStorage.setItem('rf_user',JSON.stringify(currentUser));
+  showApp();
+}
+function doLogout(){currentUser=null;localStorage.removeItem('rf_user');showLand();}
+function updateName(v){
+  if(!currentUser)return;
+  currentUser.name=v||'Creator';
+  localStorage.setItem('rf_user',JSON.stringify(currentUser));
+  document.getElementById('dash-name').textContent=currentUser.name;
+  const acc=accounts.find(a=>a.email===currentUser.email);
+  if(acc){acc.name=currentUser.name;localStorage.setItem('rf_accounts',JSON.stringify(accounts));}
+}
+
+// ===== EDITOR LOGIC =====
+function setOvStyle(s,btn){
+  ovStyle=s;
+  document.querySelectorAll('.ov-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sec-banner').style.display=(s==='fulltext')?'none':'';
+  document.getElementById('sec-fulltext').style.display=(s==='banner')?'none':'';
+  updatePreview();
+}
+function renderBannerList(type){
+  const items=type==='top'?topChips:botChips;
+  const el=document.getElementById(type==='top'?'top-list':'bot-list');
+  el.innerHTML=items.map((it,i)=>`
+    <div class="item-row ${it.on?'on':''}">
+      <div class="item-chk ${it.on?'on':''}" onclick="${type==='top'?'top':'bot'}Chips[${i}].on=!${type==='top'?'top':'bot'}Chips[${i}].on;renderBannerList('${type}');updatePreview();saveSettings()"></div>
+      ${type==='top'?`<input type="color" class="item-col" value="${it.color||'#e03d52'}" id="bc-${i}" onchange="topChips[${i}].color=this.value;updatePreview()"/>`:'' }
+      <input class="item-inp" type="text" value="${esc(it.label)}" placeholder="Enter text..." id="bi-${type}-${i}"/>
+      <button class="item-del" onclick="${type==='top'?'top':'bot'}Chips.splice(${i},1);renderBannerList('${type}');updatePreview();saveSettings()">&#215;</button>
+    </div>`).join('');
+  items.forEach((_,i)=>{const inp=document.getElementById('bi-'+type+'-'+i);if(inp)inp.oninput=()=>{ (type==='top'?topChips:botChips)[i].label=inp.value; updatePreview(); saveSettings(); };});
+}
+function addBannerItem(type){
+  (type==='top'?topChips:botChips).push({label:'',on:true,color:'#e03d52'});
+  renderBannerList(type);
+  setTimeout(()=>{const el=document.getElementById(type==='top'?'top-list':'bot-list');const ins=el.querySelectorAll('.item-inp');if(ins.length)ins[ins.length-1].focus();},30);
+}
+function renderHooks(){
+  const el=document.getElementById('hook-list');
+  el.innerHTML=hooks.map((h,i)=>`
+    <div class="item-row ${h.on?'on':''}">
+      <div class="item-chk ${h.on?'on':''}" onclick="hooks[${i}].on=!hooks[${i}].on;renderHooks();saveSettings()"></div>
+      <input class="item-inp" type="text" value="${esc(h.text)}" placeholder="Hook text..." id="hi-${i}"/>
+      <button class="item-del" onclick="hooks.splice(${i},1);renderHooks();saveSettings()">&#215;</button>
+    </div>`).join('');
+  hooks.forEach((_,i)=>{const inp=document.getElementById('hi-'+i);if(inp)inp.oninput=()=>{hooks[i].text=inp.value; saveSettings(); updatePreview();};});
+}
+function addHookItem(){
+  hooks.push({text:'',on:true});
+  renderHooks();
+  setTimeout(()=>{const el=document.getElementById('hook-list');const ins=el.querySelectorAll('.item-inp');if(ins.length)ins[ins.length-1].focus();},30);
+}
+function addCustomToList(){
+  const ta=document.getElementById('custom-lines');
+  const lines=ta.value.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+  if(!lines.length){toast('Type at least one line first.');return;}
+  lines.forEach(l=>hooks.push({text:l,on:true}));
+  ta.value='';renderHooks();
+  toast('Added '+lines.length+' line'+(lines.length!==1?'s':'')+' to your hooks.');
+}
+function toggleFadeEnd(){
+  fadeEndOverlay = !fadeEndOverlay;
+  document.getElementById('fade-end-tog').className = 'togbox' + (fadeEndOverlay ? ' on' : '');
+  saveSettings();
+}
+
+function toggleStrike(){
+  strikeOn=!strikeOn;
+  document.getElementById('stog').className='togbox'+(strikeOn?' on':'');
+  document.getElementById('strike-inputs').className='strike-inputs'+(strikeOn?' show':'');
+  updatePreview();
+}
+function updSP(){
+  document.getElementById('sp-orig').textContent=document.getElementById('si-orig').value||'FULL PRICE';
+  document.getElementById('sp-disc').textContent=document.getElementById('si-disc').value||'50% OFF';
+}
+function setTopColor(c,el){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('top-color-wheel').value=c;saveSettings();updatePreview();}
+function setTopColorCustom(c){topColor=c;document.querySelectorAll('#top-color-dots .cdot').forEach(d=>d.classList.remove('sel'));saveSettings();updatePreview();}
+function setBotColor(c,el){botColor=c;document.querySelectorAll('#bot-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('bot-color-wheel').value=c;saveSettings();updatePreview();}
+function setBotColorCustom(c){botColor=c;document.querySelectorAll('#bot-color-dots .cdot').forEach(d=>d.classList.remove('sel'));saveSettings();updatePreview();}
+function setHookColor(c,el){hookColor=c;document.querySelectorAll('#hook-color-dots .cdot').forEach(d=>d.classList.remove('sel'));if(el)el.classList.add('sel');document.getElementById('hook-color-wheel').value=c;saveSettings();updatePreview();}
+function setHookColorCustom(c){hookColor=c;document.querySelectorAll('#hook-color-dots .cdot').forEach(d=>d.classList.remove('sel'));updatePreview();}
+
+// ===== NATIVE FILE PICKER =====
+
+function injectProductName(text, product, company) {
+  var result = text;
+  if (product && product.trim()) {
+    result = result.replace(/\[product\]/gi, product.trim());
+  }
+  if (company && company.trim()) {
+    result = result.replace(/\[company\]/gi, company.trim());
+  }
+  return result;
+}
+
+
+async function processBatch(){
+  if(!files.length){toast('Add at least one video first.');return;}
+  if(!checkPlanLimit(files.length)){showUpgrade();return;}
+
+topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)topChips[i].label=inp.value;});botChips.forEach((_,i)=>{const inp=document.getElementById('bi-bot-'+i);if(inp)botChips[i].label=inp.value;});hooks.forEach((_,i)=>{const inp=document.getElementById('hi-'+i);if(inp)hooks[i].text=inp.value;});
+  const activeTop = topChips.filter(c=>c.on);
+  const activeBot = botChips.filter(c=>c.on);
+  const activeHooks = hooks.filter(h=>h.on);
+
+
+  if(ovStyle==='banner' && !strikeOn && activeTop.length===0 && activeBot.length===0){
+    toast('Check at least one top or bottom text item first.');return;
+  }
+  if(ovStyle==='fulltext' && activeHooks.length===0){
+    toast('Check at least one hook line first.');return;
+  }
+
+  const total=files.length;
+  const bof=files.filter(f=>f.funnel==='bof').length;
+  const mof=files.filter(f=>f.funnel==='mof').length;
+
+  if(!confirm('Process '+total+' video'+(total!==1?'s':'')+' ('+bof+' BOF, '+mof+' MOF)?\n\nFinished videos will be saved to:\nDownloads\\RoyalForge\\ready')){return;}
+
+  // Get API - works with both preload (contextIsolation) and nodeIntegration
+  const api = window.electronAPI || null;
+  let ipcRenderer = null;
+  try{ ipcRenderer = require('electron').ipcRenderer; }catch(e){}
+
+  // Output folder
+  const customFolder = localStorage.getItem('rf_custom_folder');
+  const homeDir = localStorage.getItem('rf_homedir') || 'C:\\Users\\User';
+  const _sep = homeDir.startsWith('/') ? '/' : '\\';
+  const readyFolder = customFolder || (homeDir+_sep+'Downloads'+_sep+'RoyalForge'+_sep+'ready');
+  folderPath = homeDir+_sep+'Downloads'+_sep+'RoyalForge';
+  localStorage.setItem('rf_fp', folderPath);
+
+  document.getElementById('proc-bg').classList.add('on');
+  document.getElementById('prog-fill').style.width='0%';
+
+  let completed=0;
+  let failed=0;
+  let failedFiles = [];
+  const PARALLEL = 1;
+
+  function finishBatch(){
+    document.getElementById('proc-bg').classList.remove('on');
+    batches.unshift({date:new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}),count:total,bof,mof});
+    vidCount+=total;
+    localStorage.setItem('rf_batches',JSON.stringify(batches.slice(0,20)));
+    localStorage.setItem('rf_vc',String(vidCount));
+    localStorage.setItem('rf_lastday',today);
+    document.getElementById('vid-count').textContent=vidCount+' videos today';
+
+    // Update icon and title based on failures
+    var icon = document.getElementById('done-icon');
+    var title = document.getElementById('done-title');
+    if (failed > 0 && failed === total) {
+      if (icon) icon.textContent = '❌';
+      if (title) title.textContent = 'Batch failed';
+    } else if (failed > 0) {
+      if (icon) icon.textContent = '⚠️';
+      if (title) title.textContent = 'Batch complete with errors';
+    } else {
+      if (icon) icon.textContent = '✅';
+      if (title) title.textContent = 'Batch complete!';
+    }
+
+    document.getElementById('done-msg').textContent='Processed '+(total-failed)+' of '+total+' video'+(total!==1?'s':'')+'.'+(failed>0?' '+failed+' failed.':'');
+
+    // Show failed files list
+    var failedList = document.getElementById('done-failed-list');
+    var failedItems = document.getElementById('done-failed-items');
+    var retryBtn = document.getElementById('done-retry-btn');
+    if (failedFiles.length > 0) {
+      failedList.style.display = 'block';
+      failedItems.innerHTML = failedFiles.map(function(f) {
+        return '<div style="font-size:11px;padding:4px 0;border-bottom:1px solid rgba(224,61,82,.15);display:flex;justify-content:space-between;gap:8px"><span style="color:var(--txt);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + esc(f.name) + '</span><span style="color:var(--muted);flex-shrink:0">' + esc(f.error) + '</span></div>';
+      }).join('');
+      if (retryBtn) retryBtn.style.display = '';
+    } else {
+      failedList.style.display = 'none';
+      if (retryBtn) retryBtn.style.display = 'none';
+    }
+    document.getElementById('done-stats').innerHTML=`<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--gold)">${total-failed}</div><div style="font-size:10px;color:var(--muted)">DONE</div></div><div style="background:var(--card2);border:1px solid rgba(224,61,82,.3);border-radius:8px;padding:8px 16px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--red)">${bof}</div><div style="font-size:10px;color:var(--muted)">BOF</div></div><div style="background:var(--card2);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:8px 16px;text-align:center"><div style="font-size:20px;font-weight:800;color:#a78bfa">${mof}</div><div style="font-size:10px;color:var(--muted)">MOF</div></div>`;
+    document.getElementById('done-bg').classList.add('on');
+    files=[];renderFiles();updateVidCounter();
+    // Play completion sound
+    try {
+      const ctx = new AudioContext();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.setValueAtTime(523, ctx.currentTime);
+      o.frequency.setValueAtTime(659, ctx.currentTime + 0.15);
+      o.frequency.setValueAtTime(784, ctx.currentTime + 0.3);
+      g.gain.setValueAtTime(0.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+      o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.8);
+    } catch(e) {}
+    // Auto-open ready folder
+    if(window.electronAPI && window.electronAPI.openFolder) {
+      window.electronAPI.openFolder(readyFolder);
+    }
+  }
+
+  async function processOne(fileItem) {
+    const inputPath = fileItem.file.path;
+    // Read product name from DOM input in case oninput didn't fire
+    if (!fileItem.productName) {
+      const idx = files.indexOf(fileItem);
+      const pnEl = document.getElementById('fi-pn-' + idx);
+      if (pnEl && pnEl.value.trim()) {
+        fileItem.productName = pnEl.value.trim();
+      }
+    }
+    // Always look up company name from library if missing — even if productName was already set
+    if (fileItem.productName && !fileItem.companyName) {
+      var _activeLib2 = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+      var _match2 = _activeLib2.find(function(p) { return p.name === fileItem.productName; });
+      if (_match2) fileItem.companyName = _match2.company || '';
+    }
+    const prefix = document.getElementById('batch-prefix') ? (document.getElementById('batch-prefix').value.trim() || 'rf') : 'rf';
+    const outputPath = readyFolder+_sep+prefix+'_'+fileItem.file.name.replace(/\.[^.]+$/, '.mp4');
+        // Build overlay text
+    let topText='', botText='';
+    let isStrikeVideo = false;
+
+    if(ovStyle==='fulltext'){
+      if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName, fileItem.companyName); console.log('fulltext hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
+    } else if(ovStyle==='banner'){
+      // Banner BOF: 50/50 between strike and banner chips when both active
+      const hasBannerChips = activeTop.length > 0 || activeBot.length > 0;
+      const useStrike = strikeOn && (!hasBannerChips || Math.random() < 0.5);
+      if(useStrike){
+        isStrikeVideo=true;
+        topText=document.getElementById('si-orig').value||'FULL PRICE';
+        botText=document.getElementById('si-disc').value||'50% OFF';
+      } else if(hasBannerChips){
+        if(activeTop.length) topText=activeTop[Math.floor(Math.random()*activeTop.length)].label;
+        if(activeBot.length) botText=activeBot[Math.floor(Math.random()*activeBot.length)].label;
+      }
+    } else {
+      // mix - BOF gets banner, MOF gets fulltext hook
+      if(fileItem.funnel === 'mof') {
+        if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName, fileItem.companyName); console.log('mix MOF hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
+
+      } else {
+        // BOF: 50/50 between strike and banner when both active
+        const hasBannerChips = activeTop.length > 0 || activeBot.length > 0;
+        const useStrike = strikeOn && (!hasBannerChips || Math.random() < 0.5);
+        if(useStrike){
+          isStrikeVideo=true;
+          topText=document.getElementById('si-orig').value||'FULL PRICE';
+          botText=document.getElementById('si-disc').value||'50% OFF';
+        } else if(hasBannerChips){
+          if(activeTop.length) topText=activeTop[Math.floor(Math.random()*activeTop.length)].label;
+          if(activeBot.length) botText=activeBot[Math.floor(Math.random()*activeBot.length)].label;
+        }
+      }
+    }
+
+    const uid = Date.now() + Math.random();
+    // Calculate pixel-accurate lines for fulltext
+    const isFulltext = ovStyle==='fulltext' || (ovStyle==='mix' && topText && topText.length>30 && !botText);
+    let preWrappedLines = null;
+    // Capture overlay as PNG for emoji support
+    let overlayPngPath = null;
+    const overlayEl = document.getElementById('phone-overlay-content');
+    const savedOverlayHTML = overlayEl ? overlayEl.innerHTML : '';
+    try {
+      // Update DOM with this video's actual text before capturing — so each video gets its own content
+      if (isStrikeVideo && overlayEl) {
+        // Strike: show FULL PRICE + discount
+        const discColor = getComputedStyle(document.documentElement).getPropertyValue('--red').trim() || '#e03d52';
+        overlayEl.innerHTML = `<div class="phone-strike" style="gap:0px;align-items:center;width:100%;line-height:1">
+          <div class="phone-strike-orig" style="line-height:1;margin-bottom:-2px">${topText}</div>
+          <div class="phone-strike-disc" style="background:${discColor || 'var(--red)'}">${botText}</div>
+        </div>`;
+      } else if (isFulltext && topText && overlayEl) {
+        // Fulltext MOF: update the phone-fulltext element with this video's hook text
+        const ftEl = overlayEl.querySelector('.phone-fulltext');
+        if (ftEl) ftEl.textContent = topText;
+      }
+      overlayPngPath = await captureOverlayPNG(uid || Date.now(), isFulltext, fileItem.funnel);
+    } catch(e) { console.log('PNG capture failed:', e); }
+    // Restore overlay DOM
+    if (overlayEl && savedOverlayHTML) overlayEl.innerHTML = savedOverlayHTML;
+    if(isFulltext && topText) {
+      const phoneFrame = document.querySelector('.phone-frame');
+      const containerW = phoneFrame ? phoneFrame.offsetWidth - 20 : 230;
+      const fMap = {classic:'Arial',elegance:'serif',neon:'Arial',retro:'cursive',comic:'Arial',tallhaus:'Arial',vintage:'serif',bomb:'Arial',signature:'cursive',printer:'monospace',typewriter:'monospace'};
+      // Char-count wrap at 20 chars (~4 words/line) — matches Crocs-style stacking reliably
+      preWrappedLines = (function(t, max) {
+        var ws = t.trim().split(' '), out = [], cur = '';
+        for (var i = 0; i < ws.length; i++) {
+          var test = cur ? cur + ' ' + ws[i] : ws[i];
+          if (test.length <= max) { cur = test; }
+          else { if (cur) out.push(cur); cur = ws[i]; }
+        }
+        if (cur) out.push(cur);
+        return out;
+      })(topText, 20);
+    }
+    try{
+      if((api||ipcRenderer) && inputPath){
+        if(api){
+          await api.processVideo({inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: fileItem.funnel === 'mof' ? mofFontSize : bofFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent: fileItem.funnel === 'bof' ? bofTextYPercent : mofTextYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath, fadeEndOverlay});
+        } else {
+          await ipcRenderer.invoke('process-video',{inputPath, outputPath, topText, botText, color: topColor||'#e03d52', botColor: botColor||'#ffffff', hookColor: hookColor||'#ffffff', fontKey: selectedFont, fontSize: fileItem.funnel === 'mof' ? mofFontSize : bofFontSize, topBgStyle: topBgIdx, botBgStyle: botBgIdx, hookBgStyle: hookBgIdx, ovStyle, textYPercent: fileItem.funnel === 'bof' ? bofTextYPercent : mofTextYPercent, funnel: fileItem.funnel, duration: fileItem.duration, preWrappedLines, overlayPngPath});
+        }
+      } else {
+        console.log('Skipped — no api or path. Path was:', inputPath, 'api:', !!api, 'ipc:', !!ipcRenderer);
+        failed++;
+      }
+    } catch(err){
+      console.error('FFmpeg error on',fileItem.file.name,':',err);
+      failed++;
+      var errMsg = String(err).substring(0, 120);
+      if (errMsg.includes('No such file')) errMsg = 'File not found';
+      else if (errMsg.includes('codec')) errMsg = 'Unsupported format';
+      else if (errMsg.includes('filter')) errMsg = 'Processing error';
+      else if (errMsg.length > 60) errMsg = errMsg.substring(0, 60) + '...';
+      failedFiles.push({ name: fileItem.file.name, error: errMsg, item: fileItem });
+    }
 
 
 
-app.whenReady().then(() => {
-  createWindow()
-  try { autoUpdater.checkForUpdates() } catch(e) {}
-  app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow() })
-})
+    completed++;
+    const pct=Math.round((completed/total)*100);
+    document.getElementById('prog-fill').style.width=pct+'%';
+    if(document.getElementById('proc-counter')) document.getElementById('proc-counter').textContent=completed+' / '+total;
+    document.getElementById('proc-fname').textContent=fileItem.file.name;
+    document.getElementById('proc-stat').textContent='Processing... '+pct+'%';
+    if(completed>=total) finishBatch();
+  }
 
-app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
+  for(let i=0;i<total;i+=PARALLEL){
+    await Promise.all(files.slice(i,i+PARALLEL).map(f=>processOne(f)));
+  }
+}
+
+async function openReady(){
+  document.getElementById('done-bg').classList.remove('on');
+  const customFolder2 = localStorage.getItem('rf_custom_folder');
+  const homeDir2 = localStorage.getItem('rf_homedir') || 'C:\\Users\\User';
+  const _sep2 = homeDir2.startsWith('/') ? '/' : '\\';
+  const readyPath = customFolder2 || (homeDir2+_sep2+'Downloads'+_sep2+'RoyalForge'+_sep2+'ready');
+  if(window.electronAPI && window.electronAPI.openFolder){
+    window.electronAPI.openFolder(readyPath);
+  } else {
+    toast('Check Downloads\\RoyalForge\\ready folder');
+  }
+  showAppDash();
+}
+function closeDone(){document.getElementById('done-bg').classList.remove('on');showAppDash();}
+
+async function retryFailed() {
+  if (!failedFiles.length) return;
+  document.getElementById('done-bg').classList.remove('on');
+  // Put failed files back into the files array
+  files = failedFiles.map(function(f) { return f.item; });
+  failedFiles = [];
+  renderFiles();
+  updateVidCounter();
+  showAppEditor();
+  toast('Retrying ' + files.length + ' failed video' + (files.length !== 1 ? 's' : '') + '...');
+  setTimeout(function() { processBatch(); }, 500);
+}
+
+// ===== BATCHES =====
+function renderBatches(){
+  // Update stat cards
+  const totalVids=batches.reduce((a,b)=>a+(b.count||0),0);
+  const totalBof=batches.reduce((a,b)=>a+(b.bof||0),0);
+  const totalMof=batches.reduce((a,b)=>a+(b.mof||0),0);
+  const st=document.getElementById('stat-total');
+  const sb=document.getElementById('stat-batches');
+  const sbof=document.getElementById('stat-bof');
+  const smof=document.getElementById('stat-mof');
+  if(st) st.textContent=totalVids;
+  if(sb) sb.textContent=batches.length;
+  if(sbof) sbof.textContent=totalBof;
+  if(smof) smof.textContent=totalMof;
+
+  const el=document.getElementById('batch-rows');
+  if(!batches.length){
+    el.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">&#127909;</div>
+      <div class="empty-title">No batches yet</div>
+      <div class="empty-sub">Drop your first clips and hit Process batch to get started.</div>
+      <button class="empty-btn" onclick="showAppEditor()">Start your first batch</button>
+    </div>`;
+    return;
+  }
+  el.innerHTML=batches.map(b=>`
+    <div class="brow">
+      <span class="brow-date">${b.date}</span>
+      <div class="brow-split">
+        <span class="split-bof">${b.bof||0} BOF</span>
+        <span class="split-mof">${b.mof||0} MOF</span>
+      </div>
+      <span class="brow-status">COMPLETE</span>
+    </div>`).join('');
+}
+
+// ===== TOAST =====
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),2600);}
+
+// ===== LIVE PREVIEW =====
+const PREVIEW_EMOJIS = ['&#129514;','&#129749;','&#127960;','&#128138;','&#127381;','&#128167;'];
+let previewEmojiIdx = 0;
+let previewVariantIdx = Math.floor(Math.random() * 100);
+let previewVideoIdx = 0;
+let previewCycleTimer = null;
+
+function updatePreviewBg() {
+  const bg = document.querySelector('.phone-bg');
+  if (!bg) return;
+  bg.querySelectorAll('video,img').forEach(el => el.remove());
+  
+  // Clear existing timer
+  if (previewCycleTimer) { clearInterval(previewCycleTimer); previewCycleTimer = null; }
+  
+  if (files.length === 0) {
+    const emoji = document.getElementById('prev-emoji');
+    if (emoji) emoji.style.display = '';
+    return;
+  }
+  
+  const emoji = document.getElementById('prev-emoji');
+  if (emoji) emoji.style.display = 'none';
+  
+  previewVideoIdx = 0;
+  showPreviewVideo(bg, 0);
+  
+  // No auto-cycle — user navigates manually with Prev/Next
+}
+
+let _previewPlaying = false;
+
+function showPreviewVideo(bg, idx) {
+  bg.querySelectorAll('video').forEach(function(v) {
+    try { if (v.src && v.src.startsWith('blob:')) URL.revokeObjectURL(v.src); v.src = ''; } catch(e) {}
+    v.remove();
+  });
+  bg.querySelectorAll('img.preview-frame').forEach(function(el) { el.remove(); });
+  _previewPlaying = false;
+  const f = files[idx];
+  if (!f) return;
+
+  // Update play button state
+  var playBtn = document.getElementById('preview-play-btn');
+  if (playBtn) playBtn.textContent = '▶';
+
+  var src = null;
+  if (f.file.path) {
+    src = 'file:///' + f.file.path.split('\\').join('/');
+  } else if (f.file._blob) {
+    src = URL.createObjectURL(f.file._blob);
+  }
+  if (!src) return;
+
+  // Load video but don't autoplay — just seek to first frame and show as image
+  var vid = document.createElement('video');
+  vid.muted = true;
+  vid.playsInline = true;
+  vid.preload = 'metadata';
+  vid.loop = false;
+  vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.85';
+  vid.src = src;
+  vid.id = 'preview-vid';
+
+  vid.onloadedmetadata = function() {
+    vid.currentTime = 0.1;
+  };
+  vid.onseeked = function() {
+    vid.pause();
+    if (playBtn) playBtn.style.display = '';
+  };
+  vid.onended = function() {
+    // Auto advance to next clip when video ends
+    if (_previewPlaying && files.length > 1) {
+      previewNav(1);
+    } else {
+      _previewPlaying = false;
+      if (playBtn) playBtn.textContent = '&#9654;';
+    }
+  };
+  vid.onerror = function() {
+    if (playBtn) playBtn.style.display = 'none';
+  };
+
+  bg.insertBefore(vid, bg.firstChild);
+
+  // Show video indicator
+  var indicator = document.getElementById('preview-vid-indicator');
+  if (files.length > 1) {
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.id = 'preview-vid-indicator';
+      indicator.style.cssText = 'position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;z-index:10;font-family:Inter,sans-serif';
+      var frame = document.querySelector('.phone-frame');
+      if (frame) frame.appendChild(indicator);
+    }
+    indicator.textContent = (idx+1) + ' / ' + files.length;
+  } else if (indicator) {
+    indicator.remove();
+  }
+}
+
+function togglePreviewPlay() {
+  var vid = document.getElementById('preview-vid');
+  var btn = document.getElementById('preview-play-btn');
+  if (!vid) return;
+  if (_previewPlaying) {
+    vid.pause();
+    _previewPlaying = false;
+    if (btn) btn.textContent = '▶';
+  } else {
+    vid.play();
+    _previewPlaying = true;
+    if (btn) btn.textContent = '⏸';
+  }
+}
+function updatePreview(){
+  const el = document.getElementById('phone-overlay-content');
+  if(!el) return;
+  // Set position based on current preview clip funnel
+  var _previewFunnel = (files.length && files[previewVideoIdx]) ? files[previewVideoIdx].funnel : 'bof';
+  el.style.top = (_previewFunnel === 'mof' ? mofTextYPercent : bofTextYPercent) + '%';
+
+  const activeTop = topChips.filter(c=>c.on);
+  const activeBot = botChips.filter(c=>c.on);
+  const activeHooks = hooks.filter(h=>h.on);
+
+
+const fontFamilyMap = {
+  classic:'Arial,sans-serif',
+  elegance:"'RF-Playfair',serif",
+  neon:"'RF-Bebas',sans-serif",
+  retro:"'RF-Pacifico',cursive",
+  comic:"'RF-Comic',cursive",
+  tallhaus:"'RF-Oswald',sans-serif",
+  vintage:"'RF-Abril',serif",
+  bomb:"'RF-BlackHan',sans-serif",
+  signature:"'RF-Dancing',cursive",
+  printer:"'RF-Courier',monospace",
+  typewriter:"'RF-Special',monospace",
+  nunito:"'RF-Nunito',sans-serif"
+};
+const previewFont = fontFamilyMap[selectedFont]||'Arial,sans-serif';
+  const videoScale = 4;
+  const _pf = document.querySelector('.phone-frame');
+  const _pfw = _pf ? _pf.offsetWidth : 270;
+  var _previewFunnel2 = (files.length && files[previewVideoIdx]) ? files[previewVideoIdx].funnel : 'bof';
+  var _activeFontSize = _previewFunnel2 === 'mof' ? mofFontSize : bofFontSize;
+  const previewFontSize = Math.max(8, Math.round(_activeFontSize * videoScale * _pfw / 2160));
+  let html = '';
+
+  if(ovStyle === 'fulltext'){
+    // Show a random active hook
+    if(activeHooks.length){
+      const h = activeHooks[previewVariantIdx % activeHooks.length];
+      const hbs=getBgForIdx(hookBgIdx,hookColor||'#fff');
+      html = `<div class="phone-fulltext" style="font-family:${previewFont};font-size:${previewFontSize}px;color:${hbs.textColor};background:${hbs.box};text-shadow:${hbs.shadow};padding:8px 12px;border-radius:5px">${esc(h.text)}</div>`;
+    }
+  } else if(ovStyle === 'banner'){
+    if(strikeOn){
+      const orig = document.getElementById('si-orig').value || 'FULL PRICE';
+      const disc = document.getElementById('si-disc').value || '50% OFF';
+      html = `<div class="phone-strike" style="gap:0px;align-items:center;width:100%;line-height:1">
+        <div class="phone-strike-orig" style="font-size:${Math.round(previewFontSize*0.85)}px;font-family:${previewFont};-webkit-text-stroke:${Math.round(previewFontSize*0.10)}px #000;color:rgba(255,255,255,0.9);text-decoration:none;position:relative;display:inline-block;margin-bottom:-2px;line-height:1">
+          ${esc(orig)}<span style="position:absolute;left:0;right:0;top:47%;height:${Math.round(previewFontSize*0.10)}px;background:var(--red);border-radius:2px"></span>
+        </div>
+        <div class="phone-strike-disc" style="font-size:${Math.round(previewFontSize*0.82)}px;font-family:${previewFont};font-weight:800;background:var(--red);color:#fff;padding:3px 10px;border-radius:4px;text-decoration:none">${esc(disc)}</div>
+      </div>`;
+    } else {
+      const top = activeTop.length ? activeTop[previewVariantIdx % activeTop.length] : null;
+      const bot = activeBot.length ? activeBot[previewVariantIdx % activeBot.length] : null;
+      const topBg = topColor || '#e03d52';
+      const topTextColor = isLight(topBg) ? '#000' : '#fff';
+      if(top){const tbs=getBgForIdx(topBgIdx,topBg);const topFontSize=top.label.length>12?Math.round(previewFontSize*(12/top.label.length)*1.2):previewFontSize;html += `<div class="phone-banner" style="white-space:nowrap;overflow:hidden;background:${tbs.box};color:${tbs.textColor};font-size:${topFontSize}px;font-family:${previewFont};font-weight:800;text-shadow:${tbs.shadow};border-radius:5px;padding:6px 8px">${esc(top.label)}</div>`;}
+      if(bot){const bbs=getBgForIdx(botBgIdx,botColor||'#ffffff');html += `<div class="phone-banner" style="white-space:nowrap;overflow:hidden;background:${bbs.box};color:${bbs.textColor};font-size:${previewFontSize}px;font-family:${previewFont};font-weight:800;border-radius:5px;padding:5px 8px;text-shadow:${bbs.shadow}">${esc(bot.label)}</div>`;}
+    }
+  } else {
+    // Mix: show banner on top, hook below
+    const top = activeTop.length ? activeTop[previewVariantIdx % activeTop.length] : null;
+    const bot = activeBot.length ? activeBot[previewVariantIdx % activeBot.length] : null;
+    const hook = activeHooks.length ? activeHooks[previewVariantIdx % activeHooks.length] : null;
+    const topBg = topColor || '#e03d52';
+    const topTextColor = isLight(topBg) ? '#000' : '#fff';
+    if(top){const tbs=getBgForIdx(topBgIdx,topColor||'#e03d52');html += `<div class="phone-banner" style="white-space:nowrap;overflow:hidden;background:${tbs.box};color:${tbs.textColor};font-size:${previewFontSize}px;font-family:${previewFont};font-weight:800;text-shadow:${tbs.shadow};border-radius:5px;padding:5px 8px">${esc(top.label)}</div>`;}
+    if(bot){const bbs=getBgForIdx(botBgIdx,botColor||'#ffffff');html += `<div class="phone-banner" style="white-space:nowrap;overflow:hidden;background:${bbs.box};color:${bbs.textColor};font-size:${Math.round(previewFontSize*0.78)}px;font-family:${previewFont};font-weight:800;text-shadow:${bbs.shadow};border-radius:5px;padding:4px 8px">${esc(bot.label)}</div>`;}
+    if(hook){const mhbs=getBgForIdx(hookBgIdx,hookColor||'#fff');html += `<div class="phone-fulltext" style="margin-top:6px;font-size:${Math.round(previewFontSize*0.9)}px;font-family:${previewFont};color:${mhbs.textColor};background:${mhbs.box};text-shadow:${mhbs.shadow};padding:6px 10px;border-radius:5px">${esc(hook.text)}</div>`;}
+  }
+
+  el.innerHTML = html || '<div style="font-size:10px;color:rgba(255,255,255,.3);text-align:center">Add text above to see preview</div>';
+}
+
+function isLight(hex){
+  const c = hex.replace('#','');
+  const r = parseInt(c.substr(0,2),16);
+  const g = parseInt(c.substr(2,2),16);
+  const b = parseInt(c.substr(4,2),16);
+  return (r*299 + g*587 + b*114) / 1000 > 128;
+}
+
+function cyclePreview(){
+  previewVariantIdx++;
+  previewEmojiIdx = (previewEmojiIdx + 1) % PREVIEW_EMOJIS.length;
+  const emojiEl = document.getElementById('prev-emoji');
+  if(emojiEl) emojiEl.innerHTML = PREVIEW_EMOJIS[previewEmojiIdx];
+  updatePreview();
+}
+
+function previewNav(dir) {
+  if (!files.length) return;
+  var wasPlaying = _previewPlaying;
+  previewVideoIdx = (previewVideoIdx + dir + files.length) % files.length;
+  const bg = document.querySelector('.phone-bg');
+  if (bg) {
+    showPreviewVideo(bg, previewVideoIdx);
+    // If video was playing, auto-play the next one too
+    if (wasPlaying) {
+      var checkReady = setInterval(function() {
+        var vid = document.getElementById('preview-vid');
+        if (vid && vid.readyState >= 2) {
+          clearInterval(checkReady);
+          vid.play().then(function() {
+            _previewPlaying = true;
+            var btn = document.getElementById('preview-play-btn');
+            if (btn) btn.textContent = '⏸';
+          }).catch(function(){});
+        }
+      }, 100);
+      // Safety timeout
+      setTimeout(function() { clearInterval(checkReady); }, 5000);
+    }
+  }
+  const lbl = document.getElementById('preview-file-label');
+  if (lbl) {
+    var f = files[previewVideoIdx];
+    var funnel = f ? f.funnel.toUpperCase() : '';
+    var product = f && f.productName ? ' · ' + f.productName : '';
+    lbl.textContent = (previewVideoIdx + 1) + ' / ' + files.length + ' · ' + funnel + product;
+    lbl.style.color = f && f.funnel === 'mof' ? '#a78bfa' : 'var(--red)';
+  }
+  // Update size slider to show correct value for this clip's funnel
+  var _navF = files[previewVideoIdx];
+  var _navFunnel = _navF ? _navF.funnel : 'bof';
+  var _navSize = _navFunnel === 'mof' ? mofFontSize : bofFontSize;
+  selectedFontSize = _navSize;
+  var sl = document.getElementById('font-size-slider');
+  if (sl) sl.value = _navSize;
+  var slLbl = document.getElementById('font-size-val');
+  if (slLbl) slLbl.textContent = _navSize;
+  updatePreview();
+}
+
+// ===== INTERACTIVE TOUR =====
+const TOUR_STEPS = [
+  {
+    target: '.start-btn',
+    title: 'Start a batch',
+    desc: 'This is your main button to open the editor and start processing videos.',
+    action: function() { showAppDash(); }
+  },
+  {
+    target: '#drop-zone',
+    title: 'Drop your videos',
+    desc: 'Drag and drop .MOV or .MP4 clips here, or click to browse. Add 50+ clips at once.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#vid-counter-bar',
+    title: 'BOF & MOF auto-tagging',
+    desc: 'The app auto-detects BOF (14s+) and MOF (shorter) clips by duration. Tap any badge to toggle it manually.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#ov-toggle',
+    title: 'Overlay style',
+    desc: 'Banner adds urgency text boxes. Full text drops a hook line. Mix gives BOF banners and MOF clips hook text.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#sec-banner',
+    title: 'Edit your hooks',
+    desc: 'Check the lines you want active. Edit any text to match your style. Each video gets a random variant.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '.size-row',
+    title: 'Font & size',
+    desc: 'Pick a font style above and drag the size slider to adjust how big the text appears on your video.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: 'button.tbtn',
+    targetIndex: 1,
+    title: 'Product Library tab',
+    desc: 'Click Products to open your product library. This is where you manage all your TikTok Shop products.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#prod-modal-inp',
+    title: 'Add a product',
+    desc: 'Paste any TikTok Shop product link here and hit Add. The app automatically fetches the product name and image for you.',
+    action: function() { showAppProducts(); renderProductPage(''); setTimeout(function() { showAddProductModal(); }, 300); }
+  },
+  {
+    target: '#prod-page-grid',
+    title: 'Your product library',
+    desc: 'Products appear here as cards with image, name and link. Click the name to rename it. Click the link to open the TikTok Shop page.',
+    action: function() { closeAddProductModal(); }
+  },
+  {
+    target: '.phone-frame',
+    title: 'Live preview',
+    desc: 'The phone preview updates as you edit. Use Prev/Next buttons to cycle through your actual video clips.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '#pos-slider',
+    title: 'Text position',
+    desc: 'Drag this slider to move the overlay text up or down on the video. The preview updates instantly.',
+    action: function() { showAppEditor(); }
+  },
+  {
+    target: '.process-btn',
+    title: 'Process batch',
+    desc: 'When ready, hit Process batch. All clips get stamped and saved to your ready/ folder automatically.',
+    action: function() { showAppEditor(); },
+    isLast: true
+  }
+];
+
+let _tourStep = 0;
+let _tourActive = false;
+
+var _tourSampleProductAdded = false;
+
+var _tourSampleFilesAdded = false;
+
+function _addTourSampleProduct() {
+  if (_tourSampleProductAdded) return;
+  var sample = {
+    id: 'tour_sample',
+    name: 'Crocs Soho Platform Sandals',
+    fullName: 'Crocs Womens Soho Y-Strap Platform Sandals',
+    image: 'https://shop.simon.com/cdn/shop/files/f4b75f92fa9c4b7eb31b0bb879f5e416.png?v=1777181433',
+    url: 'https://shop.tiktok.com/us/pdp/crocs-womens-soho-y-strap-platform-sandals-lightweight-durable/1732221432846128062'
+  };
+  productLibrary.unshift(sample);
+  _tourSampleProductAdded = true;
+}
+
+function _addTourSampleFiles() {
+  if (_tourSampleFilesAdded) return;
+  var sampleFiles = [
+    { file: { name: 'crocs_mof_clip1.MOV', path: '', _tour: true }, funnel: 'mof', duration: 8.5, productName: 'Crocs Soho Platform Sandals', _manualFunnel: false },
+    { file: { name: 'crocs_mof_clip2.MOV', path: '', _tour: true }, funnel: 'mof', duration: 9.2, productName: '', _manualFunnel: false },
+    { file: { name: 'crocs_bof_clip1.MOV', path: '', _tour: true }, funnel: 'bof', duration: 16.1, productName: 'Crocs Soho Platform Sandals', _manualFunnel: false },
+    { file: { name: 'crocs_bof_clip2.MOV', path: '', _tour: true }, funnel: 'bof', duration: 15.4, productName: '', _manualFunnel: false }
+  ];
+  sampleFiles.forEach(function(f) { files.push(f); });
+  _tourSampleFilesAdded = true;
+  renderFiles();
+  updateVidCounter();
+}
+
+function _removeTourSampleFiles() {
+  if (!_tourSampleFilesAdded) return;
+  files = files.filter(function(f) { return !f.file._tour; });
+  _tourSampleFilesAdded = false;
+  renderFiles();
+  updateVidCounter();
+}
+
+function _removeTourSampleProduct() {
+  if (!_tourSampleProductAdded) return;
+  productLibrary = productLibrary.filter(function(p) { return p.id !== 'tour_sample'; });
+  saveProductLibrary();
+  _tourSampleProductAdded = false;
+}
+
+function startTour() {
+  closeOnboard();
+  showAppEditor();
+  _tourStep = 0;
+  _tourActive = true;
+  _addTourSampleProduct();
+  window.addEventListener('resize', _tourResizeHandler);
+  setTimeout(function() { showTourStep(_tourStep); }, 400);
+}
+
+function showTourStep(idx) {
+  var overlay = document.getElementById('tour-overlay');
+  if (!overlay) return;
+  var step = TOUR_STEPS[idx];
+  if (!step) { endTour(); return; }
+
+  overlay.classList.add('active');
+
+  // Add sample files when we reach the drop zone step
+  if (idx === 1 && !_tourSampleFilesAdded) {
+    setTimeout(function() { _addTourSampleFiles(); }, 600);
+  }
+
+  // Update text content
+  document.getElementById('tour-badge').textContent = 'Step ' + (idx+1) + ' of ' + TOUR_STEPS.length;
+  document.getElementById('tour-title').textContent = step.title;
+  document.getElementById('tour-desc').textContent = step.desc;
+  document.getElementById('tour-next-btn').textContent = step.isLast ? 'Finish ✓' : 'Next →';
+  document.getElementById('tour-dots').innerHTML = TOUR_STEPS.map(function(_, i) {
+    return '<div class="tour-dot' + (i === idx ? ' active' : '') + '"></div>';
+  }).join('');
+
+  // Navigate first if needed
+  if (step.action) step.action();
+
+  // Wait for navigation + layout to settle, then position
+  setTimeout(function() {
+    _positionTourStep(idx);
+  }, step.action ? 500 : 100);
+}
+
+function _positionTourStep(idx) {
+  var step = TOUR_STEPS[idx];
+  var highlight = document.getElementById('tour-highlight');
+  var tooltip = document.getElementById('tour-tooltip');
+  if (!step || !highlight || !tooltip) return;
+
+  var targets = document.querySelectorAll(step.target);
+  var target = null;
+  // Find first visible target
+  for (var ti = step.targetIndex || 0; ti < targets.length; ti++) {
+    var t = targets[ti];
+    if (t && t.offsetParent !== null && t.getBoundingClientRect().width > 0) {
+      target = t; break;
+    }
+  }
+  if (!target) target = targets[step.targetIndex || 0];
+
+  if (!target) {
+    highlight.style.display = 'none';
+    tooltip.style.cssText = 'position:fixed;z-index:802;width:290px;background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.8);top:50%;left:50%;transform:translate(-50%,-50%)';
+    return;
+  }
+
+  // Scroll target into view
+  target.scrollIntoView({ block: 'center' });
+
+  // Use requestAnimationFrame to measure after paint
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      var rect = target.getBoundingClientRect();
+      var pad = 8;
+      var TW = 290;
+      var TH = 200;
+      var GAP = 14;
+      var vw = window.innerWidth;
+      var vh = window.innerHeight;
+
+      // Set highlight
+      highlight.style.cssText = 'position:fixed;border-radius:10px;z-index:801;pointer-events:none;display:block;' +
+        'box-shadow:0 0 0 4px #c9a84c,0 0 0 9999px rgba(0,0,0,.78);' +
+        'left:' + Math.round(rect.left - pad) + 'px;' +
+        'top:' + Math.round(rect.top - pad) + 'px;' +
+        'width:' + Math.round(rect.width + pad*2) + 'px;' +
+        'height:' + Math.round(rect.height + pad*2) + 'px';
+
+      // Pick best side based on available space
+      var spaceBelow = vh - rect.bottom - GAP;
+      var spaceAbove = rect.top - GAP;
+      var spaceRight = vw - rect.right - GAP;
+      var spaceLeft = rect.left - GAP;
+
+      var side;
+      var scores = [
+        { side: 'below', space: spaceBelow, needed: TH },
+        { side: 'above', space: spaceAbove, needed: TH },
+        { side: 'right', space: spaceRight, needed: TW },
+        { side: 'left', space: spaceLeft, needed: TW }
+      ];
+      // Pick first side that has enough space
+      for (var s = 0; s < scores.length; s++) {
+        if (scores[s].space >= scores[s].needed) { side = scores[s].side; break; }
+      }
+      if (!side) side = 'below';
+
+      var ttop, tleft;
+      if (side === 'below') {
+        ttop = rect.bottom + GAP;
+        tleft = rect.left + rect.width / 2 - TW / 2;
+      } else if (side === 'above') {
+        ttop = rect.top - TH - GAP;
+        tleft = rect.left + rect.width / 2 - TW / 2;
+      } else if (side === 'right') {
+        ttop = rect.top + rect.height / 2 - TH / 2;
+        tleft = rect.right + GAP;
+      } else {
+        ttop = rect.top + rect.height / 2 - TH / 2;
+        tleft = rect.left - TW - GAP;
+      }
+
+      // Clamp to viewport with padding
+      tleft = Math.max(12, Math.min(tleft, vw - TW - 12));
+      ttop = Math.max(12, Math.min(ttop, vh - TH - 12));
+
+      tooltip.style.cssText = 'position:fixed;z-index:802;width:' + TW + 'px;' +
+        'background:var(--card);border:1px solid var(--border2);border-radius:14px;' +
+        'padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.8);' +
+        'top:' + Math.round(ttop) + 'px;left:' + Math.round(tleft) + 'px;transform:none';
+    });
+  });
+}
+
+function tourNext() {
+  _tourStep++;
+  if (_tourStep >= TOUR_STEPS.length) {
+    endTour();
+  } else {
+    showTourStep(_tourStep);
+  }
+}
+
+function endTour() {
+  var overlay = document.getElementById('tour-overlay');
+  if (overlay) overlay.classList.remove('active');
+  _tourActive = false;
+  window.removeEventListener('resize', _tourResizeHandler);
+  _removeTourSampleProduct();
+  _removeTourSampleFiles();
+  if (currentUser) localStorage.setItem('rf_onboarded_' + currentUser.email, '1');
+  showAppDash();
+  toast('Tour complete! Start your first batch.');
+}
+
+function _tourResizeHandler() {
+  if (_tourActive) {
+    clearTimeout(_tourResizeTimer);
+    _tourResizeTimer = setTimeout(function() {
+      _positionTourStep(_tourStep);
+    }, 100);
+  }
+}
+var _tourResizeTimer = null;
+
+// ===== ONBOARDING =====
+let onboardStep = 0;
+const onboardContent = [
+  {
+    title: 'Welcome to <span>RoyalForge</span>',
+    sub: 'The fastest way to batch edit TikTok Shop videos. Let us show you how it works in 3 quick steps.',
+    btn: 'Get started &rarr;',
+    active: 1
+  },
+  {
+    title: 'Drop your <span>videos</span>',
+    sub: 'Add your raw clips. RoyalForge auto-detects BOF (14-18s) and MOF (7-10s) by duration. No manual sorting.',
+    btn: 'Next &rarr;',
+    active: 1
+  },
+  {
+    title: 'Pick your <span>overlay</span>',
+    sub: 'Choose Banner, Full text, or Mix both. Edit every hook line to match your style. Preview updates in real time.',
+    btn: 'Next &rarr;',
+    active: 2
+  },
+  {
+    title: 'Process &amp; <span>post</span>',
+    sub: 'Hit Process batch. Your videos are stamped and saved to the ready/ folder. Ready to post to TikTok Shop.',
+    btn: "Let's go &rarr;",
+    active: 3
+  }
+];
+
+function showOnboarding(){
+  const seen = localStorage.getItem('rf_onboarded_'+currentUser.email);
+  if(seen) return;
+  document.getElementById('onboard-bg').classList.add('show');
+}
+
+function renderOnboardStep(){
+  const c = onboardContent[onboardStep];
+  document.getElementById('onboard-title').innerHTML = c.title;
+  document.getElementById('onboard-sub').textContent = c.sub.replace(/&amp;/g,'&').replace(/<[^>]+>/g,'');
+  document.getElementById('onboard-sub').innerHTML = c.sub;
+  document.getElementById('onboard-btn').innerHTML = c.btn;
+  // Steps highlight
+  [1,2,3].forEach(n=>{
+    document.getElementById('os-'+n).classList.toggle('active-step', n===c.active);
+    document.getElementById('op-'+n).classList.toggle('active', n-1===onboardStep-1||(onboardStep===0&&n===1));
+  });
+  // Progress dots
+  document.getElementById('op-1').classList.toggle('active', onboardStep<=1);
+  document.getElementById('op-2').classList.toggle('active', onboardStep===2);
+  document.getElementById('op-3').classList.toggle('active', onboardStep===3);
+}
+
+function nextOnboard(){
+  onboardStep++;
+  if(onboardStep >= onboardContent.length){
+    closeOnboard();
+    return;
+  }
+  renderOnboardStep();
+}
+
+function closeOnboard(){
+  document.getElementById('onboard-bg').classList.remove('show');
+}
+
+// ===== FAQ =====
+function toggleFaq(item){
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el=>el.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+
+// ===== NAV SCROLL =====
+function scrollToSection(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const offset=80; // nav height
+  const top=el.getBoundingClientRect().top+window.scrollY-offset;
+  window.scrollTo({top,behavior:'smooth'});
+}
+
+
+
+// ===== SAVE/LOAD SETTINGS =====
+function saveSettings(){
+  const batchPrefix = document.getElementById('batch-prefix') ? document.getElementById('batch-prefix').value : '';
+  localStorage.setItem('rf_settings', JSON.stringify({
+    selectedFont, selectedFontSize, topColor, botColor, hookColor,
+    topBgIdx, botBgIdx, ovStyle, textYPercent, bofTextYPercent, mofTextYPercent, bofFontSize, mofFontSize, batchPrefix,
+    strikeOn,
+    fadeEndOverlay,
+    strikeOrig: (document.getElementById('si-orig')||{}).value||'FULL PRICE',
+    strikeDisc: (document.getElementById('si-disc')||{}).value||'50% OFF'
+  }));
+  localStorage.setItem('rf_topChips', JSON.stringify(topChips));
+  localStorage.setItem('rf_botChips', JSON.stringify(botChips));
+  localStorage.setItem('rf_hooks', JSON.stringify(hooks));
+}
+function loadSettings(){
+  try {
+    const s = JSON.parse(localStorage.getItem('rf_settings')||'{}');
+    if(s.selectedFont){ selectedFont=s.selectedFont; }
+    if(s.selectedFontSize){ selectedFontSize=Math.min(64,Math.max(24,s.selectedFontSize)); }
+    if(s.topColor){ topColor=s.topColor; document.getElementById('top-color-wheel').value=topColor; }
+    if(s.botColor){ botColor=s.botColor; document.getElementById('bot-color-wheel').value=botColor; }
+    if(s.hookColor){ hookColor=s.hookColor; document.getElementById('hook-color-wheel').value=hookColor; }
+    if(s.topBgIdx!==undefined){ topBgIdx=s.topBgIdx; }
+    if(s.botBgIdx!==undefined){ botBgIdx=s.botBgIdx; }
+    if(s.ovStyle){ ovStyle=s.ovStyle; }
+    if(s.bofFontSize !== undefined){
+      bofFontSize = Math.min(64, Math.max(24, s.bofFontSize));
+      mofFontSize = Math.min(64, Math.max(24, s.mofFontSize || s.bofFontSize));
+    }
+    // Sync slider to correct funnel's font size now that bof/mof are loaded
+    var _loadF = files[previewVideoIdx];
+    var _loadFunnel = _loadF ? _loadF.funnel : 'bof';
+    selectedFontSize = _loadFunnel === 'mof' ? mofFontSize : bofFontSize;
+    var _loadSl = document.getElementById('font-size-slider');
+    if (_loadSl) _loadSl.value = selectedFontSize;
+    var _loadSlLbl = document.getElementById('font-size-val');
+    if (_loadSlLbl) _loadSlLbl.textContent = selectedFontSize;
+    if(s.bofTextYPercent !== undefined){ bofTextYPercent=s.bofTextYPercent; var sb=document.getElementById('pos-slider-bof'); if(sb) sb.value=bofTextYPercent; var lb=document.getElementById('pos-pct-label-bof'); if(lb) lb.textContent=Math.round(bofTextYPercent)+'%'; }
+    if(s.mofTextYPercent !== undefined){ mofTextYPercent=s.mofTextYPercent; var sm=document.getElementById('pos-slider-mof'); if(sm) sm.value=mofTextYPercent; var lm=document.getElementById('pos-pct-label-mof'); if(lm) lm.textContent=Math.round(mofTextYPercent)+'%'; }
+    if(s.textYPercent !== undefined){ textYPercent=s.textYPercent; const el=document.getElementById('phone-overlay-content'); if(el) el.style.top=_getPreviewYPercent()+'%'; }
+    if(s.batchPrefix){ const bp=document.getElementById('batch-prefix'); if(bp) bp.value=s.batchPrefix; }
+    if(s.fadeEndOverlay !== undefined){ fadeEndOverlay=s.fadeEndOverlay; var ftog=document.getElementById('fade-end-tog'); if(ftog) ftog.className='togbox'+(fadeEndOverlay?' on':''); }
+    if(s.strikeOn){ strikeOn=s.strikeOn; document.getElementById('stog').className='togbox'+(strikeOn?' on':''); document.getElementById('strike-inputs').className='strike-inputs'+(strikeOn?' show':''); }
+    if(s.strikeOrig){ const el=document.getElementById('si-orig'); if(el){el.value=s.strikeOrig; document.getElementById('sp-orig').textContent=s.strikeOrig;} }
+    if(s.strikeDisc){ const el=document.getElementById('si-disc'); if(el){el.value=s.strikeDisc; document.getElementById('sp-disc').textContent=s.strikeDisc;} }
+    // Apply font picker active state
+    document.querySelectorAll('.font-opt').forEach(o=>o.classList.remove('active'));
+    const activeFont = document.querySelector(`.font-opt[onclick*="${selectedFont}"]`);
+    if(activeFont) activeFont.classList.add('active');
+    // Apply overlay style
+    document.querySelectorAll('.ov-btn').forEach(b=>b.classList.remove('active'));
+    const activeOv = document.querySelector(`.ov-btn[onclick*="${ovStyle}"]`);
+    if(activeOv) activeOv.classList.add('active');
+    if(ovStyle==='fulltext'){ document.getElementById('sec-banner').style.display='none'; document.getElementById('sec-fulltext').style.display=''; }
+    else if(ovStyle==='mix'){ document.getElementById('sec-fulltext').style.display=''; }
+  } catch(e){ console.log('Settings load error:', e); }
+}
+
+
+// ===== CUSTOM OUTPUT FOLDER =====
+function saveCustomFolder(){
+  const val = document.getElementById('custom-folder-inp').value.trim();
+  if(!val){toast('Enter a folder path first.');return;}
+  localStorage.setItem('rf_custom_folder', val);
+  document.getElementById('set-folder').textContent = val;
+  document.getElementById('set-folder').className = 'folder-display set';
+  toast('Output folder saved!');
+}
+function resetFolder(){
+  localStorage.removeItem('rf_custom_folder');
+  document.getElementById('custom-folder-inp').value = '';
+  document.getElementById('set-folder').textContent = 'Downloads\\RoyalForge\\ready (default)';
+  document.getElementById('set-folder').className = 'folder-display';
+  toast('Reset to default folder.');
+}
+
+// ===== CHANGE PASSWORD =====
+function togglePwForm(){
+  const f=document.getElementById('pw-form');
+  f.classList.toggle('show');
+  document.getElementById('pw-err').classList.remove('show');
+  document.getElementById('pw-ok').classList.remove('show');
+  document.getElementById('pw-curr').value='';
+  document.getElementById('pw-new').value='';
+  document.getElementById('pw-confirm').value='';
+}
+
+function doChangePassword(){
+  const curr=document.getElementById('pw-curr').value;
+  const nw=document.getElementById('pw-new').value;
+  const conf=document.getElementById('pw-confirm').value;
+  const err=document.getElementById('pw-err');
+  const ok=document.getElementById('pw-ok');
+  err.classList.remove('show'); ok.classList.remove('show');
+  if(!curr||!nw||!conf){err.textContent='Please fill in all fields.';err.classList.add('show');return;}
+  if(nw.length<6){err.textContent='New password must be at least 6 characters.';err.classList.add('show');return;}
+  if(nw!==conf){err.textContent="New passwords don't match.";err.classList.add('show');return;}
+  const acc=accounts.find(a=>a.email===currentUser.email);
+  if(!acc||acc.pw!==curr){err.textContent='Current password is incorrect.';err.classList.add('show');return;}
+  acc.pw=nw;
+  localStorage.setItem('rf_accounts',JSON.stringify(accounts));
+  ok.classList.add('show');
+  setTimeout(()=>{ togglePwForm(); },2000);
+}
+
+// ===== VIDEO COUNTER =====
+function updateVidCounter(){
+  const total=files.length;
+  const bof=files.filter(f=>f.funnel==='bof').length;
+  const mof=files.filter(f=>f.funnel==='mof').length;
+  const numEl=document.getElementById('vc-num');
+  const pillsEl=document.getElementById('vc-pills');
+  const emptyEl=document.getElementById('vc-empty');
+  if(!numEl) return;
+  numEl.textContent=total;
+  if(total>0){
+    pillsEl.innerHTML=`<span class="split-bof">${bof} BOF</span><span class="split-mof">${mof} MOF</span>`;
+    pillsEl.style.display='flex';
+    emptyEl.style.display='none';
+  } else {
+    pillsEl.style.display='none';
+    emptyEl.style.display='block';
+  }
+}
+
+// ===== LOADER =====
+function hideLoader(){
+  const l=document.getElementById('loader');
+  if(l){l.classList.add('fade');setTimeout(()=>{l.style.display='none';},500);}
+}
+
+// ===== TIME GREETING =====
+function getTimePill(){
+  const h=new Date().getHours();
+  if(h<12) return 'Good morning';
+  if(h<17) return 'Good afternoon';
+  return 'Good evening';
+}
+function setTimePill(){
+  const el=document.getElementById('dash-time-pill');
+  if(el) el.textContent=getTimePill();
+}
+
+
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-mode');
+  localStorage.setItem('rf_theme', isLight ? 'light' : 'dark');
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.textContent = isLight ? '☀️' : '🌙';
+}
+function loadTheme() {
+  const saved = localStorage.getItem('rf_theme');
+  if (saved === 'light') {
+    document.body.classList.add('light-mode');
+    const btn = document.getElementById('theme-toggle-btn');
+    if (btn) btn.textContent = '☀️';
+  }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  if(e.ctrlKey || e.metaKey) {
+    if(e.key === 'p' || e.key === 'P') { e.preventDefault(); if(document.getElementById('app-editor').classList.contains('on')) processBatch(); }
+    if(e.key === 'o' || e.key === 'O') { e.preventDefault(); if(document.getElementById('app-editor').classList.contains('on')) pickFilesNative(); }
+  }
+});
+// ===== SCROLL REVEAL =====
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+// ===== UPDATE LISTENERS =====
+if (window.electronAPI && window.electronAPI.onUpdateAvailable) {
+  window.electronAPI.onUpdateAvailable((version) => {
+    const bar = document.getElementById('update-bar');
+    if (bar) {
+      bar.textContent = '⬆ RoyalForge v' + version + ' available — click to download';
+      bar.classList.add('show');
+    }
+  });
+}
+if (window.electronAPI && window.electronAPI.onUpdateProgress) {
+  window.electronAPI.onUpdateProgress((pct) => {
+    const bar = document.getElementById('update-bar');
+    if (bar) bar.textContent = '⬇ Downloading... ' + pct + '%';
+  });
+}
+if (window.electronAPI && window.electronAPI.onUpdateDownloaded) {
+  window.electronAPI.onUpdateDownloaded(() => {
+    const bar = document.getElementById('update-bar');
+    if (bar) {
+      bar._ready = true;
+      bar._downloading = false;
+      bar.textContent = '✅ Update ready — click to install & restart';
+    }
+  });
+}
+
+// ===== PRODUCT LIBRARY =====
+let productLibrary = JSON.parse(localStorage.getItem('rf_products') || '[]');
+let productLibraryUK = JSON.parse(localStorage.getItem('rf_products_uk')||'[]');
+let activeMarket = 'us';
+
+function saveProductLibrary() {
+  if (activeMarket === 'uk') {
+    localStorage.setItem('rf_products_uk', JSON.stringify(productLibraryUK));
+  } else {
+    localStorage.setItem('rf_products', JSON.stringify(productLibrary));
+  }
+}
+
+function getActiveLibrary() {
+  return activeMarket === 'uk' ? productLibraryUK : productLibrary;
+}
+
+function setActiveLibrary(lib) {
+  if (activeMarket === 'uk') productLibraryUK = lib;
+  else productLibrary = lib;
+}
+
+function switchMarket(market) {
+  activeMarket = market;
+  var usBtn = document.getElementById('market-us-btn');
+  var ukBtn = document.getElementById('market-uk-btn');
+  if (usBtn && ukBtn) {
+    if (market === 'uk') {
+      usBtn.style.background = 'none'; usBtn.style.color = 'var(--muted)';
+      ukBtn.style.background = 'var(--gold)'; ukBtn.style.color = '#000';
+    } else {
+      usBtn.style.background = 'var(--gold)'; usBtn.style.color = '#000';
+      ukBtn.style.background = 'none'; ukBtn.style.color = 'var(--muted)';
+    }
+  }
+  renderProductPage('');
+}
+
+function showAppProducts() {
+  document.querySelectorAll('.app-view').forEach(v => v.classList.remove('on'));
+  document.getElementById('app-products').classList.add('on');
+  renderProductPage('');
+}
+
+function renderProductPage(filter) {
+  const grid = document.getElementById('prod-page-grid');
+  if (!grid) return;
+  var _lib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+  const filtered = filter ? _lib.filter(p => p.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1) : _lib;
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="prod-empty-state"><div class="prod-empty-icon">&#128717;</div><div class="prod-empty-title">' + (filter ? 'No products match' : 'No products yet') + '</div><div class="prod-empty-sub">' + (filter ? 'Try a different search' : 'Click + Add Product to get started') + '</div></div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < filtered.length; i++) {
+    var p = filtered[i];
+    var _activeLibForIdx = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+    var realIdx = _activeLibForIdx.indexOf(p);
+    var imgHtml = p.image ? '<img class="prod-card-img" data-src="' + p.image + '" src="" style="background:var(--card2)" onload="this.style.background=\'\'";>' : '<div class="prod-card-img-placeholder">&#128717;</div>';
+    html += '<div class="prod-card">' +
+      imgHtml +
+      '<div class="prod-card-body">' +
+      '<div class="prod-card-name" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" onclick="startRenameProduct(this)" title="Click to rename" style="cursor:text">' + esc(p.name) + '</div>' +
+      '<div style="position:relative;margin-top:4px">' +
+      '<input class="prod-card-company-inp" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" value="' + esc(p.company || '') + '" placeholder="Company / brand name" oninput="showCompanySuggestions(this,this.dataset.ridx,this.dataset.market)" onblur="hideCompanySuggestions(this)" onkeydown="companyKeyDown(event,this,this.dataset.ridx,this.dataset.market)" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--txt);font-family:Inter,sans-serif;box-sizing:border-box" />' +
+      '<div class="company-dd" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:6px;margin-top:2px;z-index:999;max-height:120px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.4)"></div>' +
+      '</div>' +
+      '<span class="prod-card-link" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" onclick="openProductLink(this)">' + p.url.substring(0, 32) + '...</span>' +
+      '<div class="prod-card-actions">' +
+      '<button class="prod-card-use-btn" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" onclick="copyProductName(this)">Copy name</button>' +
+      '<button class="prod-card-del-btn" data-ridx="' + realIdx + '" data-market="' + activeMarket + '" onclick="deleteProdAndRefresh(this)">Delete</button>' +
+      '</div></div></div>';
+  }
+  grid.innerHTML = html;
+  // Update product count
+  var countEl = document.getElementById('prod-count');
+  if (countEl) countEl.textContent = filtered.length + ' product' + (filtered.length !== 1 ? 's' : '');
+  // Refresh company suggestions
+  updateCompanySuggestions();
+  // Lazy load images with IntersectionObserver
+  var lazyImgs = grid.querySelectorAll('img[data-src]');
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var img = entry.target;
+          img.src = img.dataset.src;
+          observer.unobserve(img);
+        }
+      });
+    }, { rootMargin: '100px' });
+    lazyImgs.forEach(function(img) { observer.observe(img); });
+  } else {
+    // Fallback for older Chromium
+    lazyImgs.forEach(function(img) { img.src = img.dataset.src; });
+  }
+}
+
+function _getImageDomain(url) {
+  try { return new URL(url).hostname.replace('www.', ''); } catch(e) { return ''; }
+}
+
+function _getUrlDomain(url) {
+  try { return new URL(url).hostname.replace('www.', ''); } catch(e) { return ''; }
+}
+
+function _getBrandFromUrl(url) {
+  // Extract all words from the full URL path
+  try {
+    var u = new URL(url);
+    // Get all alphabetic segments from the full path
+    var words = (u.pathname + (u.search || '')).toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(function(w) { return w.length > 2; });
+    return words;
+  } catch(e) {}
+  return [];
+}
+
+function _getNameWords(name) {
+  // Filter out common generic words
+  var stopWords = ['the','a','an','and','or','for','with','in','on','at','to','of','by','from','is','it','its','new','set','kit','pack','bundle','case','cover','pro','plus','max','mini','ultra','series','edition'];
+  return (name || '').toLowerCase().split(/\s+/).filter(function(w) {
+    return w.length > 2 && !stopWords.includes(w);
+  });
+}
+
+function detectCompanyName(newProduct) {
+  if (!newProduct) return '';
+
+  var urlWords = _getBrandFromUrl(newProduct.url || '');
+  if (!urlWords || !urlWords.length) return '';
+
+  // Get all words from the full product name
+  var fullName = ((newProduct.fullName || newProduct.name) || '').toLowerCase();
+  var nameWords = fullName.split(/[^a-z0-9]+/).filter(function(w) { return w.length > 2; });
+  var joinedName = nameWords.join('');
+
+  // Find URL words that also appear in the product name
+  var matched = urlWords.find(function(urlWord) {
+    if (urlWord.length < 3) return false;
+    // Direct word match
+    if (nameWords.includes(urlWord)) return true;
+    // URL word contains joined name words (trueseamoss contains true+sea+moss)
+    if (urlWord.includes(joinedName.substring(0, 6))) return true;
+    // Name words joined contain the URL word
+    if (joinedName.includes(urlWord)) return true;
+    // URL word starts with a name word (trueseamoss starts with true)
+    return nameWords.some(function(nw) { return nw.length > 2 && urlWord.startsWith(nw); });
+  });
+
+  if (!matched) return '';
+  return matched.charAt(0).toUpperCase() + matched.slice(1);
+}
+
+function showCompanySuggestions(inp, ridx, market) {
+  var val = inp.value.trim().toLowerCase();
+  var dd = inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
+  if (!dd) return;
+  if (!val) { dd.style.display = 'none'; return; }
+  // Get unique company names from both libraries that match what's typed
+  var _allLibs = productLibrary.concat(productLibraryUK);
+  var seen = {};
+  var matches = [];
+  for (var i = 0; i < _allLibs.length; i++) {
+    var c = (_allLibs[i].company || '').trim();
+    if (c && c.toLowerCase().includes(val) && !seen[c.toLowerCase()]) {
+      seen[c.toLowerCase()] = true;
+      matches.push(c);
+    }
+  }
+  if (!matches.length) { dd.style.display = 'none'; return; }
+  dd.innerHTML = matches.map(function(m) {
+    return '<div class="company-dd-item" style="padding:6px 10px;font-size:11px;cursor:pointer;color:var(--txt)" ' +
+      'onmousedown="pickCompany(event,this.closest(\'.company-dd\').previousElementSibling,' + ridx + ',\'' + market + '\',\'' + m.replace(/'/g,"\'") + '\')" ' +
+      'onmouseover="this.style.background=\'rgba(255,255,255,.06)\'" ' +
+      'onmouseout="this.style.background=\'\'">'+m+'</div>';
+  }).join('');
+  dd.style.display = 'block';
+}
+
+function hideCompanySuggestions(inp) {
+  var dd = inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
+  if (dd) setTimeout(function() { dd.style.display = 'none'; }, 150);
+  updateProductCompany(inp, inp.value);
+}
+
+function pickCompany(e, inp, ridx, market, val) {
+  e.preventDefault();
+  if (inp) inp.value = val;
+  var dd = inp && inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
+  if (dd) dd.style.display = 'none';
+  var _fakeEl = { dataset: { ridx: ridx, market: market } };
+  updateProductCompany(_fakeEl, val);
+}
+
+function companyKeyDown(e, inp, ridx, market) {
+  var dd = inp.parentElement ? inp.parentElement.querySelector('.company-dd') : null;
+  if (e.key === 'Enter') { inp.blur(); if (dd) dd.style.display = 'none'; }
+  if (e.key === 'Escape') { if (dd) dd.style.display = 'none'; }
+}
+
+function updateCompanySuggestions() {
+  var list = document.getElementById('company-suggestions');
+  if (!list) return;
+  var seen = {};
+  var options = '';
+  for (var i = 0; i < productLibrary.length; i++) {
+    var c = (productLibrary[i].company || '').trim();
+    if (c && !seen[c.toLowerCase()]) {
+      seen[c.toLowerCase()] = true;
+      options += '<option value="' + esc(c) + '">';
+    }
+  }
+  list.innerHTML = options;
+}
+
+function updateProductCompany(el, value) {
+  var idx = parseInt(el.dataset ? el.dataset.ridx : el);
+  var market = el.dataset ? (el.dataset.market || 'us') : activeMarket;
+  var _activeLib = market === 'uk' ? productLibraryUK : productLibrary;
+  var _prod = _activeLib[idx];
+  if (_prod) {
+    _prod.company = value;
+    saveProductLibrary();
+    updateCompanySuggestions();
+    var _teamCode = localStorage.getItem('rf_team_code');
+    if (_teamCode) setTimeout(function() { syncToTeam(); }, 500);
+  }
+}
+
+
+
+function copyProductName(btn) {
+  var idx = parseInt(btn.dataset.ridx);
+  var market = btn.dataset.market || 'us';
+  var _copyLib = market === 'uk' ? productLibraryUK : productLibrary;
+  var p = _copyLib[idx];
+  if (!p) return;
+  try { navigator.clipboard.writeText(p.name); } catch(e) {}
+  btn.textContent = 'Copied!';
+  setTimeout(function() { btn.textContent = 'Copy name'; }, 1500);
+}
+
+function startRenameProduct(el) {
+  var idx = parseInt(el.dataset.ridx);
+  var market = el.dataset.market || 'us';
+  var _renameActiveLib = market === 'uk' ? productLibraryUK : productLibrary;
+  var p = _renameActiveLib[idx];
+  if (!p) return;
+  var inp = document.createElement('input');
+  inp.value = p.name;
+  inp.style.cssText = 'width:100%;background:var(--card2);border:1px solid rgba(201,168,76,.4);border-radius:5px;padding:3px 7px;color:var(--txt);font-size:14px;font-weight:700;font-family:Inter,sans-serif;outline:none';
+  el.replaceWith(inp);
+  inp.focus();
+  inp.select();
+  function save() {
+    var newName = inp.value.trim();
+    if (newName && newName !== p.name) {
+      // Explicitly update in the active library array
+      var _saveLib = market === 'uk' ? productLibraryUK : productLibrary;
+      var _saveIdx = idx;
+      if (_saveIdx !== -1) {
+        _saveLib[_saveIdx].name = newName;
+      }
+      saveProductLibrary();
+      toast('Renamed to ' + newName);
+      var _teamCode = localStorage.getItem('rf_team_code');
+      if (_teamCode) setTimeout(function() { syncToTeam(); }, 500);
+    }
+    // Remove blur handler to prevent double-fire
+    inp.onblur = null;
+    var search = document.getElementById('prod-page-search');
+    renderProductPage(search ? search.value : '');
+  }
+  inp.onblur = save;
+  inp.onkeydown = function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { inp.onblur = null; var search = document.getElementById('prod-page-search'); renderProductPage(search ? search.value : ''); }
+  };
+}
+
+// Add product modal
+function showAddProductModal() {
+  document.getElementById('add-prod-modal').classList.add('show');
+  var inp = document.getElementById('prod-modal-inp');
+  if (inp) { inp.value = ''; setTimeout(function() { inp.focus(); }, 100); }
+  var fetching = document.getElementById('prod-modal-fetching');
+  if (fetching) fetching.style.display = 'none';
+  var results = document.getElementById('prod-modal-results');
+  if (results) { results.style.display = 'none'; results.innerHTML = ''; }
+  var btn = document.getElementById('prod-modal-save-btn');
+  if (btn) { btn.textContent = 'Fetch & Add'; btn.disabled = false; btn.onclick = fetchAndAddProducts; }
+  var progress = document.getElementById('prod-modal-progress');
+  if (progress) progress.style.width = '0%';
+}
+
+function closeAddProductModal() {
+  document.getElementById('add-prod-modal').classList.remove('show');
+}
+
+let _modalProduct = null;
+
+function prodModalInput(val) {}
+
+async function fetchSingleProduct(url) {
+  let name = '', image = '';
+  // Check if og_info is embedded in the URL (TikTok share links)
+  try {
+    var _ogMatch = url.match(/[?&]og_info=([^&]+)/);
+    if (_ogMatch) {
+      var _ogInfo = JSON.parse(decodeURIComponent(_ogMatch[1]));
+      if (_ogInfo.title) name = _ogInfo.title.replace(/\+/g, ' ').replace(/"/g, '"').replace(/"/g, '"');
+      if (_ogInfo.image) image = decodeURIComponent(_ogInfo.image).replace(/\\\//g, '/');
+      if (name && name.length > 3) return { name: shortenProductName(name), fullName: name, image, url, id: Date.now() + Math.random() };
+    }
+  } catch(e) {}
+  // Try direct Electron fetch first — Electron's real Chromium browser passes TikTok's bot detection
+  try {
+    const res = await fetch(url);
+    const html = await res.text();
+    if (!html.includes('security check') && !html.includes('cf-browser-verification') && !html.includes('Just a moment')) {
+      const ogTitle = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i);
+      const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      if (ogTitle) name = ogTitle[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
+      else if (titleTag) name = titleTag[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
+      const ogImg = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i);
+      if (ogImg) image = ogImg[1];
+      if (name && !name.toLowerCase().includes('tiktok shop') && name.length > 3) {
+        return { name: shortenProductName(name), fullName: name, image, url, id: Date.now() + Math.random() };
+      }
+    }
+  } catch(e) {}
+  // Fallback: Netlify proxy
+  try {
+    const proxyRes = await fetch('https://royalforge-api.netlify.app/.netlify/functions/fetch-product', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    if (proxyRes.ok) {
+      const data = await proxyRes.json();
+      if (data.name && !data.name.toLowerCase().includes('tiktok shop') && data.name.length > 3) {
+        return { name: shortenProductName(data.name), fullName: data.name, image: data.image || '', url, id: Date.now() + Math.random() };
+      }
+    }
+  } catch(e) {}
+  if (!name || name.toLowerCase().includes('tiktok shop') || name.length < 3) {
+    var parts = url.split('/').filter(Boolean);
+    name = parts[parts.length-1].replace(/[-_]/g, ' ') || 'Product';
+  }
+  return { name: shortenProductName(name), fullName: name, image, url, id: Date.now() + Math.random() };
+}
+
+async function fetchAndAddProducts() {
+  var inp = document.getElementById('prod-modal-inp');
+  var raw = inp ? inp.value.trim() : '';
+  if (!raw) { toast('Paste at least one link first.'); return; }
+
+  var urls = raw.split('\n').map(function(u) { return u.trim(); }).filter(function(u) { return u && (u.includes('tiktok.com') || u.includes('tiktokshop')); });
+  if (!urls.length) { toast('No valid TikTok Shop links found.'); return; }
+
+  var fetching = document.getElementById('prod-modal-fetching');
+  var progress = document.getElementById('prod-modal-progress');
+  var status = document.getElementById('prod-modal-fetch-status');
+  var results = document.getElementById('prod-modal-results');
+  var btn = document.getElementById('prod-modal-save-btn');
+
+  if (fetching) fetching.style.display = 'block';
+  if (results) { results.style.display = 'none'; results.innerHTML = ''; }
+  if (btn) btn.disabled = true;
+
+  var added = 0;
+  var failed = 0;
+  var resultHtml = '';
+
+  for (var i = 0; i < urls.length; i++) {
+    var url = urls[i];
+    if (status) status.textContent = 'Fetching ' + (i+1) + ' of ' + urls.length + '...';
+    if (progress) progress.style.width = Math.round(((i) / urls.length) * 100) + '%';
+
+    try {
+      var product = await fetchSingleProduct(url);
+      // Auto-detect company name from existing library
+      if (!product.company) {
+        var _detected = detectCompanyName(product);
+        if (_detected) product.company = _detected;
+      }
+      if (activeMarket === 'uk') productLibraryUK.unshift(product);
+      else productLibrary.unshift(product);
+      added++;
+      var img = product.image ? '<img src="' + product.image + '" style="width:36px;height:36px;border-radius:5px;object-fit:cover;flex-shrink:0">' : '<div style="width:36px;height:36px;border-radius:5px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0">&#128717;</div>';
+      resultHtml += '<div style="display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px"><span style="font-size:14px;color:var(--green)">✓</span>' + img + '<span style="font-size:12px;font-weight:600">' + esc(product.name) + '</span></div>';
+    } catch(e) {
+      failed++;
+      resultHtml += '<div style="display:flex;align-items:center;gap:8px;background:rgba(224,61,82,.06);border:1px solid rgba(224,61,82,.2);border-radius:8px;padding:8px 10px"><span style="font-size:14px;color:var(--red)">✗</span><span style="font-size:12px;color:var(--muted)">' + esc(url.substring(0,40)) + '...</span></div>';
+    }
+  }
+
+  if (progress) progress.style.width = '100%';
+  if (status) status.textContent = added + ' product' + (added !== 1 ? 's' : '') + ' added' + (failed ? ', ' + failed + ' failed' : '') + '!';
+
+  if (results) { results.style.display = 'flex'; results.innerHTML = resultHtml; }
+  if (btn) { btn.textContent = 'Done'; btn.disabled = false; btn.onclick = function() { closeAddProductModal(); }; }
+
+  saveProductLibrary();
+  renderProductPage('');
+
+  // Sync to team whenever products change (works for both leaders and members)
+  var _teamCode = localStorage.getItem('rf_team_code');
+  if (_teamCode) {
+    setTimeout(function() { syncToTeam(); }, 500);
+  }
+}
+
+function saveProductFromModal() {
+  closeAddProductModal();
+}
+
+function shortenProductName(name) {
+  var stopWords = ['for','with','and','the','in','of','to','a','an','set','pack','pcs','piece','pieces','pair','pairs','new','2024','2025','2026'];
+  var words = name.replace(/[^a-zA-Z0-9\s]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 1; });
+  var filtered = words.filter(function(w) { return stopWords.indexOf(w.toLowerCase()) === -1; });
+  return (filtered.slice(0, 4).join(' ') || name.split(' ').slice(0, 3).join(' ')).trim();
+}
+
+function prodLinkInput(val) {}
+
+function renderProductLibrary() {}
+
+function openProductLink(el) {
+  var idx = parseInt(el.dataset.ridx);
+  var market = el.dataset.market || 'us';
+  var _lib = market === 'uk' ? productLibraryUK : productLibrary;
+  var url = _lib[idx] ? _lib[idx].url : '';
+  if (!url) return;
+  if (window.electronAPI && window.electronAPI.openExternal) window.electronAPI.openExternal(url);
+  else window.open(url, '_blank');
+}
+
+function deleteProduct(i) {
+  if (activeMarket === 'uk') productLibraryUK.splice(i, 1);
+  else productLibrary.splice(i, 1);
+  saveProductLibrary();
+}
+
+function deleteProdAndRefresh(el) {
+  var i = parseInt(el.dataset.ridx);
+  var market = el.dataset.market || 'us';
+  var _delLib = market === 'uk' ? productLibraryUK : productLibrary;
+  var deletedProduct = _delLib[i];
+  if (market !== activeMarket) { activeMarket = market; }
+  deleteProduct(i);
+  var _teamCode = localStorage.getItem('rf_team_code');
+  var _teamRole = localStorage.getItem('rf_team_role');
+  if (_teamCode && deletedProduct) {
+    // If leader, propagate deletion to all team members
+    if (_teamRole === 'leader') {
+      fetch(TEAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'leader_delete', teamCode: _teamCode, deletedUrl: deletedProduct.url, market: market })
+      }).catch(function() {});
+    }
+    setTimeout(function() { syncToTeam(); }, 500);
+  }
+  var search = document.getElementById('prod-page-search');
+  renderProductPage(search ? search.value : '');
+}
+
+// Auto-fetch when user pastes a valid URL
+// paste handled by textarea naturally
+function openProdDropdown(fileIdx, inputEl) {
+  document.querySelectorAll('.prod-dropdown.show').forEach(function(d) { d.classList.remove('show'); });
+  var dd = document.getElementById('prod-dd-' + fileIdx);
+  if (!dd) return;
+  renderProdDropdownList(fileIdx, '');
+  dd.classList.add('show');
+  var search = dd.querySelector('.prod-search-inp');
+  if (search) setTimeout(function() { search.focus(); }, 50);
+  setTimeout(function() {
+    document.addEventListener('click', function closeDd(e) {
+      if (!dd.contains(e.target) && e.target !== inputEl) {
+        dd.classList.remove('show');
+        document.removeEventListener('click', closeDd);
+      }
+    });
+  }, 10);
+}
+
+function renderProdDropdownList(fileIdx, filter) {
+  var listEl = document.getElementById('prod-dd-list-' + fileIdx);
+  if (!listEl) return;
+  var _ddActiveLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+  var filtered = _ddActiveLib.filter(function(p) { return !filter || p.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1; });
+  if (!filtered.length) {
+    listEl.innerHTML = '<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted2)">No products yet. Go to Products tab to add some.</div>';
+    return;
+  }
+  window._ddFiltered = filtered;
+  var html = '';
+  for (var di = 0; di < filtered.length; di++) {
+    var p = filtered[di];
+    var img = p.image ? '<img src="' + p.image + '" style="width:32px;height:32px;border-radius:5px;object-fit:cover;flex-shrink:0">' : '<div style="width:32px;height:32px;border-radius:5px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">&#128717;</div>';
+    html += '<div class="prod-item" data-fidx="' + fileIdx + '" data-didx="' + di + '" onclick="selectProductFromDd(parseInt(this.dataset.fidx),parseInt(this.dataset.didx))" style="cursor:pointer">' +
+      img +
+      '<div style="flex:1;min-width:0;margin-left:8px">' +
+      '<div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(p.name) + '</div>' +
+      '</div></div>';
+  }
+  listEl.innerHTML = html;
+}
+
+function filterProdDropdown(fileIdx, val) {
+  renderProdDropdownList(fileIdx, val);
+}
+
+function selectProductFromDd(fileIdx, di) {
+  var p = window._ddFiltered && window._ddFiltered[di];
+  if (!p) return;
+  selectProduct(fileIdx, p.name);
+}
+
+function selectProduct(fileIdx, name) {
+  if (files[fileIdx]) {
+    files[fileIdx].productName = name;
+    // Find matching product in active library to grab its company name
+    var _selectLib = activeMarket === 'uk' ? productLibraryUK : productLibrary;
+    var match = _selectLib.find(function(p) { return p.name === name; });
+    files[fileIdx].companyName = match ? (match.company || '') : '';
+  }
+  var inp = document.getElementById('fi-pn-' + fileIdx);
+  if (inp) inp.value = name;
+  var dd = document.getElementById('prod-dd-' + fileIdx);
+  if (dd) dd.classList.remove('show');
+  // Update clear (x) button without re-rendering the whole file list (avoids thumbnail reload)
+  var wrap = document.getElementById('prod-wrap-' + fileIdx);
+  if (wrap) {
+    var existingBtn = wrap.querySelector('button[onclick*="clearProductName"]');
+    if (name && !existingBtn) {
+      var btn = document.createElement('button');
+      btn.setAttribute('onclick', 'clearProductName(' + fileIdx + ')');
+      btn.style.cssText = 'background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;padding:0 4px;flex-shrink:0;line-height:1';
+      btn.title = 'Clear product';
+      btn.innerHTML = '&#215;';
+      wrap.appendChild(btn);
+    } else if (!name && existingBtn) {
+      existingBtn.remove();
+    }
+  }
+}
+
+function clearProductName(fileIdx) {
+  if (files[fileIdx]) { files[fileIdx].productName = ''; files[fileIdx].companyName = ''; }
+  var inp = document.getElementById('fi-pn-' + fileIdx);
+  if (inp) inp.value = '';
+  var wrap = document.getElementById('prod-wrap-' + fileIdx);
+  if (wrap) {
+    var existingBtn = wrap.querySelector('button[onclick*="clearProductName"]');
+    if (existingBtn) existingBtn.remove();
+  }
+}
+
+const FORGOT_API = 'https://royalforge-api.netlify.app/.netlify/functions/forgot-password';
+
+function showForgot() {
+  showView('view-forgot');
+  document.getElementById('forgot-step-1').style.display = '';
+  document.getElementById('forgot-step-2').style.display = 'none';
+  var err1 = document.getElementById('forgot-error-1');
+  if (err1) { err1.textContent = ''; err1.classList.remove('show'); }
+  var inp = document.getElementById('forgot-email');
+  if (inp) inp.value = '';
+}
+
+async function sendResetCode(resend) {
+  var email = document.getElementById('forgot-email').value.trim().toLowerCase();
+  var err = document.getElementById('forgot-error-1');
+  if (err) { err.textContent = ''; err.classList.remove('show'); }
+
+  if (!email) {
+    if (err) { err.textContent = 'Enter your email first.'; err.classList.add('show'); }
+    return;
+  }
+
+  // Check if account exists locally
+  var acc = accounts.find(function(a) { return a.email === email; });
+  if (!acc) {
+    if (err) { err.textContent = 'No account found with this email.'; err.classList.add('show'); }
+    return;
+  }
+
+  var btn = document.querySelector('#forgot-step-1 .auth-btn');
+  if (btn) { btn.textContent = 'Sending...'; btn.disabled = true; }
+
+  try {
+    var res = await fetch(FORGOT_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'request', email })
+    });
+    var data = await res.json();
+    if (data.success) {
+      document.getElementById('forgot-step-1').style.display = 'none';
+      document.getElementById('forgot-step-2').style.display = '';
+      var sub = document.getElementById('forgot-step-2-sub');
+      if (sub) sub.textContent = 'We sent a 6-digit code to ' + email + '. Check your inbox.';
+      if (resend) toast('New code sent!');
+    } else {
+      if (err) { err.textContent = 'Failed to send email. Try again.'; err.classList.add('show'); }
+    }
+  } catch(e) {
+    if (err) { err.textContent = 'Connection error. Try again.'; err.classList.add('show'); }
+  }
+
+  if (btn) { btn.textContent = 'Send reset code'; btn.disabled = false; }
+}
+
+async function verifyResetCode() {
+  var email = document.getElementById('forgot-email').value.trim().toLowerCase();
+  var code = document.getElementById('forgot-code').value.trim();
+  var newpw = document.getElementById('forgot-newpw').value;
+  var confirmpw = document.getElementById('forgot-confirmpw').value;
+  var err = document.getElementById('forgot-error-2');
+  var suc = document.getElementById('forgot-success-2');
+  if (err) { err.textContent = ''; err.classList.remove('show'); }
+  if (suc) { suc.textContent = ''; suc.classList.remove('show'); }
+
+  if (!code || code.length !== 6) {
+    if (err) { err.textContent = 'Enter the 6-digit code from your email.'; err.classList.add('show'); }
+    return;
+  }
+  if (!newpw || newpw.length < 6) {
+    if (err) { err.textContent = 'Password must be at least 6 characters.'; err.classList.add('show'); }
+    return;
+  }
+  if (newpw !== confirmpw) {
+    if (err) { err.textContent = "Passwords don't match."; err.classList.add('show'); }
+    return;
+  }
+
+  var btn = document.querySelector('#forgot-step-2 .auth-btn');
+  if (btn) { btn.textContent = 'Verifying...'; btn.disabled = true; }
+
+  try {
+    var res = await fetch(FORGOT_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'verify', email, token: code })
+    });
+    var data = await res.json();
+    if (data.success) {
+      // Update password locally
+      var acc = accounts.find(function(a) { return a.email === email; });
+      if (acc) {
+        acc.pw = newpw;
+        localStorage.setItem('rf_accounts', JSON.stringify(accounts));
+      }
+      if (suc) { suc.textContent = 'Password reset! Taking you to login...'; suc.classList.add('show'); }
+      setTimeout(function() { showLogin(); }, 2000);
+    } else {
+      if (err) { err.textContent = 'Invalid or expired code. Try again.'; err.classList.add('show'); }
+    }
+  } catch(e) {
+    if (err) { err.textContent = 'Connection error. Try again.'; err.classList.add('show'); }
+  }
+
+  if (btn) { btn.textContent = 'Reset password'; btn.disabled = false; }
+}
+
+// ===== PRESETS =====
+let presets = JSON.parse(localStorage.getItem('rf_presets') || '[]');
+
+function savePresets() {
+  localStorage.setItem('rf_presets', JSON.stringify(presets));
+}
+
+function getCurrentSetup() {
+  // Sync all inputs first
+  topChips.forEach(function(_, i) { var inp = document.getElementById('bi-top-' + i); if (inp) topChips[i].label = inp.value; });
+  botChips.forEach(function(_, i) { var inp = document.getElementById('bi-bot-' + i); if (inp) botChips[i].label = inp.value; });
+  hooks.forEach(function(_, i) { var inp = document.getElementById('hi-' + i); if (inp) hooks[i].text = inp.value; });
+  return {
+    selectedFont: selectedFont,
+    selectedFontSize: selectedFontSize,
+    topColor: topColor,
+    botColor: botColor,
+    hookColor: hookColor,
+    topBgIdx: topBgIdx,
+    botBgIdx: botBgIdx,
+    hookBgIdx: hookBgIdx,
+    ovStyle: ovStyle,
+    textYPercent: textYPercent,
+    strikeOn: strikeOn,
+    strikeOrig: (document.getElementById('si-orig') || {}).value || 'FULL PRICE',
+    strikeDisc: (document.getElementById('si-disc') || {}).value || '50% OFF',
+    topChips: JSON.parse(JSON.stringify(topChips)),
+    botChips: JSON.parse(JSON.stringify(botChips)),
+    hooks: JSON.parse(JSON.stringify(hooks))
+  };
+}
+
+function showSavePresetModal() {
+  document.getElementById('preset-modal').classList.add('show');
+  var inp = document.getElementById('preset-modal-inp');
+  if (inp) { inp.value = ''; setTimeout(function() { inp.focus(); }, 100); }
+}
+
+function closeSavePresetModal() {
+  document.getElementById('preset-modal').classList.remove('show');
+}
+
+function confirmSavePreset() {
+  var inp = document.getElementById('preset-modal-inp');
+  var name = inp ? inp.value.trim() : '';
+  if (!name) { toast('Enter a name first.'); return; }
+  var setup = getCurrentSetup();
+  setup.name = name;
+  setup.id = Date.now();
+  presets.push(setup);
+  savePresets();
+  closeSavePresetModal();
+  renderPresets();
+  toast('Preset saved: ' + name);
+}
+
+function savePresetPrompt() { showSavePresetModal(); }
+function savePresetFromInput() { showSavePresetModal(); }
+
+function loadPreset(id) {
+  var preset = presets.find(function(p) { return p.id === id; });
+  if (!preset) return;
+
+  // Apply all settings
+  selectedFont = preset.selectedFont || 'classic';
+  selectedFontSize = preset.selectedFontSize || 52;
+  topColor = preset.topColor || '#e03d52';
+  botColor = preset.botColor || '#ffffff';
+  hookColor = preset.hookColor || '#ffffff';
+  topBgIdx = preset.topBgIdx || 0;
+  botBgIdx = preset.botBgIdx || 0;
+  hookBgIdx = preset.hookBgIdx || 0;
+  ovStyle = preset.ovStyle || 'banner';
+  textYPercent = preset.textYPercent || 12;
+  strikeOn = preset.strikeOn || false;
+  if (preset.topChips) topChips = preset.topChips;
+  if (preset.botChips) botChips = preset.botChips;
+  if (preset.hooks) hooks = preset.hooks;
+
+  // Re-render everything
+  loadSettings();
+  renderBannerList('top');
+  renderBannerList('bot');
+  renderHooks();
+
+  // Apply strike
+  document.getElementById('stog').className = 'togbox' + (strikeOn ? ' on' : '');
+  document.getElementById('strike-inputs').className = 'strike-inputs' + (strikeOn ? ' show' : '');
+  if (preset.strikeOrig) { var el = document.getElementById('si-orig'); if (el) { el.value = preset.strikeOrig; document.getElementById('sp-orig').textContent = preset.strikeOrig; } }
+  if (preset.strikeDisc) { var el2 = document.getElementById('si-disc'); if (el2) { el2.value = preset.strikeDisc; document.getElementById('sp-disc').textContent = preset.strikeDisc; } }
+
+  // Apply position slider
+  var sl = document.getElementById('pos-slider');
+  if (sl) { sl.value = textYPercent; document.getElementById('pos-pct-label').textContent = Math.round(textYPercent) + '%'; }
+  var overlayEl = document.getElementById('phone-overlay-content');
+  if (overlayEl) overlayEl.style.top = _getPreviewYPercent() + '%';
+
+  updatePreview();
+  saveSettings();
+  toast('Loaded: ' + preset.name);
+}
+
+function deletePreset(id) {
+  presets = presets.filter(function(p) { return p.id !== id; });
+  savePresets();
+  renderPresets();
+}
+
+function renderPresets() {
+  var bar = document.getElementById('preset-bar');
+  if (!bar) return;
+  var html = presets.map(function(p) {
+    return '<span class="preset-chip" onclick="loadPreset(' + p.id + ')">' +
+      p.name +
+      '<button class="preset-chip-del" onclick="event.stopPropagation();deletePreset(' + p.id + ')">&#215;</button>' +
+      '</span>';
+  }).join('');
+    bar.innerHTML = html || '<div style="font-size:11px;color:var(--muted2)">No presets yet.</div>';
+}
+
+// ===== TEAMS =====
+const TEAM_API = 'https://royalforge-api.netlify.app/.netlify/functions/team-sync';
+
+function generateTeamCode(licenseKey) {
+  // Generate a stable 6-char code from the license key
+  var hash = 0;
+  var str = licenseKey + 'rf_team_salt_2024';
+  for (var i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var code = '';
+  var h = Math.abs(hash);
+  for (var j = 0; j < 6; j++) {
+    code += chars[h % chars.length];
+    h = Math.floor(h / chars.length);
+  }
+  return code;
+}
+
+function initTeamUI() {
+  if (!currentUser) return;
+  var teamCode = localStorage.getItem('rf_team_code');
+  var teamRole = localStorage.getItem('rf_team_role'); // 'leader' or 'member'
+  var isLeader = currentUser.plan === 'team' || currentPlan === 'team';
+
+  // Generate team code from license key if leader
+  if (isLeader && !teamCode) {
+    teamCode = generateTeamCode(currentUser.licenseKey || currentUser.email);
+    localStorage.setItem('rf_team_code', teamCode);
+    localStorage.setItem('rf_team_role', 'leader');
+    teamRole = 'leader';
+  }
+
+  var leaderView = document.getElementById('team-leader-view');
+  var memberView = document.getElementById('team-member-view');
+  var joinView = document.getElementById('team-join-view');
+
+  if (teamRole === 'leader' && leaderView) {
+    leaderView.style.display = 'block';
+    if (memberView) memberView.style.display = 'none';
+    if (joinView) joinView.style.display = 'none';
+    var codeDisplay = document.getElementById('team-code-display');
+    if (codeDisplay) codeDisplay.textContent = teamCode;
+  } else if (teamRole === 'member' && memberView) {
+    memberView.style.display = 'block';
+    if (leaderView) leaderView.style.display = 'none';
+    if (joinView) joinView.style.display = 'none';
+  } else {
+    if (joinView) joinView.style.display = 'block';
+    if (leaderView) leaderView.style.display = 'none';
+    if (memberView) memberView.style.display = 'none';
+  }
+}
+
+function copyTeamCode() {
+  var code = document.getElementById('team-code-display');
+  if (!code) return;
+  try { navigator.clipboard.writeText(code.textContent); } catch(e) {}
+  toast('Team code copied!');
+}
+
+async function pushTeamData() {
+  var teamCode = localStorage.getItem('rf_team_code');
+  if (!teamCode || !currentUser) return;
+  var status = document.getElementById('team-sync-status');
+  if (status) status.textContent = 'Syncing...';
+  try {
+    var res = await fetch(TEAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'push',
+        teamCode: teamCode,
+        userEmail: currentUser.email,
+        isLeader: localStorage.getItem('rf_team_role') === 'leader',
+        products: productLibrary,
+        productsUK: productLibraryUK,
+        presets: presets
+      })
+    });
+    var data = await res.json();
+    if (data.success) {
+      if (status) status.textContent = 'Synced at ' + new Date().toLocaleTimeString();
+      toast('Team synced! ✓');
+    } else {
+      if (status) status.textContent = 'Sync failed: ' + (data.error || 'Unknown error');
+      toast('Sync failed: ' + (data.error || 'Unknown'));
+    }
+  } catch(e) {
+    if (status) status.textContent = 'Connection error';
+  }
+}
+
+async function syncToTeam() {
+  var teamCode = localStorage.getItem('rf_team_code');
+  if (!teamCode) return;
+  var status = document.getElementById('team-sync-status');
+  if (status) status.textContent = 'Syncing...';
+  try {
+    var res = await fetch(TEAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'push', teamCode: teamCode, userEmail: currentUser ? currentUser.email : 'unknown', isLeader: localStorage.getItem('rf_team_role') === 'leader', products: productLibrary, productsUK: productLibraryUK, presets: presets })
+    });
+    var data = await res.json();
+    if (data.success) {
+      if (status) status.textContent = 'Synced at ' + new Date().toLocaleTimeString();
+      window._syncCountdown = 180;
+    } else {
+      if (status) status.textContent = data.error || 'Sync failed';
+    }
+  } catch(e) {
+    if (status) status.textContent = 'Connection error';
+  }
+}
+
+async function pullTeamData() {
+  var teamCode = localStorage.getItem('rf_team_code');
+  if (!teamCode) return;
+  var status = document.getElementById('team-sync-status-member');
+  if (status) status.textContent = 'Pulling...';
+  try {
+    var res = await fetch(TEAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get', teamCode: teamCode })
+    });
+    var data = await res.json();
+    if (data.error) {
+      if (status) status.textContent = data.error;
+      return;
+    }
+    if (data.products !== undefined) {
+      var rawProducts = data.products;
+      // Remove leader-deleted products
+      if (data.deletedUrls && data.deletedUrls.length) {
+        rawProducts = rawProducts.filter(function(p) { return !data.deletedUrls.includes(p.url); });
+      }
+      // Deduplicate by URL and name
+      var seenUrls = {}, seenNames = {}, deduped = [];
+      for (var _pi = 0; _pi < rawProducts.length; _pi++) {
+        var _p = rawProducts[_pi];
+        var _pUrl = (_p.url || '').trim().toLowerCase();
+        var _pName = (_p.name || '').trim().toLowerCase();
+        if (seenUrls[_pUrl] || (seenNames[_pName] && _pName)) continue;
+        seenUrls[_pUrl] = true;
+        if (_pName) seenNames[_pName] = true;
+        deduped.push(_p);
+      }
+      // Safety: only replace if Supabase has products — never wipe with empty
+      if (deduped.length > 0) {
+        productLibrary = deduped;
+        localStorage.setItem('rf_products', JSON.stringify(productLibrary));
+      }
+    }
+    if (data.productsUK !== undefined) {
+      var rawUK = data.productsUK;
+      if (data.deletedUrls && data.deletedUrls.length) {
+        rawUK = rawUK.filter(function(p) { return !data.deletedUrls.includes(p.url); });
+      }
+      var seenUKUrls = {}, seenUKNames = {}, dedupedUK = [];
+      for (var _qi = 0; _qi < rawUK.length; _qi++) {
+        var _q = rawUK[_qi];
+        var _qUrl = (_q.url || '').trim().toLowerCase();
+        var _qName = (_q.name || '').trim().toLowerCase();
+        if (seenUKUrls[_qUrl] || (seenUKNames[_qName] && _qName)) continue;
+        seenUKUrls[_qUrl] = true;
+        if (_qName) seenUKNames[_qName] = true;
+        dedupedUK.push(_q);
+      }
+      // Always update UK library from Supabase — even if empty (respects deletions)
+      productLibraryUK = dedupedUK;
+      localStorage.setItem('rf_products_uk', JSON.stringify(productLibraryUK));
+    }
+    if (data.products !== undefined || data.productsUK !== undefined) {
+      renderProductPage('');
+    }
+    if (data.presets && data.presets.length) {
+      // Merge presets — no duplicates by name
+      var localPresetNames = presets.map(function(p) { return p.name; });
+      var newPresets = data.presets.filter(function(p) { return !localPresetNames.includes(p.name); });
+      presets = newPresets.concat(presets);
+      savePresets();
+      renderPresets();
+    }
+    if (status) status.textContent = 'Updated at ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    if (status) status.textContent = 'Connection error';
+  }
+}
+
+async function joinTeam() {
+  var inp = document.getElementById('team-code-inp');
+  var code = inp ? inp.value.trim().toUpperCase() : '';
+  if (!code || code.length < 4) { toast('Enter a valid team code.'); return; }
+
+  try {
+    var res = await fetch(TEAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'join', teamCode: code, teamLimit: localStorage.getItem('rf_team_limit') ? parseInt(localStorage.getItem('rf_team_limit')) : 5 })
+    });
+    var data = await res.json();
+    if (data.success) {
+      localStorage.setItem('rf_team_code', code);
+      localStorage.setItem('rf_team_role', 'member');
+      // Load team data
+      if (data.products && data.products.length) {
+        // Deduplicate by URL
+        var existingUrls = productLibrary.map(function(p) { return p.url; });
+        var newProds = data.products.filter(function(p) { return !existingUrls.includes(p.url); });
+        productLibrary = newProds.concat(productLibrary);
+        // Save team URLs so future pulls can detect deletions
+        var joinTeamUrls = data.products.map(function(p) { return p.url; });
+        localStorage.setItem('rf_team_urls', JSON.stringify(joinTeamUrls));
+        saveProductLibrary();
+      }
+      if (data.presets && data.presets.length) {
+        presets = data.presets.concat(presets);
+        savePresets();
+      }
+      toast('Joined team! ✓ Products and presets loaded.');
+      initTeamUI();
+    } else {
+      toast(data.error || 'Invalid team code.');
+    }
+  } catch(e) {
+    toast('Connection error. Try again.');
+  }
+}
+
+function leaveTeam() {
+  localStorage.removeItem('rf_team_code');
+  localStorage.removeItem('rf_team_role');
+  toast('Left team.');
+  initTeamUI();
+}
+
+// ===== INIT =====
+// Hide loader after 1.5s then show correct view
+setTimeout(()=>{
+  loadTheme();
+  hideLoader();
+  if(currentUser){showApp();}else{showLand();}
+  setTimeout(checkForUpdates, 3000);
+},1500);
+</script>
+</body>
+</html>
