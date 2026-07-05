@@ -1708,7 +1708,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.105 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.106 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1806,7 +1806,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.105';
+const CURRENT_VERSION = '1.0.106';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -4327,7 +4327,23 @@ async function fetchSingleProduct(url) {
       if (name && name.length > 3) return { name: shortenProductName(name), fullName: name, image, url, id: Date.now() + Math.random() };
     }
   } catch(e) {}
-  // Always try Netlify proxy first — handles short URLs, redirects and security checks
+  // Try direct Electron fetch first — Electron's real Chromium browser passes TikTok's bot detection
+  try {
+    const res = await fetch(url);
+    const html = await res.text();
+    if (!html.includes('security check') && !html.includes('cf-browser-verification') && !html.includes('Just a moment')) {
+      const ogTitle = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i);
+      const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      if (ogTitle) name = ogTitle[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
+      else if (titleTag) name = titleTag[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
+      const ogImg = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i);
+      if (ogImg) image = ogImg[1];
+      if (name && !name.toLowerCase().includes('tiktok shop') && name.length > 3) {
+        return { name: shortenProductName(name), fullName: name, image, url, id: Date.now() + Math.random() };
+      }
+    }
+  } catch(e) {}
+  // Fallback: Netlify proxy
   try {
     const proxyRes = await fetch('https://royalforge-api.netlify.app/.netlify/functions/fetch-product', {
       method: 'POST',
@@ -4340,17 +4356,6 @@ async function fetchSingleProduct(url) {
         return { name: shortenProductName(data.name), fullName: data.name, image: data.image || '', url, id: Date.now() + Math.random() };
       }
     }
-  } catch(e) {}
-  // Fallback: direct fetch
-  try {
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' } });
-    const html = await res.text();
-    const ogTitle = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i);
-    const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-    if (ogTitle) name = ogTitle[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
-    else if (titleTag) name = titleTag[1].replace(/\s*[\|\-]\s*TikTok.*$/i, '').trim();
-    const ogImg = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i);
-    if (ogImg) image = ogImg[1];
   } catch(e) {}
   if (!name || name.toLowerCase().includes('tiktok shop') || name.length < 3) {
     var parts = url.split('/').filter(Boolean);
@@ -4952,7 +4957,7 @@ async function pullTeamData() {
         localStorage.setItem('rf_products', JSON.stringify(productLibrary));
       }
     }
-    if (data.productsUK !== undefined && data.productsUK.length > 0) {
+    if (data.productsUK !== undefined) {
       var rawUK = data.productsUK;
       if (data.deletedUrls && data.deletedUrls.length) {
         rawUK = rawUK.filter(function(p) { return !data.deletedUrls.includes(p.url); });
@@ -4967,10 +4972,9 @@ async function pullTeamData() {
         if (_qName) seenUKNames[_qName] = true;
         dedupedUK.push(_q);
       }
-      if (dedupedUK.length > 0) {
-        productLibraryUK = dedupedUK;
-        localStorage.setItem('rf_products_uk', JSON.stringify(productLibraryUK));
-      }
+      // Always update UK library from Supabase — even if empty (respects deletions)
+      productLibraryUK = dedupedUK;
+      localStorage.setItem('rf_products_uk', JSON.stringify(productLibraryUK));
     }
     if (data.products !== undefined || data.productsUK !== undefined) {
       renderProductPage('');
