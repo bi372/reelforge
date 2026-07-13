@@ -1480,6 +1480,17 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
         </div>
       </div>
       <div class="sec-desc">Check the ones you want. Edit any line. One random line per video.</div>
+      <div style="margin-bottom:10px">
+        <div class="row-lbl" style="margin-top:0;margin-bottom:6px">Hook Library <span style="font-size:10px;color:var(--muted2)">(MOF only)</span></div>
+        <select id="niche-select" onchange="loadNicheHooks(this.value)" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--txt);cursor:pointer;font-family:Inter,sans-serif">
+          <option value="">-- Select a niche to load MOF hooks --</option>
+          <option value="anti_aging">Anti Aging</option>
+          <option value="hair_growth">Hair Growth</option>
+          <option value="belly_firming">Belly Firming</option>
+          <option value="perfume">Perfume</option>
+          <option value="vacuum">Vacuum</option>
+        </select>
+      </div>
       <div class="item-list" id="hook-list"></div>
       <button class="add-item-btn" onclick="addHookItem()" style="margin-top:5px">+ Add hook</button>
       <div class="row-lbl" style="margin-top:14px">Custom lines <span class="info-dot">i</span></div>
@@ -1708,7 +1719,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.107 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.108 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1806,7 +1817,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.107';
+const CURRENT_VERSION = '1.0.108';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2732,6 +2743,7 @@ function showAppSettings(){
   initTeamUI();
   document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('on'));
   document.getElementById('app-settings').classList.add('on');
+  renderHooks();
   document.getElementById('set-email-disp').textContent=currentUser.email;
   document.getElementById('set-name').value=currentUser.name||'';
   const savedEmail=localStorage.getItem('rf_plan_email'); if(savedEmail){const le=document.getElementById('license-email');if(le)le.value=savedEmail;} updatePlanDisplay();
@@ -2826,7 +2838,70 @@ function renderHooks(){
       <button class="item-del" onclick="hooks.splice(${i},1);renderHooks();saveSettings()">&#215;</button>
     </div>`).join('');
   hooks.forEach((_,i)=>{const inp=document.getElementById('hi-'+i);if(inp)inp.oninput=()=>{hooks[i].text=inp.value; saveSettings(); updatePreview();};});
+  var _sel = document.getElementById('niche-select');
+  if (_sel) _sel.value = localStorage.getItem('rf_active_niche') || '';
 }
+
+const NICHE_HOOKS = {
+  anti_aging: [
+    "I can't believe this reversed my skin in 3 weeks 😭",
+    "Dermatologists don't want you to know about [product] 👀",
+    "I wish I found [product] 10 years ago 😩",
+    "My 50 year old skin looks 30 again because of [product]",
+    "This is why [company] [product] sells out every week"
+  ],
+  hair_growth: [
+    "I grew 3 inches of hair in 60 days with [product] 😱",
+    "My hairdresser asked what I was using 👀",
+    "I was almost bald before [product] changed everything",
+    "This is why everyone is talking about [company] right now",
+    "No more thin hair after using [product] for 30 days"
+  ],
+  belly_firming: [
+    "I lost 2 inches off my waist using [product] 😭",
+    "This [product] is the reason my stomach is flat again",
+    "My stomach hasn't looked like this since my 20s 😩",
+    "Women over 40 are obsessed with [company] [product]",
+    "I tried everything until I found [product]"
+  ],
+  perfume: [
+    "I got 5 compliments in one day wearing [product] 😍",
+    "This [product] lasts 12 hours and smells unreal",
+    "The most complimented perfume I've ever worn 👀",
+    "Why is [company] [product] so affordable and this good",
+    "[product] smells like a $500 designer fragrance 😭"
+  ],
+  vacuum: [
+    "My house has never been this clean in 10 years 😱",
+    "I threw out my old vacuum after trying [product]",
+    "This [product] picked up what my old vacuum missed 👀",
+    "Why didn't I find [company] sooner 😭",
+    "Pet hair is finally gone thanks to [product]"
+  ]
+};
+
+function loadNicheHooks(niche) {
+  if (!niche) return;
+  // Save current niche's edited hooks before switching
+  var currentNiche = localStorage.getItem('rf_active_niche');
+  if (currentNiche) {
+    localStorage.setItem('rf_niche_hooks_' + currentNiche, JSON.stringify(hooks));
+  }
+  // Load saved version of new niche if exists, otherwise load defaults
+  var savedNicheHooks = localStorage.getItem('rf_niche_hooks_' + niche);
+  if (savedNicheHooks) {
+    hooks = JSON.parse(savedNicheHooks);
+  } else {
+    var nicheHooks = NICHE_HOOKS[niche];
+    if (!nicheHooks) return;
+    hooks = nicheHooks.map(function(text) { return { text: text, on: true }; });
+  }
+  localStorage.setItem('rf_active_niche', niche);
+  saveSettings();
+  renderHooks();
+  toast('Loaded ' + niche.replace('_', ' ') + ' hooks ✓');
+}
+
 function addHookItem(){
   hooks.push({text:'',on:true});
   renderHooks();
@@ -3823,6 +3898,9 @@ function saveSettings(){
   localStorage.setItem('rf_topChips', JSON.stringify(topChips));
   localStorage.setItem('rf_botChips', JSON.stringify(botChips));
   localStorage.setItem('rf_hooks', JSON.stringify(hooks));
+  // Also save to niche-specific key so edits persist per niche
+  var _activeNiche = localStorage.getItem('rf_active_niche');
+  if (_activeNiche) localStorage.setItem('rf_niche_hooks_' + _activeNiche, JSON.stringify(hooks));
 }
 function loadSettings(){
   try {
