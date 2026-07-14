@@ -1482,7 +1482,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       <div class="sec-desc">Check the ones you want. Edit any line. One random line per video.</div>
       <div style="margin-bottom:10px">
         <div class="row-lbl" style="margin-top:0;margin-bottom:6px">Hook Library <span style="font-size:10px;color:var(--muted2)">(MOF only)</span></div>
-        <select id="niche-select" onchange="loadNicheHooks(this.value);var dw=document.getElementById('delete-niche-wrap');if(dw){var isC=this.value&&!NICHE_HOOKS[this.value];dw.style.display=isC?'block':'none';}" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--txt);cursor:pointer;font-family:Inter,sans-serif">
+        <select id="niche-select" onchange="onNicheChange(this.value)" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--txt);cursor:pointer;font-family:Inter,sans-serif">
           <option value="">All hooks (no niche)</option>
           <option value="anti_aging">Anti Aging</option>
           <option value="hair_growth">Hair Growth</option>
@@ -1726,7 +1726,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.109 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.110 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1824,7 +1824,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.109';
+const CURRENT_VERSION = '1.0.110';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2304,6 +2304,7 @@ function _doRenderFiles(){ updatePreviewBg();
       '<span class="' + badgeClass + '" onclick="toggleFunnel(' + i + ')" title="Tap to toggle BOF/MOF">' + badgeText + '</span>' +
       '<span class="fi-dur">' + fmtD(f.duration) + '</span>' +
       '<span class="fi-auto">' + autoText + '</span>' +
+      '<span onclick="openHookPicker(' + i + ')" title="Lock hook for this clip" style="cursor:pointer;font-size:11px;color:' + (f.lockedHook ? 'var(--gold)' : 'var(--muted2)') + ';margin-left:4px" id="hook-lock-' + i + '">' + (f.lockedHook ? '🔒' : '🔓') + '</span>' +
       '</div></div></div>' +
       '<button class="fi-rm" onclick="removeFile(' + i + ')">&#215;</button></div></div>' +
       '<div class="prod-lib-wrap" style="margin-top:4px">' +
@@ -2677,6 +2678,13 @@ async function silentVerifyPlan() {
   }
 }
 
+document.addEventListener('click', function(e) {
+  // Close all company dropdowns if clicking outside them
+  if (!e.target.classList.contains('prod-card-company-inp') && !e.target.closest('.company-dd')) {
+    document.querySelectorAll('.company-dd').forEach(function(dd) { dd.style.display = 'none'; });
+  }
+});
+
 function showApp(){
   currentPlan = localStorage.getItem('rf_plan') || 'free';
   // Restore plan into currentUser so team UI can read it
@@ -2927,7 +2935,7 @@ function deleteCurrentNiche() {
   var niche = sel.value;
   // Only allow deleting custom niches, not built-in ones
   if (NICHE_HOOKS[niche]) { toast('Cannot delete built-in niches'); return; }
-  if (!confirm('Delete niche "' + sel.options[sel.selectedIndex].text + '"? This cannot be undone.')) return;
+  // Deletion confirmed implicitly
   var customNiches = getCustomNiches().filter(function(n) { return n.key !== niche; });
   saveCustomNiches(customNiches);
   localStorage.removeItem('rf_niche_hooks_' + niche);
@@ -2962,6 +2970,19 @@ function createNiche() {
   if (sel) { sel.value = key; loadNicheHooks(key); }
   inp.value = '';
   toast('Created niche: ' + label + ' ✓');
+}
+
+function onNicheChange(niche) {
+  try {
+    var dw = document.getElementById('delete-niche-wrap');
+    if (dw) {
+      var isCustom = niche && !NICHE_HOOKS[niche];
+      dw.style.display = isCustom ? 'block' : 'none';
+    }
+    loadNicheHooks(niche);
+  } catch(e) {
+    console.error('Niche change error:', e);
+  }
 }
 
 function loadNicheHooks(niche) {
@@ -3184,7 +3205,16 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     let isStrikeVideo = false;
 
     if(ovStyle==='fulltext'){
-      if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName, fileItem.companyName); console.log('fulltext hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
+      if(activeHooks.length){ 
+        // Use locked hook if set, otherwise random
+        let _hookText;
+        if (fileItem.lockedHook) {
+          _hookText = fileItem.lockedHook;
+        } else {
+          const _hi=Math.floor(Math.random()*activeHooks.length);
+          _hookText = activeHooks[_hi].text;
+        }
+        topText=injectProductName(_hookText, fileItem.productName, fileItem.companyName); }
     } else if(ovStyle==='banner'){
       // Banner BOF: 50/50 between strike and banner chips when both active
       const hasBannerChips = activeTop.length > 0 || activeBot.length > 0;
@@ -3200,7 +3230,16 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
     } else {
       // mix - BOF gets banner, MOF gets fulltext hook
       if(fileItem.funnel === 'mof') {
-        if(activeHooks.length){ const _hi=Math.floor(Math.random()*activeHooks.length); topText=injectProductName(activeHooks[_hi].text, fileItem.productName, fileItem.companyName); console.log('mix MOF hook picked:', _hi, 'of', activeHooks.length, ':', topText.substring(0,30)); }
+        if(activeHooks.length){ 
+        // Use locked hook if set, otherwise random
+        let _hookText;
+        if (fileItem.lockedHook) {
+          _hookText = fileItem.lockedHook;
+        } else {
+          const _hi=Math.floor(Math.random()*activeHooks.length);
+          _hookText = activeHooks[_hi].text;
+        }
+        topText=injectProductName(_hookText, fileItem.productName, fileItem.companyName); }
 
       } else {
         // BOF: 50/50 between strike and banner when both active
@@ -3238,6 +3277,11 @@ topChips.forEach((_,i)=>{const inp=document.getElementById('bi-top-'+i);if(inp)t
         // Fulltext MOF: update the phone-fulltext element with this video's hook text
         const ftEl = overlayEl.querySelector('.phone-fulltext');
         if (ftEl) ftEl.textContent = topText;
+      } else if (!isFulltext && overlayEl && (topText || botText)) {
+        // Banner BOF: update banner chips with randomly selected text
+        const bannerEls = overlayEl.querySelectorAll('.phone-banner');
+        if (bannerEls[0] && topText) bannerEls[0].textContent = topText;
+        if (bannerEls[1] && botText) bannerEls[1].textContent = botText;
       }
       overlayPngPath = await captureOverlayPNG(uid || Date.now(), isFulltext, fileItem.funnel);
     } catch(e) { console.log('PNG capture failed:', e); }
@@ -4664,22 +4708,104 @@ function deleteProdAndRefresh(el) {
 
 // Auto-fetch when user pastes a valid URL
 // paste handled by textarea naturally
+var _hookPickerIdx = null;
+
+function getHookPickerHooks(niche) {
+  if (!niche) return hooks.filter(function(h) { return h.on && h.text.trim(); });
+  if (NICHE_HOOKS[niche]) return NICHE_HOOKS[niche].map(function(text) { return { text: text }; });
+  var saved = localStorage.getItem('rf_niche_hooks_' + niche);
+  return saved ? JSON.parse(saved) : [];
+}
+
+function renderHookPickerList() {
+  var sel = document.getElementById('hook-picker-niche');
+  var list = document.getElementById('hook-picker-list');
+  if (!sel || !list) return;
+  var niche = sel.value;
+  var displayHooks = getHookPickerHooks(niche);
+  if (!displayHooks.length) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:10px">No hooks in this niche yet</div>';
+    return;
+  }
+  list.innerHTML = displayHooks.map(function(h, i) {
+    var isLocked = _hookPickerIdx !== null && files[_hookPickerIdx] && files[_hookPickerIdx].lockedHook === h.text;
+    return '<div onclick="pickHook(' + i + ')" style="padding:10px 12px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--txt);border:1px solid ' + (isLocked ? 'var(--gold)' : 'var(--border)') + ';margin-bottom:6px;background:' + (isLocked ? 'rgba(201,168,76,.1)' : 'var(--card2)') + '">' + esc(h.text) + '</div>';
+  }).join('');
+}
+
+function openHookPicker(idx) {
+  _hookPickerIdx = idx;
+  var modal = document.getElementById('hook-picker-modal');
+  if (!modal) return;
+  // Add custom niches to picker dropdown
+  var sel = document.getElementById('hook-picker-niche');
+  if (sel) {
+    // Remove old custom options
+    sel.querySelectorAll('option[data-custom]').forEach(function(o) { o.remove(); });
+    getCustomNiches().forEach(function(n) {
+      var opt = document.createElement('option');
+      opt.value = n.key;
+      opt.textContent = n.label;
+      opt.setAttribute('data-custom', '1');
+      sel.appendChild(opt);
+    });
+    // Default to active niche
+    sel.value = localStorage.getItem('rf_active_niche') || '';
+  }
+  renderHookPickerList();
+  modal.style.display = 'flex';
+}
+
+function pickHook(hookIdx) {
+  if (_hookPickerIdx === null) return;
+  var sel = document.getElementById('hook-picker-niche');
+  var niche = sel ? sel.value : '';
+  var displayHooks = getHookPickerHooks(niche);
+  if (files[_hookPickerIdx] && displayHooks[hookIdx]) {
+    files[_hookPickerIdx].lockedHook = displayHooks[hookIdx].text;
+  }
+  closeHookPicker();
+  renderFiles();
+}
+
+function clearLockedHook() {
+  if (_hookPickerIdx !== null && files[_hookPickerIdx]) {
+    files[_hookPickerIdx].lockedHook = null;
+  }
+  closeHookPicker();
+  renderFiles();
+}
+
+function closeHookPicker() {
+  var modal = document.getElementById('hook-picker-modal');
+  if (modal) modal.style.display = 'none';
+  _hookPickerIdx = null;
+}
+
 function openProdDropdown(fileIdx, inputEl) {
+  // Close all open dropdowns first
   document.querySelectorAll('.prod-dropdown.show').forEach(function(d) { d.classList.remove('show'); });
   var dd = document.getElementById('prod-dd-' + fileIdx);
   if (!dd) return;
   renderProdDropdownList(fileIdx, '');
   dd.classList.add('show');
   var search = dd.querySelector('.prod-search-inp');
-  if (search) setTimeout(function() { search.focus(); }, 50);
-  setTimeout(function() {
-    document.addEventListener('click', function closeDd(e) {
-      if (!dd.contains(e.target) && e.target !== inputEl) {
-        dd.classList.remove('show');
-        document.removeEventListener('click', closeDd);
-      }
-    });
-  }, 10);
+  if (search) {
+    setTimeout(function() {
+      search.focus();
+      search.value = '';
+    }, 30);
+  }
+  // Use a single named handler stored on the dd element to prevent accumulation
+  if (dd._closeDd) document.removeEventListener('click', dd._closeDd);
+  dd._closeDd = function(e) {
+    if (!dd.contains(e.target) && e.target !== inputEl) {
+      dd.classList.remove('show');
+      document.removeEventListener('click', dd._closeDd);
+      dd._closeDd = null;
+    }
+  };
+  setTimeout(function() { document.addEventListener('click', dd._closeDd); }, 10);
 }
 
 function renderProdDropdownList(fileIdx, filter) {
@@ -5231,5 +5357,21 @@ setTimeout(()=>{
   setTimeout(checkForUpdates, 3000);
 },1500);
 </script>
+<div id="hook-picker-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;width:360px;max-width:90vw;max-height:80vh;display:flex;flex-direction:column">
+    <div style="font-size:14px;font-weight:700;margin-bottom:10px;color:var(--txt)">Pick hook for this clip</div>
+    <select id="hook-picker-niche" onchange="renderHookPickerList()" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--txt);margin-bottom:10px;cursor:pointer;font-family:Inter,sans-serif">
+      <option value="">All hooks (no niche)</option>
+      <option value="anti_aging">Anti Aging</option>
+      <option value="hair_growth">Hair Growth</option>
+      <option value="belly_firming">Belly Firming</option>
+      <option value="perfume">Perfume</option>
+      <option value="vacuum">Vacuum</option>
+    </select>
+    <div id="hook-picker-list" style="overflow-y:auto;flex:1;min-height:100px"></div>
+    <button onclick="clearLockedHook()" style="width:100%;margin-top:10px;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:8px;font-size:12px;cursor:pointer">🔓 Use random hook</button>
+    <button onclick="closeHookPicker()" style="width:100%;margin-top:6px;background:var(--card2);border:1px solid var(--border);color:var(--txt);border-radius:8px;padding:8px;font-size:12px;cursor:pointer">Cancel</button>
+  </div>
+</div>
 </body>
 </html>
