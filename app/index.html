@@ -1726,7 +1726,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
       </div>
     </div>
     <div class="ver-footer">
-      <div class="ver-badge"><div class="ver-dot"></div>v1.0.110 &mdash; RoyalForge</div>
+      <div class="ver-badge"><div class="ver-dot"></div>v1.0.111 &mdash; RoyalForge</div>
       <span class="ver-copy">&copy; 2026 RoyalForge</span>
     </div>
   </div>
@@ -1824,7 +1824,7 @@ input, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ar
 
 <script>
 
-const CURRENT_VERSION = '1.0.110';
+const CURRENT_VERSION = '1.0.111';
 function checkForUpdates() {
   // Update checking handled by electron-updater in main process
 }
@@ -2736,10 +2736,23 @@ function showApp(){
   try {
     const savedTop = localStorage.getItem('rf_topChips');
     const savedBot = localStorage.getItem('rf_botChips');
-    const savedHooks = localStorage.getItem('rf_hooks');
     if(savedTop) topChips = JSON.parse(savedTop);
     if(savedBot) botChips = JSON.parse(savedBot);
-    if(savedHooks) hooks = JSON.parse(savedHooks);
+    // Load hooks from the right place: if a niche was active last session,
+    // pull its own saved list (falling back to defaults) instead of the
+    // master "All hooks" key.
+    const activeNicheOnLoad = localStorage.getItem('rf_active_niche');
+    if (activeNicheOnLoad) {
+      const savedNiche = localStorage.getItem('rf_niche_hooks_' + activeNicheOnLoad);
+      if (savedNiche) {
+        hooks = JSON.parse(savedNiche);
+      } else if (NICHE_HOOKS[activeNicheOnLoad]) {
+        hooks = NICHE_HOOKS[activeNicheOnLoad].map(function(text) { return { text: text, on: true }; });
+      }
+    } else {
+      const savedHooks = localStorage.getItem('rf_hooks');
+      if(savedHooks) hooks = JSON.parse(savedHooks);
+    }
   } catch(e) {}
   renderBannerList('top');
   renderBannerList('bot');
@@ -2986,20 +2999,21 @@ function onNicheChange(niche) {
 }
 
 function loadNicheHooks(niche) {
-  // Save current niche hooks before switching
+  // Save current hooks before switching — to the niche key if a niche
+  // was active, otherwise to the master "All hooks" key.
   var currentNiche = localStorage.getItem('rf_active_niche');
   if (currentNiche) {
     localStorage.setItem('rf_niche_hooks_' + currentNiche, JSON.stringify(hooks));
+  } else {
+    localStorage.setItem('rf_hooks', JSON.stringify(hooks));
   }
-  // If empty selected — go back to all hooks mode
+  // If empty selected — go back to all hooks mode.
+  // rf_hooks is now never clobbered by niche saves, so we can read it
+  // directly instead of relying on a one-time snapshot.
   if (!niche) {
     localStorage.removeItem('rf_active_niche');
-    var savedAllHooks = localStorage.getItem('rf_hooks_before_niche');
-    if (savedAllHooks) {
-      hooks = JSON.parse(savedAllHooks);
-    } else {
-      hooks = [];
-    }
+    var savedAllHooks = localStorage.getItem('rf_hooks');
+    hooks = savedAllHooks ? JSON.parse(savedAllHooks) : [];
     saveSettings();
     renderHooks();
     var dw = document.getElementById('delete-niche-wrap');
@@ -3015,11 +3029,7 @@ function loadNicheHooks(niche) {
   } else {
     var nicheHooks = NICHE_HOOKS[niche];
     if (!nicheHooks) return;
-    // Save original hooks before first niche load so user can get back
-  if (!currentNiche) {
-    localStorage.setItem('rf_hooks_before_niche', JSON.stringify(hooks));
-  }
-  hooks = nicheHooks.map(function(text) { return { text: text, on: true }; });
+    hooks = nicheHooks.map(function(text) { return { text: text, on: true }; });
   }
   localStorage.setItem('rf_active_niche', niche);
   saveSettings();
@@ -3030,6 +3040,7 @@ function loadNicheHooks(niche) {
 function addHookItem(){
   hooks.push({text:'',on:true});
   renderHooks();
+  saveSettings();
   setTimeout(()=>{const el=document.getElementById('hook-list');const ins=el.querySelectorAll('.item-inp');if(ins.length)ins[ins.length-1].focus();},30);
 }
 function addCustomToList(){
@@ -3038,6 +3049,7 @@ function addCustomToList(){
   if(!lines.length){toast('Type at least one line first.');return;}
   lines.forEach(l=>hooks.push({text:l,on:true}));
   ta.value='';renderHooks();
+  saveSettings();
   toast('Added '+lines.length+' line'+(lines.length!==1?'s':'')+' to your hooks.');
 }
 function toggleFadeEnd(){
@@ -4045,10 +4057,14 @@ function saveSettings(){
   }));
   localStorage.setItem('rf_topChips', JSON.stringify(topChips));
   localStorage.setItem('rf_botChips', JSON.stringify(botChips));
-  localStorage.setItem('rf_hooks', JSON.stringify(hooks));
-  // Also save to niche-specific key so edits persist per niche
+  // Only write the master "All hooks" list when no niche is active —
+  // otherwise this silently overwrites rf_hooks with niche content.
   var _activeNiche = localStorage.getItem('rf_active_niche');
-  if (_activeNiche) localStorage.setItem('rf_niche_hooks_' + _activeNiche, JSON.stringify(hooks));
+  if (_activeNiche) {
+    localStorage.setItem('rf_niche_hooks_' + _activeNiche, JSON.stringify(hooks));
+  } else {
+    localStorage.setItem('rf_hooks', JSON.stringify(hooks));
+  }
 }
 function loadSettings(){
   try {
@@ -4711,10 +4727,21 @@ function deleteProdAndRefresh(el) {
 var _hookPickerIdx = null;
 
 function getHookPickerHooks(niche) {
-  if (!niche) return hooks.filter(function(h) { return h.on && h.text.trim(); });
-  if (NICHE_HOOKS[niche]) return NICHE_HOOKS[niche].map(function(text) { return { text: text }; });
+  if (!niche) {
+    // "All hooks" must always come from the master rf_hooks key, not the
+    // live `hooks` variable — that variable holds whatever niche is
+    // currently loaded in the editor, which isn't the same thing.
+    var savedAll = localStorage.getItem('rf_hooks');
+    var allList = savedAll ? JSON.parse(savedAll) : [];
+    return allList.filter(function(h) { return h.on && h.text && h.text.trim(); });
+  }
+  // Prefer the user's saved/edited version of this niche's hooks, whether
+  // it's a built-in niche or a custom one. Only fall back to hardcoded
+  // defaults if the user has never saved anything for it.
   var saved = localStorage.getItem('rf_niche_hooks_' + niche);
-  return saved ? JSON.parse(saved) : [];
+  if (saved) return JSON.parse(saved);
+  if (NICHE_HOOKS[niche]) return NICHE_HOOKS[niche].map(function(text) { return { text: text, on: true }; });
+  return [];
 }
 
 function renderHookPickerList() {
